@@ -4,14 +4,16 @@ import 'package:flutter/material.dart';
 
 import '../utils/cache.dart';
 import '../utils/assets.dart';
-
+import '../utils/style.dart';
+import 'passwd.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key key}) : super(key: key);
 
+  static String route = '/login';
+
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
     return new LoginPageState();
   }
 }
@@ -40,25 +42,7 @@ class LoginPageState extends State<LoginPage> {
     await Cache.getInstace();
   }
 
-  static const TextStyle _loginTextStyle = const TextStyle(
-    inherit: false,
-    fontSize: 18.0,
-    fontWeight: FontWeight.w700,
-    color: Colors.white,
-    textBaseline: TextBaseline.alphabetic,
-  );
 
-  static const TextStyle _inputTextStyle = const TextStyle(
-    inherit: false,
-    fontSize: 16.0,
-    color: Colors.white,
-    textBaseline: TextBaseline.alphabetic,
-  );
-
-  static const TextStyle _tipsTextStyle = const TextStyle(
-      fontSize: 14.0,
-      color: Colors.white
-  );
 
   final TextEditingController _controller = new TextEditingController();
 
@@ -88,12 +72,12 @@ class LoginPageState extends State<LoginPage> {
                   ),
                   child: new TextFormField(
                     controller: _controller,
-                    style: _inputTextStyle,
+                    style: Style.inputTextStyle,
                     decoration: new InputDecoration(
                       prefixIcon: new Padding(
                         padding: EdgeInsets.all(12.0),
                         child: new Image.asset(
-                          ImageAssets.icon_reg_account,
+                          ImageAssets.icon_account,
                           height: 25.0,
                           width: 22.0,
                           fit: BoxFit.fill,
@@ -102,7 +86,7 @@ class LoginPageState extends State<LoginPage> {
                       border: const UnderlineInputBorder(),
                       hintText: '请输入您的账号',
                       contentPadding: EdgeInsets.symmetric(vertical: 12.0),
-                      hintStyle: _inputTextStyle,
+                      hintStyle: Style.inputTextStyle,
                     ),
                   ),
                 )
@@ -117,12 +101,12 @@ class LoginPageState extends State<LoginPage> {
                   ),
                   child: new TextFormField(
                     obscureText: true,
-                    style: _inputTextStyle,
+                    style: Style.inputTextStyle,
                     decoration: new InputDecoration(
                       prefixIcon: new Padding(
                         padding: EdgeInsets.all(12.0),
                         child: new Image.asset(
-                          ImageAssets.icon_reg_password,
+                          ImageAssets.icon_password,
                           height: 25.0,
                           width: 22.0,
                           fit: BoxFit.fill,
@@ -131,7 +115,7 @@ class LoginPageState extends State<LoginPage> {
                       border:  new UnderlineInputBorder(),
                       hintText: '请输入密码',
                       contentPadding: EdgeInsets.symmetric(vertical: 12.0),
-                      hintStyle: _inputTextStyle,
+                      hintStyle: Style.inputTextStyle,
                     ),
                   ),
                 )
@@ -153,14 +137,14 @@ class LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                new Text('记住密码', style: _tipsTextStyle)
+                new Text('记住密码', style: Style.tipsTextStyle)
               ],
             ),
             new SizedBox(height: 30.0),
             new RaisedButton(
               color: const Color(0xFF029de0),
               highlightColor: const Color(0xFF029de0),
-              child: const Text('登 录', style: _loginTextStyle),
+              child: const Text('登 录', style: Style.loginTextStyle),
               padding: EdgeInsets.all(10.0),
               onPressed: this._login,
             ),
@@ -170,15 +154,15 @@ class LoginPageState extends State<LoginPage> {
               children: <Widget>[
                 new GestureDetector(
                     onTap: (){
-
+                      Navigator.pushNamed(context, PasswordPage.route);
                     },
-                    child: new Text('忘记密码?', style: _tipsTextStyle)
+                    child: new Text('忘记密码?', style: Style.tipsTextStyle)
                 ),
                 new GestureDetector(
                     onTap: (){
 
                     },
-                    child: new Text('新用户注册', style: _tipsTextStyle,))
+                    child: new Text('新用户注册', style: Style.tipsTextStyle,))
               ],
             )
           ],
@@ -203,6 +187,7 @@ class LoginPageState extends State<LoginPage> {
 
 
     return new Scaffold(
+        resizeToAvoidBottomPadding: false,
         body: new Container(
             decoration: new BoxDecoration(
               gradient: new LinearGradient(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'pages/login.dart';
+import 'pages/routes.dart';
 
 void main() {
   MaterialPageRoute.debugEnableFadingRoutes = true; // ignore: deprecated_member_use
@@ -23,6 +25,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: new LoginPage(),
+      routes: Routes,
     );
   }
 }
