@@ -29,6 +29,62 @@ flutter:
   uses-material-design: true
   assets:
   - assets/images/ic_login_logo.png
+  - assets/images/add_btn.png
+  - assets/images/bubble_blue.9.png
+  - assets/images/bubble_gray.9.png
+  - assets/images/clearfill.png
+  - assets/images/close.png
+  - assets/images/ic_avatar_blue.png
+  - assets/images/ic_avatar_green.png
+  - assets/images/ic_avatar_grey.png
+  - assets/images/ic_card_detail.png
+  - assets/images/ic_card_list_tips.png
+  - assets/images/ic_close.png
+  - assets/images/ic_close_dialog.png
+  - assets/images/ic_input.png
+  - assets/images/ic_lbs.png
+  - assets/images/ic_loc.png
+  - assets/images/ic_login_logo.png
+  - assets/images/ic_mark.png
+  - assets/images/ic_off.png
+  - assets/images/ic_on.png
+  - assets/images/ic_open.png
+  - assets/images/ic_orange_bg.9.png
+  - assets/images/ic_platform_manage.png
+  - assets/images/ic_save.png
+  - assets/images/ic_tab_card_normal.png
+  - assets/images/ic_tab_card_press.png
+  - assets/images/ic_tab_mine_normal.png
+  - assets/images/ic_tab_mine_press.png
+  - assets/images/ic_tab_msg_normal.png
+  - assets/images/ic_tab_msg_press.png
+  - assets/images/ic_user_manage.png
+  - assets/images/icon_account.png
+  - assets/images/icon_add.png
+  - assets/images/icon_add_command.png
+  - assets/images/icon_back.png
+  - assets/images/icon_card.png
+  - assets/images/icon_ensure_password.png
+  - assets/images/icon_me.png
+  - assets/images/icon_mine_photo.png
+  - assets/images/icon_next.png
+  - assets/images/icon_no_check_down.png
+  - assets/images/icon_no_check_up.png
+  - assets/images/icon_password.png
+  - assets/images/icon_pop.9.png
+  - assets/images/icon_reg_account.png
+  - assets/images/icon_reg_department.png
+  - assets/images/icon_reg_jobno.png
+  - assets/images/icon_reg_name.png
+  - assets/images/icon_reg_password.png
+  - assets/images/icon_reg_verification.png
+  - assets/images/icon_right.png
+  - assets/images/icon_search.png
+  - assets/images/myinfo_icon_1.png
+  - assets/images/myinfo_icon_2.png
+  - assets/images/myinfo_icon_3.png
+  - assets/images/myinfo_icon_4.png
+  - assets/images/open.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

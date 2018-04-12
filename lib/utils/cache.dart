@@ -34,7 +34,7 @@ class Cache {
   }
 
   bool _getBool(String key) {
-    return _prefs.getString(key)?? false;
+    return _prefs.getBool(key)?? false;
   }
 
   Future<bool> setStringValue(String key, String value) async {
