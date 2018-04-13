@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../utils/style.dart';
 import '../utils/assets.dart';
-
+import '../utils/cache.dart';
+import '../ui/clearTextFieldForm.dart';
 
 class PasswordPage extends StatefulWidget{
   const PasswordPage({Key key}): super(key: key);
@@ -26,7 +27,7 @@ enum RightWidgetType {
 
 class PasswordState extends State<PasswordPage>{
 
-  final TextEditingController _controller = new TextEditingController();
+  String _username;
 
   Widget _getRightWidget(RightWidgetType type) {
     switch(type){
@@ -76,6 +77,8 @@ class PasswordState extends State<PasswordPage>{
           onPressed: this._confirm,
         );
     }
+
+    return null;
   }
 
   Widget _getTextFeildForm(String imageName, String hintText, RightWidgetType type ) {
@@ -104,6 +107,13 @@ class PasswordState extends State<PasswordPage>{
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    _username = Cache.instance.username;
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     List<Widget> children = <Widget>[
@@ -111,7 +121,19 @@ class PasswordState extends State<PasswordPage>{
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          _getTextFeildForm(ImageAssets.icon_reg_account, '请输入手机号', RightWidgetType.PHONE),
+          new Container(
+              height: 60.0,
+              child: new ClearTextFieldForm(
+                icon: new Image.asset(
+                  ImageAssets.icon_reg_account,
+                  height: 25.0,
+                  fit: BoxFit.fill,
+                ),
+                hintText: '请输入手机号',
+                initialValue: _username,
+                keyboardType: TextInputType.phone,
+              )
+          ),
           _getTextFeildForm(ImageAssets.icon_reg_verification, '请输入验证码', RightWidgetType.MESSAGE),
           _getTextFeildForm(ImageAssets.icon_reg_password, '请输入新密码', RightWidgetType.PASSWORD),
           _getTextFeildForm(ImageAssets.icon_ensure_password, '请确认新密码', RightWidgetType.PASSWORD),

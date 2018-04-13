@@ -1,11 +1,18 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import '../utils/cache.dart';
 import '../utils/assets.dart';
 import '../utils/style.dart';
+import '../utils/func.dart';
+import '../utils/network.dart';
+
+import '../ui/clearTextFieldForm.dart';
+
 import 'passwd.dart';
+import 'home.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key key}) : super(key: key);
@@ -19,39 +26,100 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginPageState extends State<LoginPage> {
-  Cache _cache;
-  String _username = '', _passwd = '';
-  bool _remember = false, _loading=false;
+  Cache _cache ;
+  String _username, _passwd;
+  bool _remember,  _loading=false;
 
   @override
   void initState() {
     super.initState();
 
-    Cache.getInstace().then((Cache cache) {
-      this._cache = cache;
-      setState(() {
-        _username = cache.username;
-        _passwd = cache.passwd;
-        _remember = cache.remember;
-      });
-    });
+    _cache = Cache.instance;
+    _username = _cache.username??'';
+    _passwd = _cache.passwd??'';
+    _remember = _cache.remember?? false;
+
+
   }
 
+  void _showMessage(String msg) {
+    _scaffKey.currentState.showSnackBar(new SnackBar(
+      content: new Text(msg, textAlign: TextAlign.center),
+    ));
+  }
 
   Future<Null> _login () async {
-    await Cache.getInstace();
+    FocusScope.of(context).requestFocus(new FocusNode());
+
+    /// 验证用户名
+    if(!Func.validatePhone(_userKey.currentState.text)) {
+      _showMessage('手机号格式不正确');
+      _userKey.currentState.clear();
+      return;
+    }
+
+    if(_passwdKey.currentState.text.length == 0) {
+      _showMessage('密码为空');
+      return;
+    }
+
+
+    setState(() {
+      _loading = true;
+    });
+
+
+
+    http.Response response= await NetWork.post(NetWork.LOGIN, {
+      'Unm': _userKey.currentState.text,
+      'Upd': _passwdKey.currentState.text,
+    });
+
+    Future.delayed(new Duration(milliseconds: 200), () async {
+      setState(() {
+        _loading = false;
+      });
+
+      if(response.statusCode == 200) {
+        print(response.body);
+
+        Map data = NetWork.decodeJson(response.body);
+        if(data['Code'] != 0){
+          _showMessage(data['Message']);
+          _passwdKey.currentState.clear();
+        } else {
+          if(_remember){
+            _cache.setStringValue(KEY_USERNAME, _userKey.currentState.text);
+            _cache.setStringValue(KEY_PASSWORD, _passwdKey.currentState.text);
+          } else {
+            _cache.remove(KEY_USERNAME);
+            _cache.remove(KEY_PASSWORD);
+          }
+
+          Map res = data['Response'];
+
+          if(res != null){
+            await _cache.setStringValue(KEY_TOKEN, res['Token']);
+            await _cache.setIntValue(KEY_ADMIN, res['Admin']);
+            Navigator.pushReplacementNamed(context, HomePage.route);
+          } else {
+            _showMessage('返回格式错误: ${res}');
+          }
+
+        }
+      }
+    });
+
   }
 
 
+  final GlobalKey<ClearTextFieldFormState> _userKey = new GlobalKey<ClearTextFieldFormState>();
+  final GlobalKey<ClearTextFieldFormState> _passwdKey = new GlobalKey<ClearTextFieldFormState>();
+  final GlobalKey<ScaffoldState> _scaffKey = new GlobalKey<ScaffoldState>();
 
-  final TextEditingController _controller = new TextEditingController();
-
-
-  @override
-  Widget build(BuildContext context) {
-
-    List<Widget> children = <Widget>[
-      Center(
+  List<Widget> _buildLoginForm() {
+    return <Widget>[
+      new Center(
         child: new Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -70,24 +138,18 @@ class LoginPageState extends State<LoginPage> {
                       accentColor: Colors.white,
                       hintColor: Colors.white
                   ),
-                  child: new TextFormField(
-                    controller: _controller,
-                    style: Style.inputTextStyle,
-                    decoration: new InputDecoration(
-                      prefixIcon: new Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child: new Image.asset(
-                          ImageAssets.icon_account,
-                          height: 25.0,
-                          width: 22.0,
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                      border: const UnderlineInputBorder(),
-                      hintText: '请输入您的账号',
-                      contentPadding: EdgeInsets.symmetric(vertical: 12.0),
-                      hintStyle: Style.inputTextStyle,
+                  child: new ClearTextFieldForm(
+                    key: _userKey,
+                    icon: new Image.asset(
+                      ImageAssets.icon_account,
+                      height: 25.0,
+                      width: 22.0,
                     ),
+                    keyboardType: TextInputType.phone,
+                    hintText: '请输入您的账号',
+                    hintStyle: Style.inputTextStyle,
+                    initialValue: _username,
+                    style: Style.inputTextStyle,
                   ),
                 )
             ),
@@ -99,23 +161,17 @@ class LoginPageState extends State<LoginPage> {
                       accentColor: Colors.white,
                       hintColor: Colors.white
                   ),
-                  child: new TextFormField(
+                  child: new ClearTextFieldForm(
+                    key: _passwdKey,
                     obscureText: true,
+                    initialValue: _passwd,
                     style: Style.inputTextStyle,
-                    decoration: new InputDecoration(
-                      prefixIcon: new Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child: new Image.asset(
-                          ImageAssets.icon_password,
-                          height: 25.0,
-                          width: 22.0,
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                      border:  new UnderlineInputBorder(),
-                      hintText: '请输入密码',
-                      contentPadding: EdgeInsets.symmetric(vertical: 12.0),
-                      hintStyle: Style.inputTextStyle,
+                    hintStyle: Style.inputTextStyle,
+                    hintText: '请输入密码',
+                    icon: new Image.asset(
+                      ImageAssets.icon_password,
+                      height: 25.0,
+                      width: 22.0,
                     ),
                   ),
                 )
@@ -125,13 +181,16 @@ class LoginPageState extends State<LoginPage> {
               children: <Widget>[
                 new GestureDetector(
                   onTap: () {
-                    _cache.setBoolValue(KEY_REMEMBER, !_remember);
-                    setState(() { _remember = !_remember; });
+                    setState(() {
+                      _remember = !_remember;
+                    });
+                    _cache.setBoolValue(KEY_REMEMBER, _remember);
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4.0),
                     child: new Image.asset(
-                        _remember ? ImageAssets.icon_no_check_up : ImageAssets.icon_no_check_down,
+                        _remember ? ImageAssets.icon_no_check_down : ImageAssets
+                            .icon_no_check_up,
                         height: 20.0,
                         width: 20.0
                     ),
@@ -153,13 +212,13 @@ class LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 new GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pushNamed(context, PasswordPage.route);
                     },
                     child: new Text('忘记密码?', style: Style.tipsTextStyle)
                 ),
                 new GestureDetector(
-                    onTap: (){
+                    onTap: () {
 
                     },
                     child: new Text('新用户注册', style: Style.tipsTextStyle,))
@@ -173,20 +232,45 @@ class LoginPageState extends State<LoginPage> {
         left: 0.0,
         right: 0.0,
         child: new Center(
-          child: new Text('度量云  技术支持', style: new TextStyle(fontSize: 12.0, color: Colors.white70)),
+          child: new Text('度量云  技术支持',
+              style: new TextStyle(fontSize: 12.0, color: Colors.white70)),
         ),
       )
     ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+//    print('remember=${_remember}, username=${_username}, passwd=${_passwd}');
+
+    List<Widget> children = _buildLoginForm();
 
     if(_loading){
-      children.add(const Center (
-          child: const CircularProgressIndicator()
-      )
+      children.add(
+          new Positioned.fill(
+              child: new GestureDetector(
+                  onTap: (){},
+                  behavior: HitTestBehavior.opaque,
+                  child: new Center(
+                      child: new Theme(
+                        data: new ThemeData(
+                          accentColor: Colors.red,
+                        ),
+                        child: new Container(
+                            height: 60.0,
+                            width: 60.0,
+                            child:new CircularProgressIndicator(
+                            )
+                        ),
+                      )
+                  )
+              )
+          )
       );
     }
-
-
     return new Scaffold(
+        key: _scaffKey,
         resizeToAvoidBottomPadding: false,
         body: new Container(
             decoration: new BoxDecoration(
@@ -197,9 +281,10 @@ class LoginPageState extends State<LoginPage> {
               ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 40.0),
-            child: new Stack(
+            child:new Stack(
               children: children,
             )
+
         )
     );
   }

@@ -11,7 +11,7 @@ class Style {
 
   static const TextStyle inputTextStyle = const TextStyle(
     inherit: false,
-    fontSize: 16.0,
+    fontSize: 18.0,
     color: Colors.white,
     textBaseline: TextBaseline.alphabetic,
   );

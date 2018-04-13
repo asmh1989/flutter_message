@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'pages/login.dart';
+import 'pages/home.dart';
 import 'pages/routes.dart';
+import 'utils/cache.dart';
 
 void main() {
   MaterialPageRoute.debugEnableFadingRoutes = true; // ignore: deprecated_member_use
@@ -24,7 +26,35 @@ class MyApp extends StatelessWidget {
         // counter didn't reset back to zero; the application is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: new LoginPage(),
+      home:   new FutureBuilder<Cache>(
+        future: Cache.getInstace(),
+        builder: (BuildContext context, AsyncSnapshot<Cache> snapshot){
+          switch(snapshot.connectionState){
+            case ConnectionState.waiting: return new Center(child: new CircularProgressIndicator());
+            default:
+              if(snapshot.hasData){
+                Cache cache = snapshot.data;
+
+                String token = cache.token?? '';
+                String cdadd = cache.cdadd?? '';
+
+                print('token=${token}, cdadd=${cdadd}');
+                if(token.length > 0){
+                  if(cdadd.length > 0){
+                  } else {
+                    return new HomePage();
+                  }
+                } else {
+                  return new LoginPage();
+                }
+              } else {
+                return new Center(child: new CircularProgressIndicator());
+              }
+          }
+        },
+
+
+      ),
       routes: Routes,
     );
   }
