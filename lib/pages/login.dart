@@ -103,7 +103,7 @@ class LoginPageState extends State<LoginPage> {
             await _cache.setIntValue(KEY_ADMIN, res['Admin']);
             Navigator.pushReplacementNamed(context, HomePage.route);
           } else {
-            _showMessage('返回格式错误: ${res}');
+            _showMessage('返回格式错误: $res');
           }
 
         }

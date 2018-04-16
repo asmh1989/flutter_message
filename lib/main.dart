@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
                 String token = cache.token?? '';
                 String cdadd = cache.cdadd?? '';
 
-                print('token=${token}, cdadd=${cdadd}');
+                print('token=$token, cdadd=$cdadd');
                 if(token.length > 0){
                   if(cdadd.length > 0){
                   } else {
@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
 
 
       ),
-      routes: Routes,
+      routes: routes,
     );
   }
 }
