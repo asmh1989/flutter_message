@@ -17,7 +17,7 @@ const double SPACE = 20.0;
 class PasswordPage extends StatefulWidget{
   const PasswordPage({Key key}): super(key: key);
 
-  static String route = '/passwd';
+  static const String route = '/passwd';
 
   @override
   State<StatefulWidget> createState() {

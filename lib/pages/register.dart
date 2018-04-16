@@ -16,7 +16,7 @@ const double SPACE = 20.0;
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key key}) : super (key: key);
 
-  static String route = '/reigister';
+  static const String route = '/reigister';
 
   @override
   State<StatefulWidget> createState() {

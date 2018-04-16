@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 
 import '../utils/cache.dart';
 import '../pages/login.dart';
+import '../utils/assets.dart';
 
+const Color COLOR_THEME = const Color(0xFF029de0);
+const Color COLOR_BACKGRAOUND = const Color(0xfff5f5f5);
+const double BAR_HEIGHT = 20.0;
 
 class HomePage extends StatefulWidget{
   const HomePage({Key key}): super(key: key);
 
-  static final String route = '/home';
+  static const String route = '/home';
 
   @override
   State<StatefulWidget> createState() {
@@ -17,27 +21,176 @@ class HomePage extends StatefulWidget{
 
 class HomeState extends State<HomePage> {
 
+  int _currentIndex = 2;
+
+  AppBar _getAppBar() {
+    if(_currentIndex == 0 || _currentIndex == 1) {
+      return new AppBar(
+        backgroundColor: COLOR_THEME,
+        title: new Text(_currentIndex == 0 ? '设备卡号' : '消息列表'),
+        actions: <Widget>[
+          new IconButton(
+              icon: const Icon(Icons.add),
+              tooltip: '添加卡',
+              onPressed: () {
+
+              }
+          ),
+        ],
+      );
+    }
+
+    return null;
+  }
+
+  Color _getSelectColor(int index) {
+    return _currentIndex == index ? COLOR_THEME : null;
+  }
+
+  Widget _getMenu(String image, String title, GestureTapCallback onTap) {
+    return new ListTile(
+      leading: new Padding(
+          padding: EdgeInsets.all(8.0),
+          child: new Image.asset(image,
+          )),
+      title: new Text(title, style: new TextStyle(fontSize: 14.0),),
+      trailing: new Icon(Icons.navigate_next),
+
+      onTap: onTap,
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Widget _getPersonView() {
+    return new Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        new Container(
+            height: 180.0 +  MediaQuery.of(context).padding.top,
+            decoration: new BoxDecoration(
+                image: new DecorationImage(image: new AssetImage(ImageAssets.ic_bg_person), fit: BoxFit.cover)
+            ),
+            child: new Column (
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                new Image.asset(ImageAssets.icon_mine_photo,
+                  height: 72.0,
+                  width: 72.0,
+                ),
+                new SizedBox(height: 8.0),
+                new Text(Cache.instance.username, style: new TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.0
+                )),
+                new Text('当前平台', style: new TextStyle(
+                    color: Colors.white, fontSize: 16.0
+                )),
+                new SizedBox(height: 20.0),
+              ],
+            )
+        ),
+        new Container(height: 8.0, color: COLOR_BACKGRAOUND,),
+        new Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            new Divider(height: 0.5),
+            _getMenu(ImageAssets.myinfo_icon_1, '平台切换', () {
+
+            }),
+            new Divider(height: 0.5),
+            _getMenu(ImageAssets.myinfo_icon_2, '指令管理', () {
+
+            }),
+            new Divider(height: 0.5),
+          ],
+        ),
+        new Container(height: 8.0, color: COLOR_BACKGRAOUND,),
+        new Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            new Divider(height: 0.5),
+            _getMenu(ImageAssets.myinfo_icon_3, '修改密码', () {
+            }),
+            new Divider(height: 0.5),
+            _getMenu(ImageAssets.myinfo_icon_4, '退出登录', () {
+
+            }),
+            new Divider(height: 0.5),
+          ],
+        ),
+        new Expanded(child: new Container(
+          color: COLOR_BACKGRAOUND,
+        ))
+      ],
+    );
+  }
+
+  Widget _getBody() {
+    switch(_currentIndex){
+      case 2:
+        return _getPersonView();
+      default:
+        return new Text('hello $_currentIndex');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text('设备卡号'),
-      ),
-      body: new Text('hello'),
 
-      floatingActionButton:new FloatingActionButton(
-        onPressed: () async{
-          Cache cache = await Cache.getInstace();
-          cache.remove(KEY_TOKEN);
-          cache.remove(KEY_ADMIN);
-          Navigator.pushReplacementNamed(context, LoginPage.route);
-        },
-        backgroundColor: Colors.redAccent,
-        child: const Icon(
-          Icons.lock_open,
-          semanticLabel: '注销',
+    BottomNavigationBar botNavBar = new BottomNavigationBar(
+      items: [
+        new BottomNavigationBarItem(
+          icon: new Image.asset(ImageAssets.ic_tab_card_normal, color: _getSelectColor(0), height: BAR_HEIGHT,),
+          title: new Text('卡号列表'),
         ),
-      )
+        new BottomNavigationBarItem(
+          icon: new Image.asset(ImageAssets.ic_tab_msg_normal, color: _getSelectColor(1), height: BAR_HEIGHT,),
+          title: new Text('消息列表'),
+        ),
+        new BottomNavigationBarItem(
+          icon: new Image.asset(ImageAssets.ic_tab_mine_normal, color: _getSelectColor(2), height: BAR_HEIGHT,),
+          title: new Text('个人中心'),
+        ),
+      ],
+      currentIndex: _currentIndex,
+      type: BottomNavigationBarType.fixed,
+      fixedColor: COLOR_THEME,
+      iconSize: 16.0,
+      onTap: (int index) {
+        setState(() {
+          _currentIndex = index;
+        });
+      },
+    );
+
+    return new Scaffold(
+        appBar: _getAppBar(),
+        body: _getBody(),
+        bottomNavigationBar: new Theme(
+            data: new ThemeData(
+              canvasColor: const Color(0xfff5f5f5),
+            ),
+            child: botNavBar
+        ),
+        floatingActionButton:new FloatingActionButton(
+          onPressed: () async{
+            Cache cache = await Cache.getInstace();
+            cache.remove(KEY_TOKEN);
+            cache.remove(KEY_ADMIN);
+            Navigator.pushReplacementNamed(context, LoginPage.route);
+          },
+          backgroundColor: Colors.redAccent,
+          child: const Icon(
+            Icons.lock_open,
+            semanticLabel: '注销',
+          ),
+        )
     );
   }
 }

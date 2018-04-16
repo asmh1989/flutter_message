@@ -55,4 +55,5 @@ class ImageAssets {
   static const String myinfo_icon_3 = 'assets/images/myinfo_icon_3.png';
   static const String myinfo_icon_4 = 'assets/images/myinfo_icon_4.png';
   static const String open = 'assets/images/open.png';
+  static const String ic_bg_person = 'assets/images/ic_bg_person.jpg';
 }
