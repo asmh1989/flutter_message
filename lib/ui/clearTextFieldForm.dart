@@ -12,6 +12,8 @@ class ClearTextFieldForm extends StatefulWidget {
   final bool obscureText;
   final TextInputType keyboardType;
   final ValueChanged<String> onFieldSubmitted;
+  final FormFieldSetter<String> onSaved;
+  final FormFieldValidator<String> validator;
 
 
   const ClearTextFieldForm({
@@ -23,7 +25,9 @@ class ClearTextFieldForm extends StatefulWidget {
     this.initialValue,
     this.obscureText,
     this.keyboardType,
-    this.onFieldSubmitted
+    this.onFieldSubmitted,
+    this.onSaved,
+    this.validator,
   }) : super (key: key);
 
   @override
@@ -82,6 +86,8 @@ class ClearTextFieldFormState extends State<ClearTextFieldForm> {
       style: widget.style,
       keyboardType: widget.keyboardType ?? TextInputType.text,
       onFieldSubmitted: widget.onFieldSubmitted,
+      onSaved: widget.onSaved,
+      validator: widget.validator,
       decoration: new InputDecoration(
         prefixIcon: new Padding(
           padding: EdgeInsets.all(12.0),

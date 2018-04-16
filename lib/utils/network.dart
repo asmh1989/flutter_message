@@ -1,7 +1,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 
@@ -52,5 +51,14 @@ class NetWork {
         'Message': e.toString()
       };
     }
+  }
+
+  static Future<http.Response> getPhoneCode(String phone, bool isRegister) async {
+    Map<String, dynamic> params = {
+      'Unm': phone,
+      'Tp': isRegister ? '1' : '2'
+    };
+
+    return post(VERIFY, params);
   }
 }

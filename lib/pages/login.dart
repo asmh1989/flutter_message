@@ -27,7 +27,7 @@ class LoginPage extends StatefulWidget {
 
 class LoginPageState extends State<LoginPage> {
   Cache _cache ;
-  String _username, _passwd;
+  String _username, _password;
   bool _remember,  _loading=false;
 
   @override
@@ -36,9 +36,8 @@ class LoginPageState extends State<LoginPage> {
 
     _cache = Cache.instance;
     _username = _cache.username??'';
-    _passwd = _cache.passwd??'';
+    _password = _cache.passwd??'';
     _remember = _cache.remember?? false;
-
 
   }
 
@@ -67,8 +66,6 @@ class LoginPageState extends State<LoginPage> {
     setState(() {
       _loading = true;
     });
-
-
 
     http.Response response= await NetWork.post(NetWork.LOGIN, {
       'Unm': _userKey.currentState.text,
@@ -164,7 +161,7 @@ class LoginPageState extends State<LoginPage> {
                   child: new ClearTextFieldForm(
                     key: _passwdKey,
                     obscureText: true,
-                    initialValue: _passwd,
+                    initialValue: _password,
                     style: Style.inputTextStyle,
                     hintStyle: Style.inputTextStyle,
                     hintText: '请输入密码',

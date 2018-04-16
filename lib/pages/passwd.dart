@@ -1,11 +1,18 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import '../utils/style.dart';
 import '../utils/assets.dart';
 import '../utils/cache.dart';
 import '../ui/clearTextFieldForm.dart';
+import '../ui/passwordField.dart';
+
+import '../utils/func.dart';
+import '../utils/network.dart';
+
+const double SPACE = 20.0;
 
 class PasswordPage extends StatefulWidget{
   const PasswordPage({Key key}): super(key: key);
@@ -18,139 +25,279 @@ class PasswordPage extends StatefulWidget{
   }
 }
 
-enum RightWidgetType {
-  PHONE,
-  MESSAGE,
-  PASSWORD,
+class PersonData {
+  String username = '';
+  String phoneCode= '';
+  String password_1 = '';
+  String password_2 = '';
 }
-
 
 class PasswordState extends State<PasswordPage>{
 
-  String _username;
+  String _username = '';
+  bool _loading = false;
 
-  Widget _getRightWidget(RightWidgetType type) {
-    switch(type){
-      case RightWidgetType.PHONE:
-        return
-          new GestureDetector(
-              onTap: () {
+  bool _autovalidate = false;
+  bool _formWasEdited = false;
 
-              },
-              child: new Padding(
-                padding: EdgeInsets.symmetric(horizontal: 6.0),
-                child: new Image.asset(
-                  ImageAssets.clearfill,
-                  height: 20.0,
-                  fit: BoxFit.fill,
-                  color: Colors.black38,
-                ),
-              )
-          );
-      case RightWidgetType.PASSWORD:
-        return new GestureDetector(
-            onTap: (){
+  PersonData person = new PersonData();
 
-            },
-            child: new Padding(
-              padding: EdgeInsets.all(12.0),
-              child: new Image.asset(
-                ImageAssets.ic_close_dialog,
-                height: 25.0,
-                fit: BoxFit.fill,
-              ),
-            )
-        );
-      case RightWidgetType.MESSAGE:
-        return new RaisedButton(
-          color: const Color(0xFF029de0),
-          highlightColor: const Color(0xFF029de0),
-          child: const Text('获取验证码',
-              style: const TextStyle(
-                inherit: false,
-                fontSize: 14.0,
-                color: Colors.white,
-                textBaseline: TextBaseline.alphabetic,
-              )
-          ),
-          padding: EdgeInsets.symmetric(vertical: 6.0),
-          onPressed: this._confirm,
-        );
-    }
 
-    return null;
-  }
+  final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ClearTextFieldFormState> _userKey = new GlobalKey<ClearTextFieldFormState>();
 
-  Widget _getTextFeildForm(String imageName, String hintText, RightWidgetType type ) {
-    return new Container(
-        height: 60.0,
-        child:  new TextFormField(
-          obscureText: type == RightWidgetType.PASSWORD,
-          decoration: new InputDecoration(
-            prefixIcon: new Padding(
-              padding: EdgeInsets.all(12.0),
-              child: new Image.asset(
-                imageName,
-                height: 25.0,
-                fit: BoxFit.fill,
-              ),
-            ),
-            suffixIcon: _getRightWidget(type),
-            border: const UnderlineInputBorder(),
-            hintText: hintText,
-            contentPadding: EdgeInsets.symmetric(vertical: 12.0),
-          ),
-        )
-    );
-  }
-  Future<Null> _confirm () async {
-  }
 
   @override
   void initState() {
     super.initState();
 
-    _username = Cache.instance.username;
+    _username = Cache.instance.username?? '';
+  }
+
+  void _showMessage(String value) {
+    _scaffoldKey.currentState.showSnackBar(new SnackBar(
+        content: new Text(value, textAlign: TextAlign.center)
+    ));
+  }
+
+  Future<Null>  _handleSubmitted() async {
+    FocusScope.of(context).requestFocus(new FocusNode());
+
+    final FormState form = _formKey.currentState;
+    if (!form.validate()) {
+      _autovalidate = true; // Start validating on every change.
+      _showMessage('请先修复错误,再确认');
+      return;
+    } else {
+      form.save();
+    }
+
+    if(person.password_1 != person.password_2){
+      _showMessage('两次密码输入不一致');
+      return;
+    }
+
+    setState(() {
+      _loading = true;
+    });
+
+    http.Response response = await NetWork.post(NetWork.FIND_PWD, {
+      'Unm': person.username,
+      'Ver': person.phoneCode,
+      'Npd': person.password_1
+    });
+
+    Future.delayed(new Duration(milliseconds: 200), () async {
+      setState(() {
+        _loading = false;
+      });
+
+      if(response.statusCode == 200) {
+        print(response.body);
+
+        Map data = NetWork.decodeJson(response.body);
+        if(data['Code'] != 0){
+          _showMessage(data['Message']);
+        } else {
+          _showMessage('找回成功');
+          Future.delayed(new Duration(milliseconds: 200),(){
+            Navigator.pop(context);
+          });
+        }
+      }
+    });
+
+
+
+  }
+
+  String _validateName(String value) {
+    _formWasEdited = true;
+    if (value.isEmpty)
+      return '手机号不能为空';
+    if (!Func.validatePhone(value))
+      return '手机号码格式错误';
+    return null;
+  }
+
+  FormFieldValidator<String>  _validateNull(String msg){
+    return (String value) {
+      if(value.isEmpty){
+        return msg;
+      }
+
+      return null;
+    };
+  }
+
+  Future<Null> _getPhoneCode() async {
+
+    String phone = _userKey.currentState.text;
+    if(!Func.validatePhone(phone)) {
+      _userKey.currentState.clear();
+      _showMessage('手机号格式错误');
+      return;
+    }
+
+    setState(() {
+      _loading = true;
+    });
+
+    http.Response response= await NetWork.getPhoneCode(phone, false);
+
+    Future.delayed(new Duration(milliseconds: 200), () async {
+      setState(() {
+        _loading = false;
+      });
+
+      if(response.statusCode == 200) {
+        print(response.body);
+
+        Map data = NetWork.decodeJson(response.body);
+        if(data['Code'] != 0){
+          _showMessage(data['Message']);
+        } else {
+          _showMessage('已发送');
+        }
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
 
     List<Widget> children = <Widget>[
-      new Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          new Container(
-              height: 60.0,
-              child: new ClearTextFieldForm(
-                icon: new Image.asset(
-                  ImageAssets.icon_reg_account,
-                  height: 25.0,
-                  fit: BoxFit.fill,
+      new Form (
+        key: _formKey,
+        autovalidate: _autovalidate,
+        child:new SingleChildScrollView(
+          child: new Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              new Container(
+                  height: 60.0,
+                  child: new ClearTextFieldForm(
+                    key: _userKey,
+                    icon: new Image.asset(
+                      ImageAssets.icon_reg_account,
+                      height: 25.0,
+                      fit: BoxFit.fill,
+                    ),
+                    hintText: '请输入手机号',
+                    initialValue: _username,
+                    keyboardType: TextInputType.phone,
+                    onSaved: (String value) { person.username = value;},
+                    validator: _validateName,
+                  )
+              ),
+              new SizedBox(height: SPACE),
+              new Container(
+                  height: 60.0,
+                  child:  new TextFormField(
+                    validator: _validateNull('验证码不能为空'),
+                    keyboardType: TextInputType.number,
+                    onSaved: (String value) { person.phoneCode = value; },
+                    decoration: new InputDecoration(
+                      prefixIcon: new Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: new Image.asset(
+                          ImageAssets.icon_reg_verification,
+                          height: 25.0,
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                      suffixIcon: new RaisedButton(
+                        color: const Color(0xFF029de0),
+                        highlightColor: const Color(0xFF029de0),
+                        child: const Text('获取验证码',
+                            style: const TextStyle(
+                              inherit: false,
+                              fontSize: 14.0,
+                              color: Colors.white,
+                              textBaseline: TextBaseline.alphabetic,
+                            )
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 6.0),
+                        onPressed: this._getPhoneCode,
+                      ),
+                      border: const UnderlineInputBorder(),
+                      hintText: '请输入验证码',
+                      contentPadding: EdgeInsets.symmetric(vertical: 12.0),
+                    ),
+                  )
+              ),
+              new SizedBox(height: SPACE),
+              new Container(
+                height: 60.0,
+                child: new PasswordField(
+                  icon: new Image.asset(
+                    ImageAssets.icon_reg_password,
+                    height: 25.0,
+                    fit: BoxFit.fill,
+                  ),
+                  hintText: '请输入新密码',
+                  validator: _validateNull('密码不能为空'),
+                  onSaved: (String value) {person.password_1 = value;},
                 ),
-                hintText: '请输入手机号',
-                initialValue: _username,
-                keyboardType: TextInputType.phone,
-              )
-          ),
-          _getTextFeildForm(ImageAssets.icon_reg_verification, '请输入验证码', RightWidgetType.MESSAGE),
-          _getTextFeildForm(ImageAssets.icon_reg_password, '请输入新密码', RightWidgetType.PASSWORD),
-          _getTextFeildForm(ImageAssets.icon_ensure_password, '请确认新密码', RightWidgetType.PASSWORD),
-          new SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 ? 0.0 : 30.0),
-          new RaisedButton(
-            color: const Color(0xFF029de0),
-            highlightColor: const Color(0xFF029de0),
-            child: const Text('确认', style: Style.loginTextStyle),
-            padding: EdgeInsets.all(10.0),
-            onPressed: this._confirm,
-          ),
+              ),
+              new SizedBox(height: SPACE),
+              new Container(
+                height: 60.0,
+                child: new PasswordField(
+                  icon: new Image.asset(
+                    ImageAssets.icon_ensure_password,
+                    height: 25.0,
+                    fit: BoxFit.fill,
+                  ),
+                  hintText: '请确认新密码',
+                  validator: _validateNull('确认不能为空'),
+                  onSaved: (String value) {person.password_2 = value;},
+                ),
+              ),
+              new SizedBox(height: SPACE* 2),
+//              new SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 ? 0.0 : 30.0),
+              new RaisedButton(
+                color: const Color(0xFF029de0),
+                highlightColor: const Color(0xFF029de0),
+                child: const Text('确认', style: Style.loginTextStyle),
+                padding: EdgeInsets.all(10.0),
+                onPressed: _handleSubmitted,
+              ),
 
-        ],
+            ],
+          ),
+        ),
       ),
     ];
 
+    if(_loading){
+      children.add(
+          new Positioned.fill(
+              child: new GestureDetector(
+                  onTap: (){},
+                  behavior: HitTestBehavior.opaque,
+                  child: new Center(
+                      child: new Theme(
+                        data: new ThemeData(
+                          accentColor: Colors.red,
+                        ),
+                        child: new Container(
+                            height: 60.0,
+                            width: 60.0,
+                            child:new CircularProgressIndicator(
+                            )
+                        ),
+                      )
+                  )
+              )
+          )
+      );
+    }
+
     return new Scaffold(
+        key: _scaffoldKey,
         appBar: new AppBar(
           title: const Text('忘记密码'),
         ),
