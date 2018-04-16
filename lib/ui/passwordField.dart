@@ -51,10 +51,7 @@ class _PasswordFieldState extends State<PasswordField> {
               _obscureText = !_obscureText;
             });
           },
-          child: new Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: new Icon(_obscureText ? Icons.visibility : Icons.visibility_off),
-              )
+          child:  new Icon(_obscureText ? Icons.visibility : Icons.visibility_off),
           ),
         ),
       );

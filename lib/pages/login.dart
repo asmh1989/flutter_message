@@ -13,6 +13,7 @@ import '../ui/clearTextFieldForm.dart';
 
 import 'passwd.dart';
 import 'home.dart';
+import 'register.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key key}) : super(key: key);
@@ -216,7 +217,7 @@ class LoginPageState extends State<LoginPage> {
                 ),
                 new GestureDetector(
                     onTap: () {
-
+                      Navigator.pushNamed(context, RegisterPage.route);
                     },
                     child: new Text('新用户注册', style: Style.tipsTextStyle,))
               ],
@@ -239,7 +240,7 @@ class LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
 
-//    print('remember=${_remember}, username=${_username}, passwd=${_passwd}');
+//    print('remember=$_remember, username=$_username, passwd=$_passwd');
 
     List<Widget> children = _buildLoginForm();
 

@@ -100,14 +100,11 @@ class ClearTextFieldFormState extends State<ClearTextFieldForm> {
                 _showClearIcon = false;
               });
             },
-            child: new Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6.0),
-              child: new Image.asset(
-                ImageAssets.clearfill,
-                height: 20.0,
-                fit: BoxFit.fill,
-                color: Theme.of(context).accentColor,
-              ),
+            child: new Image.asset(
+              ImageAssets.clearfill,
+              height: 20.0,
+              fit: BoxFit.fill,
+              color: Theme.of(context).accentColor,
             )
         ) : null,
         border: const UnderlineInputBorder(),

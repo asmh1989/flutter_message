@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 
 import '../utils/style.dart';
 import '../utils/assets.dart';
-import '../utils/cache.dart';
 import '../ui/clearTextFieldForm.dart';
 import '../ui/passwordField.dart';
 
@@ -14,46 +13,38 @@ import '../utils/network.dart';
 
 const double SPACE = 20.0;
 
-class PasswordPage extends StatefulWidget{
-  const PasswordPage({Key key}): super(key: key);
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({Key key}) : super (key: key);
 
-  static String route = '/passwd';
+  static String route = '/reigister';
 
   @override
   State<StatefulWidget> createState() {
-    return new PasswordState();
+    return new RegisterPageState();
   }
 }
 
 class PersonData {
   String username = '';
   String phoneCode= '';
+  String name = '';
+  String department = '';
+  String jobNumber = '';
   String password_1 = '';
   String password_2 = '';
 }
 
-class PasswordState extends State<PasswordPage>{
+class RegisterPageState extends State<RegisterPage> {
 
-  String _username = '';
   bool _loading = false;
 
   bool _autovalidate = false;
-//  bool _formWasEdited = false;
-
   PersonData person = new PersonData();
-
 
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final GlobalKey<ClearTextFieldFormState> _userKey = new GlobalKey<ClearTextFieldFormState>();
 
-
-  @override
-  void initState() {
-    super.initState();
-
-    _username = Cache.instance.username?? '';
-  }
 
   void _showMessage(String value) {
     _scaffoldKey.currentState.showSnackBar(new SnackBar(
@@ -85,7 +76,10 @@ class PasswordState extends State<PasswordPage>{
     http.Response response = await NetWork.post(NetWork.FIND_PWD, {
       'Unm': person.username,
       'Ver': person.phoneCode,
-      'Npd': person.password_1
+      'Npd': person.password_1,
+      'Upid': person.name,
+      'Udep': person.department,
+      'Ujob': person.jobNumber
     });
 
     Future.delayed(new Duration(milliseconds: 200), () async {
@@ -100,7 +94,7 @@ class PasswordState extends State<PasswordPage>{
         if(data['Code'] != 0){
           _showMessage(data['Message']);
         } else {
-          _showMessage('找回成功');
+          _showMessage('注册成功');
           Future.delayed(new Duration(milliseconds: 1000),(){
             Navigator.pop(context);
           });
@@ -108,10 +102,11 @@ class PasswordState extends State<PasswordPage>{
       }
     });
 
+
+
   }
 
   String _validateName(String value) {
-//    _formWasEdited = true;
     if (value.isEmpty)
       return '手机号不能为空';
     if (!Func.validatePhone(value))
@@ -142,7 +137,7 @@ class PasswordState extends State<PasswordPage>{
       _loading = true;
     });
 
-    http.Response response= await NetWork.getPhoneCode(phone, false);
+    http.Response response= await NetWork.getPhoneCode(phone, true);
 
     Future.delayed(new Duration(milliseconds: 200), () async {
       setState(() {
@@ -174,15 +169,13 @@ class PasswordState extends State<PasswordPage>{
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-                   new ClearTextFieldForm(
+              new ClearTextFieldForm(
                     key: _userKey,
                     icon: new Image.asset(
                       ImageAssets.icon_reg_account,
                       height: 25.0,
-                      fit: BoxFit.fill,
                     ),
                     hintText: '请输入手机号',
-                    initialValue: _username,
                     keyboardType: TextInputType.phone,
                     onSaved: (String value) { person.username = value;},
                     validator: _validateName,
@@ -211,6 +204,7 @@ class PasswordState extends State<PasswordPage>{
                               textBaseline: TextBaseline.alphabetic,
                             )
                         ),
+                        padding: EdgeInsets.symmetric(vertical: 6.0),
                         onPressed: this._getPhoneCode,
                       ),
                       border: const UnderlineInputBorder(),
@@ -218,12 +212,42 @@ class PasswordState extends State<PasswordPage>{
                     ),
               ),
               new SizedBox(height: SPACE),
+              new ClearTextFieldForm(
+                icon: new Image.asset(
+                  ImageAssets.icon_reg_name,
+                  height: 25.0,
+                ),
+                hintText: '请输入姓名',
+                onSaved: (String value) { person.name = value;},
+                validator: _validateNull('请输入姓名'),
+              ),
+              new SizedBox(height: SPACE),
+              new ClearTextFieldForm(
+                icon: new Image.asset(
+                  ImageAssets.icon_reg_department,
+                  height: 25.0,
+                ),
+                hintText: '请输入部门/单位/组织等',
+                onSaved: (String value) { person.department = value;},
+                validator: _validateNull('请输入部门/单位/组织等'),
+              ),
+              new SizedBox(height: SPACE),
+              new ClearTextFieldForm(
+                icon: new Image.asset(
+                  ImageAssets.icon_reg_account,
+                  height: 25.0,
+                ),
+                hintText: '请输入工号',
+                onSaved: (String value) { person.jobNumber = value;},
+                validator: _validateNull('请输入工号'),
+              ),
+              new SizedBox(height: SPACE),
               new PasswordField(
                   icon: new Image.asset(
                     ImageAssets.icon_reg_password,
                     height: 25.0,
                   ),
-                  hintText: '请输入新密码',
+                  hintText: '请输入密码',
                   validator: _validateNull('密码不能为空'),
                   onSaved: (String value) {person.password_1 = value;},
               ),
@@ -233,7 +257,7 @@ class PasswordState extends State<PasswordPage>{
                     ImageAssets.icon_ensure_password,
                     height: 25.0,
                   ),
-                  hintText: '请确认新密码',
+                  hintText: '请确认密码',
                   validator: _validateNull('确认不能为空'),
                   onSaved: (String value) {person.password_2 = value;},
               ),
@@ -242,7 +266,7 @@ class PasswordState extends State<PasswordPage>{
               new RaisedButton(
                 color: const Color(0xFF029de0),
                 highlightColor: const Color(0xFF029de0),
-                child: const Text('确认', style: Style.loginTextStyle),
+                child: const Text('注册', style: Style.loginTextStyle),
                 padding: EdgeInsets.all(10.0),
                 onPressed: _handleSubmitted,
               ),
@@ -280,7 +304,7 @@ class PasswordState extends State<PasswordPage>{
     return new Scaffold(
         key: _scaffoldKey,
         appBar: new AppBar(
-          title: const Text('忘记密码'),
+          title: const Text('新用户注册'),
         ),
         body: new Container(
           padding: const EdgeInsets.all(30.0),
