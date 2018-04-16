@@ -5,6 +5,8 @@ import 'pages/home.dart';
 import 'pages/routes.dart';
 import 'utils/cache.dart';
 
+import 'utils/style.dart';
+
 void main() {
   MaterialPageRoute.debugEnableFadingRoutes = true; // ignore: deprecated_member_use
   runApp(new MyApp());
@@ -25,6 +27,8 @@ class MyApp extends StatelessWidget {
         // or press Run > Flutter Hot Reload in IntelliJ). Notice that the
         // counter didn't reset back to zero; the application is not restarted.
         primarySwatch: Colors.blue,
+        primaryColor: Style.COLOR_THEME,
+        accentColor: Style.COLOR_THEME,
       ),
       home:   new FutureBuilder<Cache>(
         future: Cache.getInstace(),

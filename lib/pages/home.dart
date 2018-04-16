@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import '../utils/cache.dart';
 import '../pages/login.dart';
 import '../utils/assets.dart';
+import '../utils/style.dart';
 
-const Color COLOR_THEME = const Color(0xFF029de0);
-const Color COLOR_BACKGRAOUND = const Color(0xfff5f5f5);
-const double BAR_HEIGHT = 20.0;
+import 'switchPlatform.dart';
+
 
 class HomePage extends StatefulWidget{
   const HomePage({Key key}): super(key: key);
@@ -26,7 +26,7 @@ class HomeState extends State<HomePage> {
   AppBar _getAppBar() {
     if(_currentIndex == 0 || _currentIndex == 1) {
       return new AppBar(
-        backgroundColor: COLOR_THEME,
+        backgroundColor: Style.COLOR_THEME,
         title: new Text(_currentIndex == 0 ? '设备卡号' : '消息列表'),
         actions: <Widget>[
           new IconButton(
@@ -44,7 +44,7 @@ class HomeState extends State<HomePage> {
   }
 
   Color _getSelectColor(int index) {
-    return _currentIndex == index ? COLOR_THEME : null;
+    return _currentIndex == index ? Style.COLOR_THEME : null;
   }
 
   Widget _getMenu(String image, String title, GestureTapCallback onTap) {
@@ -95,13 +95,13 @@ class HomeState extends State<HomePage> {
               ],
             )
         ),
-        new Container(height: 8.0, color: COLOR_BACKGRAOUND,),
+        new Container(height: 8.0, color: Style.COLOR_BACKGROUND,),
         new Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             new Divider(height: 0.5),
             _getMenu(ImageAssets.myinfo_icon_1, '平台切换', () {
-
+              Navigator.pushNamed(context, SwitchPlatformPage.route);
             }),
             new Divider(height: 0.5),
             _getMenu(ImageAssets.myinfo_icon_2, '指令管理', () {
@@ -110,7 +110,7 @@ class HomeState extends State<HomePage> {
             new Divider(height: 0.5),
           ],
         ),
-        new Container(height: 8.0, color: COLOR_BACKGRAOUND,),
+        new Container(height: 8.0, color: Style.COLOR_BACKGROUND,),
         new Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
@@ -125,7 +125,7 @@ class HomeState extends State<HomePage> {
           ],
         ),
         new Expanded(child: new Container(
-          color: COLOR_BACKGRAOUND,
+          color: Style.COLOR_BACKGROUND,
         ))
       ],
     );
@@ -146,21 +146,21 @@ class HomeState extends State<HomePage> {
     BottomNavigationBar botNavBar = new BottomNavigationBar(
       items: [
         new BottomNavigationBarItem(
-          icon: new Image.asset(ImageAssets.ic_tab_card_normal, color: _getSelectColor(0), height: BAR_HEIGHT,),
+          icon: new Image.asset(ImageAssets.ic_tab_card_normal, color: _getSelectColor(0), height: Style.BAR_HEIGHT,),
           title: new Text('卡号列表'),
         ),
         new BottomNavigationBarItem(
-          icon: new Image.asset(ImageAssets.ic_tab_msg_normal, color: _getSelectColor(1), height: BAR_HEIGHT,),
+          icon: new Image.asset(ImageAssets.ic_tab_msg_normal, color: _getSelectColor(1), height: Style.BAR_HEIGHT,),
           title: new Text('消息列表'),
         ),
         new BottomNavigationBarItem(
-          icon: new Image.asset(ImageAssets.ic_tab_mine_normal, color: _getSelectColor(2), height: BAR_HEIGHT,),
+          icon: new Image.asset(ImageAssets.ic_tab_mine_normal, color: _getSelectColor(2), height: Style.BAR_HEIGHT,),
           title: new Text('个人中心'),
         ),
       ],
       currentIndex: _currentIndex,
       type: BottomNavigationBarType.fixed,
-      fixedColor: COLOR_THEME,
+      fixedColor: Style.COLOR_THEME,
       iconSize: 16.0,
       onTap: (int index) {
         setState(() {
