@@ -1,11 +1,14 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'pages/login.dart';
 import 'pages/home.dart';
 import 'pages/routes.dart';
-import 'utils/cache.dart';
+import 'pages/switchPlatform.dart';
 
+import 'utils/cache.dart';
 import 'utils/style.dart';
+import 'utils/db.dart';
 
 void main() {
   MaterialPageRoute.debugEnableFadingRoutes = true; // ignore: deprecated_member_use
@@ -14,6 +17,13 @@ void main() {
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+
+  Future<Cache> getData() async{
+    await DB.getDB();
+    return await Cache.getInstace();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -31,7 +41,7 @@ class MyApp extends StatelessWidget {
         accentColor: Style.COLOR_THEME,
       ),
       home:   new FutureBuilder<Cache>(
-        future: Cache.getInstace(),
+        future: getData(),
         builder: (BuildContext context, AsyncSnapshot<Cache> snapshot){
           switch(snapshot.connectionState){
             case ConnectionState.waiting: return new Center(child: new CircularProgressIndicator());
@@ -45,8 +55,9 @@ class MyApp extends StatelessWidget {
                 print('token=$token, cdadd=$cdadd');
                 if(token.length > 0){
                   if(cdadd.length > 0){
-                  } else {
                     return new HomePage();
+                  } else {
+                    return new SwitchPlatformPage();
                   }
                 } else {
                   return new LoginPage();

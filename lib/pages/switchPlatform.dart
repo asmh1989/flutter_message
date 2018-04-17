@@ -9,6 +9,9 @@ import '../utils/platformInfo.dart';
 import '../utils/assets.dart';
 
 import '../utils/style.dart';
+import '../utils/db.dart';
+
+import 'home.dart';
 
 class SwitchPlatformPage extends StatefulWidget {
   const SwitchPlatformPage({Key key}) : super(key: key);
@@ -21,6 +24,9 @@ class SwitchPlatformPage extends StatefulWidget {
 }
 
 class SwitchPlatformPageState extends State<SwitchPlatformPage> {
+
+  List<PlatformInfo>  _platforms;
+
   Future<http.Response> _getData() async {
     return NetWork.getPlatforms(Cache.instance.username, Cache.instance.token);
   }
@@ -33,24 +39,29 @@ class SwitchPlatformPageState extends State<SwitchPlatformPage> {
     ));
   }
 
-  List<PlatformInfo> parsePlatforms(List<dynamic> data) {
-    return data.map((json) => new PlatformInfo.fromJson(json)).toList();
+  void _click(int index) async {
+
+    PlatformInfo info = _platforms[index];
+
+    KeyValue value = new KeyValue(key: Cache.instance.username, value: info.cdno);
+
+    await DB.instance.insertOrUpdate<KeyValue>(value, where: '${KeyValueTable.key} = ?', whereArgs: [value.key]);
+
+    Cache.instance.setStringValue(KEY_CDNO, info.cdno);
+    Cache.instance.setStringValue(KEY_CDADD, info.name);
+    Cache.instance.setStringValue(KEY_CDURL, info.cdurl);
+    Cache.instance.setStringValue(KEY_CDTOKEN, info.cdtoken);
+
+    if(Navigator.canPop(context)) {
+      Navigator.pop(context, 'refresh');
+    } else {
+      Navigator.pushReplacementNamed(context, HomePage.route);
+    }
+
   }
 
-  Widget _buildListTile(
-      BuildContext context, PlatformInfo item, GestureTapCallback onTap) {
-    return new Container(
-        color: Colors.white,
-        child: new ListTile(
-          leading: new Padding(
-            padding: EdgeInsets.all(8.0),
-            child: new Image.asset(
-                item.eb == 2 ? ImageAssets.ic_off : ImageAssets.ic_on),
-          ),
-          title: new Text(item.name),
-          trailing: new Icon(Icons.navigate_next),
-          onTap: onTap,
-        ));
+  List<PlatformInfo> parsePlatforms(List<dynamic> data) {
+    return data.map((json) => new PlatformInfo.fromJson(json)).toList();
   }
 
   @override
@@ -76,35 +87,46 @@ class SwitchPlatformPageState extends State<SwitchPlatformPage> {
                       );
                     } else {
                       Map data = NetWork.decodeJson(response.body);
+                      print(data);
+
                       if (data['Code'] != 0) {
-                        _showMessage(data['Message']);
-                        return null;
+                        return new Center(child: new Text(data['Message']),);
                       } else {
-                        print(data);
-                        List<PlatformInfo> platforms =
-                            parsePlatforms(data['Response']);
+                        _platforms = parsePlatforms(data['Response']);
 
                         return new Container(
                             color: Style.COLOR_BACKGROUND,
+                            padding: EdgeInsets.symmetric(vertical: 8.0),
                             height: MediaQuery.of(context).size.height,
                             child: new ListView.builder(
-                              itemCount: platforms.length,
-                              itemBuilder: (BuildContext contex, int index) {
-                                PlatformInfo item = platforms[index];
+                              itemCount: _platforms.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                PlatformInfo item = _platforms[index];
+
+                                final Decoration decoration = new BoxDecoration(
+                                  border: new Border(
+                                    bottom: Divider.createBorderSide(context),
+                                  ),
+                                );
+
                                 return new Container(
                                     color: Colors.white,
-                                    child: new ListTile(
-                                      leading: new Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: new Image.asset(item.eb == 2
-                                            ? ImageAssets.ic_off
-                                            : ImageAssets.ic_on),
-                                      ),
-                                      title: new Text(item.name),
-                                      trailing: new Icon(Icons.navigate_next),
-                                      onTap: () {
-                                        print('click $index');
-                                      },
+                                    child: new DecoratedBox(
+                                        position: DecorationPosition.foreground,
+                                        decoration: decoration,
+                                        child: new ListTile(
+                                          leading: new Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: new Image.asset(item.eb == 2
+                                                ? ImageAssets.ic_off
+                                                : ImageAssets.ic_on),
+                                          ),
+                                          title: new Text(item.name),
+                                          trailing: new Icon(Icons.navigate_next),
+                                          onTap: () {
+                                            _click(index);
+                                          },
+                                        )
                                     ));
                               },
                             ));

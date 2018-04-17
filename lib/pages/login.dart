@@ -8,12 +8,14 @@ import '../utils/assets.dart';
 import '../utils/style.dart';
 import '../utils/func.dart';
 import '../utils/network.dart';
+import '../utils/db.dart';
 
 import '../ui/clearTextFieldForm.dart';
 
 import 'passwd.dart';
 import 'home.dart';
 import 'register.dart';
+import 'switchPlatform.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key key}) : super(key: key);
@@ -37,7 +39,7 @@ class LoginPageState extends State<LoginPage> {
 
     _cache = Cache.instance;
     _username = _cache.username??'';
-    _password = _cache.passwd??'';
+    _password = _cache.password??'';
     _remember = _cache.remember?? false;
 
   }
@@ -99,7 +101,14 @@ class LoginPageState extends State<LoginPage> {
           if(res != null){
             await _cache.setStringValue(KEY_TOKEN, res['Token']);
             await _cache.setIntValue(KEY_ADMIN, res['Admin']);
-            Navigator.pushReplacementNamed(context, HomePage.route);
+
+            Map value = await DB.instance.getData<KeyValue>(where: '${KeyValueTable.key} = ?', whereArgs: [_userKey.currentState.text]);
+
+            if(value == null){
+              Navigator.pushReplacementNamed(context, SwitchPlatformPage.route);
+            } else {
+              Navigator.pushReplacementNamed(context, HomePage.route);
+            }
           } else {
             _showMessage('返回格式错误: $res');
           }

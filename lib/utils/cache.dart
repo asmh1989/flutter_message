@@ -8,6 +8,9 @@ const String KEY_USERNAME = "__username";
 const String KEY_PASSWORD = "__password";
 const String KEY_REMEMBER = "__remember";
 const String KEY_ADMIN = '__admin';
+const String KEY_CDNO = '__cdno';
+const String KEY_CDURL='__cdurl';
+const String KEY_CDTOKEN = '__cdtoken';
 
 class Cache {
   Cache._(this._prefs);
@@ -27,9 +30,12 @@ class Cache {
   String get token => _getString(KEY_TOKEN);
   String get cdadd => _getString(KEY_CDADD);
   String get username => _getString(KEY_USERNAME);
-  String get passwd => _getString(KEY_PASSWORD);
+  String get password => _getString(KEY_PASSWORD);
   bool get remember => _getBool(KEY_REMEMBER);
   int get admin => _getInt(KEY_ADMIN);
+  String get cdno => _getString(KEY_CDNO);
+  String get cdurl => _getString(KEY_CDURL);
+  String get cdtoekn => _getString(KEY_CDTOKEN);
 
   String _getString(String key){
     return  _prefs.getString(key)?? "";
