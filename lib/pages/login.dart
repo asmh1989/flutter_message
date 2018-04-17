@@ -102,7 +102,7 @@ class LoginPageState extends State<LoginPage> {
             await _cache.setStringValue(KEY_TOKEN, res['Token']);
             await _cache.setIntValue(KEY_ADMIN, res['Admin']);
 
-            Map value = await DB.instance.getData<KeyValue>(where: '${KeyValueTable.key} = ?', whereArgs: [_userKey.currentState.text]);
+            final value = await DB.instance.getData<KeyValue>(where: '${KeyValueTable.key} = ?', whereArgs: [_userKey.currentState.text]);
 
             if(value == null){
               Navigator.pushReplacementNamed(context, SwitchPlatformPage.route);

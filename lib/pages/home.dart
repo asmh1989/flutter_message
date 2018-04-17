@@ -6,7 +6,7 @@ import '../utils/assets.dart';
 import '../utils/style.dart';
 
 import 'switchPlatform.dart';
-
+import 'commandList.dart';
 
 class HomePage extends StatefulWidget{
   const HomePage({Key key}): super(key: key);
@@ -111,6 +111,9 @@ class HomeState extends State<HomePage> {
           new Divider(height: 0.5),
           _getMenu(ImageAssets.myinfo_icon_2, '指令管理', () {
 
+            Navigator.push(context, new MaterialPageRoute(
+                builder: (BuildContext context)=> new CommandListPage())
+            );
           }),
           new Divider(height: 0.5),
         ],

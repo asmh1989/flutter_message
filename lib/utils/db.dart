@@ -5,12 +5,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-class KeyValueTable {
-  static const String name = 'KEYVALUE';
-  static const String id = 'ID';
-  static const String key = 'KEY';
-  static const String value = 'VALUE';
-}
 
 class Value {
   int id;
@@ -31,6 +25,13 @@ class Value {
     return map;
   }
 
+}
+
+class KeyValueTable {
+  static const String name = 'KEYVALUE';
+  static const String id = 'ID';
+  static const String key = 'KEY';
+  static const String value = 'VALUE';
 }
 
 class KeyValue extends Value {
@@ -60,6 +61,42 @@ class KeyValue extends Value {
   }
 }
 
+class CommandValueTable {
+  static const String name = 'commandInfo';
+  static const String id = 'ID';
+  static const String title = 'TITLE';
+  static const String content = 'CONTENT';
+}
+
+class CommandValue extends Value {
+  String title;
+  String content;
+
+  @override
+  Map<String, dynamic> toMap() {
+
+    Map<String, dynamic> map = super.toMap();
+
+    map.addAll({CommandValueTable.title: title, CommandValueTable.content: content});
+
+    return map;
+  }
+
+  CommandValue({int id, String title, String content}): this.title=title, this.content = content, super(id);
+
+  CommandValue.fromMap(Map map):super.fromMap(map) {
+    title = map[CommandValueTable.title];
+    content = map[CommandValueTable.content];
+  }
+
+  @override
+  String toString() {
+    return CommandValueTable.name;
+  }
+}
+
+
+
 class DB {
 
   static const String _db_name = 'sms.db';
@@ -82,6 +119,14 @@ create table ${KeyValueTable.name} (
   ${KeyValueTable.id} integer primary key autoincrement, 
   ${KeyValueTable.key} text not null,
   ${KeyValueTable.value} text not null)
+''');
+
+            /// commandValue table
+            await db.execute('''
+create table ${CommandValueTable.name} ( 
+  ${CommandValueTable.id} integer primary key autoincrement, 
+  ${CommandValueTable.title} text not null,
+  ${CommandValueTable.content} text not null)
 ''');
 
 
@@ -119,34 +164,48 @@ create table ${KeyValueTable.name} (
   }
 
   Future<Null> insertOrUpdate<T extends Value>(T data, {String where, List whereArgs}) async {
-    Map d = await getData<T>(where: where, whereArgs: whereArgs);
+    T d = await getData<T>(where: where, whereArgs: whereArgs);
     if(d == null){
       await insert<T>(data);
     } else {
-      data.id= d['ID'];
+      data.id= d.id;
       await update<T>(data);
     }
 
   }
 
-  Future<Map<String,dynamic>> getData<T extends Value>({List<String> columns, String where, List whereArgs}) async {
+  Future<T> getData<T extends Value>({List<String> columns, String where, List whereArgs}) async {
     List<Map<String,dynamic>> maps = await _db.query(T.toString(),
         columns: columns,
         where: where,
         whereArgs: whereArgs);
     if (maps.length > 0) {
-      return  maps.first;
+      return  _getTypeInstance(maps.first);
     }
     return null;
   }
 
-  Future<List<Map<String,dynamic>>> getValues<T extends Value>({String where, List whereArgs, List<String> columns}) async {
+  Value _getTypeInstance<T extends Value>(Map<String, dynamic> map){
+    if(T.toString() == KeyValueTable.name){
+      return new KeyValue.fromMap(map);
+    } else if(T.toString() == CommandValueTable.name){
+      return new CommandValue.fromMap(map);
+    }
+    return new Value.fromMap(map);
+  }
+
+  Future<List<T>> getValues<T extends Value>({String where, List whereArgs, List<String> columns}) async {
     List<Map<String,dynamic>> maps = await _db.query(T.toString(),
         columns: columns,
         where: where,
         whereArgs: whereArgs
     );
-    return maps;
+
+    if(maps == null){
+      return <T>[];
+    }
+
+    return maps.map( (Map<String, dynamic> f)=> _getTypeInstance<T>(f)).toList();
   }
 
 
