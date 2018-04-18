@@ -7,6 +7,8 @@ import 'commandEdit.dart';
 
 import '../utils/db.dart';
 import '../utils/style.dart';
+import '../utils/func.dart';
+
 import '../ui/swide_widget.dart';
 
 class CommandListPage extends StatefulWidget{
@@ -47,7 +49,7 @@ class CommandListPageState extends State<CommandListPage>{
           builder: (BuildContext context, AsyncSnapshot<List<CommandValue>> snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:
-                return new Center(child: new CircularProgressIndicator());
+                return Func.loadingWidget(context);
               default:
                 List<CommandValue> values = snapshot.data;
 //                print('find CommandValue = ${values.length}');

@@ -9,6 +9,7 @@ import 'pages/switchPlatform.dart';
 import 'utils/cache.dart';
 import 'utils/style.dart';
 import 'utils/db.dart';
+import 'utils/func.dart';
 
 void main() {
   MaterialPageRoute.debugEnableFadingRoutes = true; // ignore: deprecated_member_use
@@ -45,7 +46,7 @@ class MyApp extends StatelessWidget {
         future: getData(),
         builder: (BuildContext context, AsyncSnapshot<Cache> snapshot){
           switch(snapshot.connectionState){
-            case ConnectionState.waiting: return new Center(child: new CircularProgressIndicator());
+            case ConnectionState.waiting: return Func.loadingWidget(context);
             default:
               if(snapshot.hasData){
                 Cache cache = snapshot.data;

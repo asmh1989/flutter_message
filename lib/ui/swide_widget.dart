@@ -92,7 +92,7 @@ class _LeftSlideState extends State<FXLeftSlide> {
                     color: button.backgroundColor,
                     width: 60.0,
                     height: childSize.height,
-                    child: new Text(button.name, style:new TextStyle(color: button.fontColor)),
+                    child: new Text(button.name, style:new TextStyle(color: button.fontColor, fontSize: 18.0)),
                 )
             );
 

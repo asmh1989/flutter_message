@@ -67,33 +67,8 @@ class HomeState extends State<HomePage> {
   }
 
   Widget _getPersonView() {
-
     List<Widget> children = <Widget>[
-      new Container(
-          height: 180.0 +  MediaQuery.of(context).padding.top,
-          decoration: new BoxDecoration(
-              image: new DecorationImage(image: new AssetImage(ImageAssets.ic_bg_person), fit: BoxFit.cover)
-          ),
-          child: new Column (
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              new Image.asset(ImageAssets.icon_mine_photo,
-                height: 72.0,
-                width: 72.0,
-              ),
-              new SizedBox(height: 8.0),
-              new Text(Cache.instance.username, style: new TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.0
-              )),
-              new Text(Cache.instance.cdadd, style: new TextStyle(
-                  color: Colors.white, fontSize: 16.0
-              )),
-              new SizedBox(height: 20.0),
-            ],
-          )
-      ),
+
       new Container(height: 8.0, color: Style.COLOR_BACKGROUND,),
       new Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -119,7 +94,8 @@ class HomeState extends State<HomePage> {
 
     ];
 
-    if(Cache.instance.admin == 2) {
+    /// 管理员权限
+    if(Cache.instance.admin == 1) {
       children.addAll(<Widget>[
         new Container(height: 8.0, color: Style.COLOR_BACKGROUND,),
         new Column(
@@ -151,18 +127,69 @@ class HomeState extends State<HomePage> {
             new Divider(height: 0.5),
             _getMenu(ImageAssets.myinfo_icon_4, '退出登录', () {
 
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) => new AlertDialog(
+                    content: new Text('是否退出当前账号'),
+                    actions: <Widget>[
+                      new FlatButton(onPressed: (){
+                        Navigator.pop(context);
+                      }, child: new Text('取消')),
+                      new FlatButton(onPressed: () async {
+                        Cache cache = await Cache.getInstace();
+                        cache.remove(KEY_TOKEN);
+                        cache.remove(KEY_ADMIN);
+                        Navigator.pushReplacementNamed(context, LoginPage.route);
+                      }, child: new Text('确定'))
+                    ],
+                  )
+              );
+
             }),
             new Divider(height: 0.5),
-          ]        ),
-      new Expanded(child: new Container(
-        color: Style.COLOR_BACKGROUND,
-      ))
+          ]
+      ),
     ]);
 
     return new Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: children
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        new Container(
+            height: 180.0 +  MediaQuery.of(context).padding.top,
+            decoration: new BoxDecoration(
+                image: new DecorationImage(image: new AssetImage(ImageAssets.ic_bg_person), fit: BoxFit.cover)
+            ),
+            child: new Column (
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                new Image.asset(ImageAssets.icon_mine_photo,
+                  height: 72.0,
+                  width: 72.0,
+                ),
+                new SizedBox(height: 8.0),
+                new Text(Cache.instance.username, style: new TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.0
+                )),
+                new Text(Cache.instance.cdadd, style: new TextStyle(
+                    color: Colors.white, fontSize: 16.0
+                )),
+                new SizedBox(height: 20.0),
+              ],
+            )
+        ),
+        SingleChildScrollView(
+            child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: children
+            )),
+        new Expanded(child: new Container(
+          color: Style.COLOR_BACKGROUND,
+        ))
+      ],
     );
   }
 

@@ -10,6 +10,7 @@ import '../utils/assets.dart';
 
 import '../utils/style.dart';
 import '../utils/db.dart';
+import '../utils/func.dart';
 
 import 'home.dart';
 import 'login.dart';
@@ -72,7 +73,7 @@ class SwitchPlatformPageState extends State<SwitchPlatformPage> {
                 (BuildContext context, AsyncSnapshot<http.Response> snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.waiting:
-                  return new Center(child: new CircularProgressIndicator());
+                  return Func.loadingWidget(context);
                 default:
                   if (snapshot.hasData) {
                     http.Response response = snapshot.data;
