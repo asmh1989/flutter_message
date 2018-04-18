@@ -3,6 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'size_change_notifier.dart';
 
+typedef void AutoClose();
+typedef void OnOpen(AutoClose autoClose);
+typedef void StartTouch();
 
 class FXRightSideButton extends Object{
     FXRightSideButton({@required this.name,@required this.onPress, this.backgroundColor:Colors.grey, this.fontColor:Colors.white}){
@@ -17,13 +20,21 @@ class FXRightSideButton extends Object{
 }
 
 class FXLeftSlide extends StatefulWidget {
-    FXLeftSlide({Key key, @required this.buttons, @required this.child, this.backgroundColor:Colors.white}):super(key:key){
+    FXLeftSlide({
+      Key key,
+      this.onOpen,
+      this.startTouch,
+      @required this.buttons,
+      @required this.child,
+      this.backgroundColor:Colors.white}):super(key:key){
         assert(buttons.length <= 3);
     }
 
     final List<FXRightSideButton> buttons;
     final Widget child;
     final Color backgroundColor;
+    final OnOpen onOpen;
+    final StartTouch startTouch;
 
     @override
     State<StatefulWidget> createState() {
@@ -35,16 +46,51 @@ class _LeftSlideState extends State<FXLeftSlide> {
     ScrollController controller = new ScrollController();
     bool isOpen = false;
 
+    bool needSendTouchEvent = true;
     Size childSize;
 
     @override
     void initState() {
         super.initState();
 
+        controller.addListener((){
+          if(needSendTouchEvent)  {
+//            print('${widget.key} is startTouch');
+
+            needSendTouchEvent = false;
+            if(widget.startTouch != null){
+              widget.startTouch();
+            }
+          }
+
+        });
+
     }
 
     bool _handleScrollNotification(dynamic notification) {
         if (notification is ScrollEndNotification) {
+//          print('_handleScrollNotification : ${notification.metrics.pixels}');
+
+
+          if(notification.metrics.pixels > 0.0){
+            if(widget.onOpen != null){
+              widget.onOpen((){
+//                print('${widget.key} need autoClose');
+                scheduleMicrotask((){
+                  try {
+                    controller.animateTo(
+                        0.0, duration: new Duration(milliseconds: 200),
+                        curve: Curves.decelerate);
+                  } catch(e){
+                    print(e);
+                  }
+                });
+              });
+            }
+          } else {
+            needSendTouchEvent = true;
+          }
+
             if (notification.metrics.pixels >= (widget.buttons.length * 60.0)/2 && notification.metrics.pixels < widget.buttons.length * 60.0){
                 scheduleMicrotask((){
                     controller.animateTo(widget.buttons.length * 60.0, duration: new Duration(milliseconds: 500), curve: Curves.decelerate);
@@ -68,7 +114,7 @@ class _LeftSlideState extends State<FXLeftSlide> {
                 ),
                 onNotification: (FXSizeChangedLayoutNotification notification){
                     childSize = notification.newSize;
-                    print(notification.newSize);
+//                    print(notification.newSize);
                     scheduleMicrotask((){
                         setState((){});
                     });

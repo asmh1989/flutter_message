@@ -99,7 +99,7 @@ class LoginPageState extends State<LoginPage> {
 
             KeyValue value = await DB.instance.queryOne<KeyValue>(where: '${KeyValueTable.key} = ?', whereArgs: [_userKey.currentState.text]);
 
-            print('found cdadd = ${value.value}');
+            print('found cdadd = ${value?.value}');
             if(value == null){
               Navigator.pushReplacementNamed(context, SwitchPlatformPage.route);
             } else {

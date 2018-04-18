@@ -24,12 +24,17 @@ class CommandListPage extends StatefulWidget{
 
 class CommandListPageState extends State<CommandListPage>{
 
+  AutoClose _autoClose;
+
   Future<List<CommandValue>> _getData() async{
     return DB.instance.query<CommandValue>();
   }
 
   @override
   Widget build(BuildContext context) {
+
+    _autoClose = null;
+
     return new Scaffold(
       appBar: new AppBar(
         title: new Text('指令管理'),
@@ -98,6 +103,13 @@ class CommandListPageState extends State<CommandListPage>{
                           );
                           return new FXLeftSlide(
                             key: new Key('$index'),
+                            onOpen: (AutoClose autoClose) => _autoClose = autoClose,
+                            startTouch: () {
+                              if(_autoClose != null){
+                                _autoClose();
+                                _autoClose = null;
+                              }
+                            },
                             child: new DecoratedBox(
                               position: DecorationPosition.foreground,
                               decoration: decoration,
