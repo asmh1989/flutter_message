@@ -15,7 +15,10 @@ import '../utils/network.dart';
 const double SPACE = 20.0;
 
 class PasswordPage extends StatefulWidget{
-  const PasswordPage({Key key}): super(key: key);
+
+  final bool isModify;
+
+  const PasswordPage({Key key, this.isModify = false}): super(key: key);
 
   static const String route = '/passwd';
 
@@ -30,6 +33,7 @@ class PersonData {
   String phoneCode= '';
   String password_1 = '';
   String password_2 = '';
+  String password_0 = '';
 }
 
 class PasswordState extends State<PasswordPage>{
@@ -82,11 +86,20 @@ class PasswordState extends State<PasswordPage>{
       _loading = true;
     });
 
-    http.Response response = await NetWork.post(NetWork.FIND_PWD, {
-      'Unm': person.username,
-      'Ver': person.phoneCode,
-      'Npd': person.password_1
-    });
+    http.Response response;
+    if(!widget.isModify){
+      response = await NetWork.post(NetWork.FIND_PWD, {
+        'Unm': person.username,
+        'Ver': person.phoneCode,
+        'Npd': person.password_1
+      });
+    } else {
+      response = await NetWork.post(NetWork.MODIFY_PWD, {
+        'Unm': person.username,
+        'Upd': person.password_0,
+        'Npd': person.password_1
+      });
+    }
 
     Future.delayed(new Duration(milliseconds: 200), () async {
       setState(() {
@@ -100,8 +113,8 @@ class PasswordState extends State<PasswordPage>{
         if(data['Code'] != 0){
           _showMessage(data['Message']);
         } else {
-          _showMessage('找回成功');
-          Future.delayed(new Duration(milliseconds: 1000),(){
+          _showMessage(widget.isModify ? '修改成功': '找回成功');
+          Future.delayed(new Duration(milliseconds: 400),(){
             Navigator.pop(context);
           });
         }
@@ -165,6 +178,98 @@ class PasswordState extends State<PasswordPage>{
   @override
   Widget build(BuildContext context) {
 
+    List<Widget> formChildren = <Widget>[
+      new ClearTextFieldForm(
+        key: _userKey,
+        icon: new Image.asset(
+          ImageAssets.icon_reg_account,
+          height: 25.0,
+          fit: BoxFit.fill,
+        ),
+        hintText: '请输入手机号',
+        initialValue: _username,
+        keyboardType: TextInputType.phone,
+        onSaved: (String value) { person.username = value;},
+        validator: _validateName,
+      ),
+      new SizedBox(height: SPACE),
+
+    ];
+
+    if(widget.isModify){
+        formChildren.add( new PasswordField(
+          icon: new Image.asset(
+            ImageAssets.icon_ensure_password,
+            height: 25.0,
+          ),
+          hintText: '请输入原密码',
+          validator: _validateNull('原密码不能为空'),
+          onSaved: (String value) {person.password_0 = value;},
+        ));
+    } else {
+      formChildren.add(new TextFormField(
+        validator: _validateNull('验证码不能为空'),
+        keyboardType: TextInputType.number,
+        onSaved: (String value) { person.phoneCode = value; },
+        decoration: new InputDecoration(
+          prefixIcon: new Padding(
+            padding: EdgeInsets.all(12.0),
+            child: new Image.asset(
+              ImageAssets.icon_reg_verification,
+              height: 25.0,
+            ),
+          ),
+          suffixIcon: new RaisedButton(
+            color: const Color(0xFF029de0),
+            highlightColor: const Color(0xFF029de0),
+            child: const Text('获取验证码',
+                style: const TextStyle(
+                  inherit: false,
+                  fontSize: 14.0,
+                  color: Colors.white,
+                  textBaseline: TextBaseline.alphabetic,
+                )
+            ),
+            onPressed: this._getPhoneCode,
+          ),
+          border: const UnderlineInputBorder(),
+          hintText: '请输入验证码',
+        ),
+      ));
+    }
+
+    formChildren.addAll(<Widget>[
+      new SizedBox(height: SPACE),
+      new PasswordField(
+        icon: new Image.asset(
+          ImageAssets.icon_reg_password,
+          height: 25.0,
+        ),
+        hintText: '请输入新密码',
+        validator: _validateNull('密码不能为空'),
+        onSaved: (String value) {person.password_1 = value;},
+      ),
+      new SizedBox(height: SPACE),
+      new PasswordField(
+        icon: new Image.asset(
+          ImageAssets.icon_ensure_password,
+          height: 25.0,
+        ),
+        hintText: '请确认新密码',
+        validator: _validateNull('确认不能为空'),
+        onSaved: (String value) {person.password_2 = value;},
+      ),
+      new SizedBox(height: SPACE* 2),
+//              new SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 ? 0.0 : 30.0),
+      new RaisedButton(
+        color: const Color(0xFF029de0),
+        highlightColor: const Color(0xFF029de0),
+        child: new Text(widget.isModify ? '提交' :'确认', style: Style.loginTextStyle),
+        padding: EdgeInsets.all(10.0),
+        onPressed: _handleSubmitted,
+      )
+    ]);
+
     List<Widget> children = <Widget>[
       new Form (
         key: _formKey,
@@ -173,81 +278,7 @@ class PasswordState extends State<PasswordPage>{
           child: new Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-                   new ClearTextFieldForm(
-                    key: _userKey,
-                    icon: new Image.asset(
-                      ImageAssets.icon_reg_account,
-                      height: 25.0,
-                      fit: BoxFit.fill,
-                    ),
-                    hintText: '请输入手机号',
-                    initialValue: _username,
-                    keyboardType: TextInputType.phone,
-                    onSaved: (String value) { person.username = value;},
-                    validator: _validateName,
-              ),
-              new SizedBox(height: SPACE),
-              new TextFormField(
-                    validator: _validateNull('验证码不能为空'),
-                    keyboardType: TextInputType.number,
-                    onSaved: (String value) { person.phoneCode = value; },
-                    decoration: new InputDecoration(
-                      prefixIcon: new Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child: new Image.asset(
-                          ImageAssets.icon_reg_verification,
-                          height: 25.0,
-                        ),
-                      ),
-                      suffixIcon: new RaisedButton(
-                        color: const Color(0xFF029de0),
-                        highlightColor: const Color(0xFF029de0),
-                        child: const Text('获取验证码',
-                            style: const TextStyle(
-                              inherit: false,
-                              fontSize: 14.0,
-                              color: Colors.white,
-                              textBaseline: TextBaseline.alphabetic,
-                            )
-                        ),
-                        onPressed: this._getPhoneCode,
-                      ),
-                      border: const UnderlineInputBorder(),
-                      hintText: '请输入验证码',
-                    ),
-              ),
-              new SizedBox(height: SPACE),
-              new PasswordField(
-                  icon: new Image.asset(
-                    ImageAssets.icon_reg_password,
-                    height: 25.0,
-                  ),
-                  hintText: '请输入新密码',
-                  validator: _validateNull('密码不能为空'),
-                  onSaved: (String value) {person.password_1 = value;},
-              ),
-              new SizedBox(height: SPACE),
-              new PasswordField(
-                  icon: new Image.asset(
-                    ImageAssets.icon_ensure_password,
-                    height: 25.0,
-                  ),
-                  hintText: '请确认新密码',
-                  validator: _validateNull('确认不能为空'),
-                  onSaved: (String value) {person.password_2 = value;},
-              ),
-              new SizedBox(height: SPACE* 2),
-//              new SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 ? 0.0 : 30.0),
-              new RaisedButton(
-                color: const Color(0xFF029de0),
-                highlightColor: const Color(0xFF029de0),
-                child: const Text('确认', style: Style.loginTextStyle),
-                padding: EdgeInsets.all(10.0),
-                onPressed: _handleSubmitted,
-              ),
-
-            ],
+            children: formChildren,
           ),
         ),
       ),
@@ -280,7 +311,7 @@ class PasswordState extends State<PasswordPage>{
     return new Scaffold(
         key: _scaffoldKey,
         appBar: new AppBar(
-          title: const Text('忘记密码'),
+          title: new Text(widget.isModify ? '修改密码' : '忘记密码'),
         ),
         body: new Container(
           padding: const EdgeInsets.all(30.0),

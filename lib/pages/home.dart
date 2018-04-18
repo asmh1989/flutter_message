@@ -7,6 +7,7 @@ import '../utils/style.dart';
 
 import 'switchPlatform.dart';
 import 'commandList.dart';
+import 'passwd.dart';
 
 class HomePage extends StatefulWidget{
   const HomePage({Key key}): super(key: key);
@@ -99,14 +100,11 @@ class HomeState extends State<HomePage> {
         children: <Widget>[
           new Divider(height: 0.5),
           _getMenu(ImageAssets.myinfo_icon_1, '平台切换', () async {
+
+            /// 默认返回会主动刷新界面
             final result = await Navigator.pushNamed(context, SwitchPlatformPage.route);
             print('switchPlatform result: $result');
 
-//            if(result != null) {
-//              setState(() {
-//
-//              });
-//            }
           }),
           new Divider(height: 0.5),
           _getMenu(ImageAssets.myinfo_icon_2, '指令管理', () {
@@ -146,6 +144,9 @@ class HomeState extends State<HomePage> {
           children: <Widget>[
             new Divider(height: 0.5),
             _getMenu(ImageAssets.myinfo_icon_3, '修改密码', () {
+              Navigator.push(context, new MaterialPageRoute(
+                  builder: (BuildContext context)=> new PasswordPage(isModify: true,))
+              );
             }),
             new Divider(height: 0.5),
             _getMenu(ImageAssets.myinfo_icon_4, '退出登录', () {
