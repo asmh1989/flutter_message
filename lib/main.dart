@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('main build ....');
     return new MaterialApp(
       theme: new ThemeData(
         // This is the theme of your application.
@@ -52,7 +53,7 @@ class MyApp extends StatelessWidget {
                 String token = cache.token?? '';
                 String cdadd = cache.cdadd?? '';
 
-                print('token=$token, cdadd=$cdadd');
+//                print('token=$token, cdadd=$cdadd, state=${snapshot.connectionState}');
                 if(token.length > 0){
                   if(cdadd.length > 0){
                     return new HomePage();

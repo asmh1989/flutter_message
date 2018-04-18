@@ -88,13 +88,8 @@ class LoginPageState extends State<LoginPage> {
           _showMessage(data['Message']);
           _passwdKey.currentState.clear();
         } else {
-          if(_remember){
-            _cache.setStringValue(KEY_USERNAME, _userKey.currentState.text);
-            _cache.setStringValue(KEY_PASSWORD, _passwdKey.currentState.text);
-          } else {
-            _cache.remove(KEY_USERNAME);
-            _cache.remove(KEY_PASSWORD);
-          }
+          _cache.setStringValue(KEY_USERNAME, _userKey.currentState.text);
+          _cache.setStringValue(KEY_PASSWORD, _passwdKey.currentState.text);
 
           Map res = data['Response'];
 
@@ -102,8 +97,9 @@ class LoginPageState extends State<LoginPage> {
             await _cache.setStringValue(KEY_TOKEN, res['Token']);
             await _cache.setIntValue(KEY_ADMIN, res['Admin']);
 
-            final value = await DB.instance.getData<KeyValue>(where: '${KeyValueTable.key} = ?', whereArgs: [_userKey.currentState.text]);
+            KeyValue value = await DB.instance.queryOne<KeyValue>(where: '${KeyValueTable.key} = ?', whereArgs: [_userKey.currentState.text]);
 
+            print('found cdadd = ${value.value}');
             if(value == null){
               Navigator.pushReplacementNamed(context, SwitchPlatformPage.route);
             } else {
@@ -155,7 +151,7 @@ class LoginPageState extends State<LoginPage> {
                     keyboardType: TextInputType.phone,
                     hintText: '请输入您的账号',
                     hintStyle: Style.inputTextStyle,
-                    initialValue: _username,
+                    initialValue: _remember ? _username: '',
                     style: Style.inputTextStyle,
                   ),
                 )
@@ -171,7 +167,7 @@ class LoginPageState extends State<LoginPage> {
                   child: new ClearTextFieldForm(
                     key: _passwdKey,
                     obscureText: true,
-                    initialValue: _password,
+                    initialValue: _remember ? _password : '',
                     style: Style.inputTextStyle,
                     hintStyle: Style.inputTextStyle,
                     hintText: '请输入密码',

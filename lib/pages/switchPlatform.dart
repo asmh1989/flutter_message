@@ -12,6 +12,7 @@ import '../utils/style.dart';
 import '../utils/db.dart';
 
 import 'home.dart';
+import 'login.dart';
 
 class SwitchPlatformPage extends StatefulWidget {
   const SwitchPlatformPage({Key key}) : super(key: key);
@@ -32,12 +33,6 @@ class SwitchPlatformPageState extends State<SwitchPlatformPage> {
   }
 
   final GlobalKey<ScaffoldState> _scaffKey = new GlobalKey<ScaffoldState>();
-
-  void _showMessage(String msg) {
-    _scaffKey.currentState.showSnackBar(new SnackBar(
-      content: new Text(msg, textAlign: TextAlign.center),
-    ));
-  }
 
   void _click(int index) async {
 
@@ -82,15 +77,39 @@ class SwitchPlatformPageState extends State<SwitchPlatformPage> {
                   if (snapshot.hasData) {
                     http.Response response = snapshot.data;
                     if (response.statusCode != 200) {
-                      return new Center(
-                        child: new Text(response.toString()),
+                      return new Container(
+                          height: MediaQuery.of(context).size.height,
+                          child: new Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: <Widget>[
+                              new Text(response.toString()),
+                              new RaisedButton(
+                                  child: new Text('登出'),
+                                  onPressed: (){
+                                    Navigator.pushReplacementNamed(context, LoginPage.route);
+                                  })
+                            ],
+                          )
                       );
                     } else {
                       Map data = NetWork.decodeJson(response.body);
                       print(data);
 
                       if (data['Code'] != 0) {
-                        return new Center(child: new Text(data['Message']),);
+                        return new Center(
+                            child: new Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                new Text(data['Message']),
+                                new SizedBox(height: 10.0,),
+                                new RaisedButton(
+                                    child: new Text('登出'),
+                                    onPressed: (){
+                                      Navigator.pushReplacementNamed(context, LoginPage.route);
+                                    })
+                              ],
+                            )
+                        );
                       } else {
                         _platforms = parsePlatforms(data['Response']);
 

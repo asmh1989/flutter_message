@@ -14,7 +14,9 @@ class ClearTextFieldForm extends StatefulWidget {
   final ValueChanged<String> onFieldSubmitted;
   final FormFieldSetter<String> onSaved;
   final FormFieldValidator<String> validator;
-
+  final InputBorder border;
+  final int maxLine;
+  final EdgeInsets contentPadding;
 
   const ClearTextFieldForm({
     Key key,
@@ -28,6 +30,9 @@ class ClearTextFieldForm extends StatefulWidget {
     this.onFieldSubmitted,
     this.onSaved,
     this.validator,
+    this.border,
+    this.maxLine,
+    this.contentPadding
   }) : super (key: key);
 
   @override
@@ -88,11 +93,12 @@ class ClearTextFieldFormState extends State<ClearTextFieldForm> {
       onFieldSubmitted: widget.onFieldSubmitted,
       onSaved: widget.onSaved,
       validator: widget.validator,
+      maxLines: widget.maxLine??1,
       decoration: new InputDecoration(
-        prefixIcon: new Padding(
+        prefixIcon: widget.icon != null ? new Padding(
           padding: EdgeInsets.all(12.0),
           child: widget.icon,
-        ),
+        ): null,
         suffixIcon: _showClearIcon ? GestureDetector(
             onTap: () {
               _controller.clear();
@@ -107,10 +113,10 @@ class ClearTextFieldFormState extends State<ClearTextFieldForm> {
               color: Theme.of(context).accentColor,
             )
         ) : null,
-        border: const UnderlineInputBorder(),
+        border: widget.border??const UnderlineInputBorder(),
         hintText: widget.hintText,
-        contentPadding: EdgeInsets.symmetric(vertical: 12.0),
         hintStyle: widget.hintStyle,
+        contentPadding: widget.contentPadding
       ),
     );
   }

@@ -28,7 +28,7 @@ class Value {
 }
 
 class KeyValueTable {
-  static const String name = 'KEYVALUE';
+  static const String name = 'KeyValue';
   static const String id = 'ID';
   static const String key = 'KEY';
   static const String value = 'VALUE';
@@ -62,7 +62,7 @@ class KeyValue extends Value {
 }
 
 class CommandValueTable {
-  static const String name = 'commandInfo';
+  static const String name = 'CommandValue';
   static const String id = 'ID';
   static const String title = 'TITLE';
   static const String content = 'CONTENT';
@@ -89,10 +89,6 @@ class CommandValue extends Value {
     content = map[CommandValueTable.content];
   }
 
-  @override
-  String toString() {
-    return CommandValueTable.name;
-  }
 }
 
 
@@ -112,7 +108,6 @@ class DB {
 
       _db = await openDatabase(path, version: 1,
           onCreate: (Database db, int version) async {
-
             /// keyValue table
             await db.execute('''
 create table ${KeyValueTable.name} ( 
@@ -128,8 +123,6 @@ create table ${CommandValueTable.name} (
   ${CommandValueTable.title} text not null,
   ${CommandValueTable.content} text not null)
 ''');
-
-
           });
 
       _instance = new DB();
@@ -143,9 +136,7 @@ create table ${CommandValueTable.name} (
     print(documentsDirectory);
 
     // make sure the folder exists
-    if (await new Directory(dirname(path)).exists()) {
-      await deleteDatabase(path);
-    } else {
+    if (!await new Directory(dirname(path)).exists()) {
       try {
         await new Directory(dirname(path)).create(recursive: true);
       } catch (e) {
@@ -164,7 +155,7 @@ create table ${CommandValueTable.name} (
   }
 
   Future<Null> insertOrUpdate<T extends Value>(T data, {String where, List whereArgs}) async {
-    T d = await getData<T>(where: where, whereArgs: whereArgs);
+    T d = await queryOne<T>(where: where, whereArgs: whereArgs);
     if(d == null){
       await insert<T>(data);
     } else {
@@ -174,18 +165,7 @@ create table ${CommandValueTable.name} (
 
   }
 
-  Future<T> getData<T extends Value>({List<String> columns, String where, List whereArgs}) async {
-    List<Map<String,dynamic>> maps = await _db.query(T.toString(),
-        columns: columns,
-        where: where,
-        whereArgs: whereArgs);
-    if (maps.length > 0) {
-      return  _getTypeInstance(maps.first);
-    }
-    return null;
-  }
-
-  Value _getTypeInstance<T extends Value>(Map<String, dynamic> map){
+  static Value _getTypeInstance<T extends Value>(Map<String, dynamic> map){
     if(T.toString() == KeyValueTable.name){
       return new KeyValue.fromMap(map);
     } else if(T.toString() == CommandValueTable.name){
@@ -194,18 +174,35 @@ create table ${CommandValueTable.name} (
     return new Value.fromMap(map);
   }
 
-  Future<List<T>> getValues<T extends Value>({String where, List whereArgs, List<String> columns}) async {
+  Future<T> queryOne<T extends Value>({List<String> columns, String where, List whereArgs}) async {
+    List<Map<String,dynamic>> maps = await _db.query(T.toString(),
+        columns: columns,
+        where: where,
+        whereArgs: whereArgs);
+    if (maps.length > 0) {
+      return  maps.map( (Map<String, dynamic> f)=> _getTypeInstance<T>(f)).toList()[0];
+    }
+    return null;
+  }
+
+
+  Future<List<T>> query<T extends Value>({String where, List whereArgs, List<String> columns}) async {
     List<Map<String,dynamic>> maps = await _db.query(T.toString(),
         columns: columns,
         where: where,
         whereArgs: whereArgs
     );
 
+    print('query ${T.toString()}, data=$maps');
+
     if(maps == null){
       return <T>[];
     }
 
-    return maps.map( (Map<String, dynamic> f)=> _getTypeInstance<T>(f)).toList();
+    return maps.map( (Map<String, dynamic> f){
+      T value = _getTypeInstance<T>(f);
+      return value;
+    }).toList();
   }
 
 

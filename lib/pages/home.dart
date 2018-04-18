@@ -102,11 +102,11 @@ class HomeState extends State<HomePage> {
             final result = await Navigator.pushNamed(context, SwitchPlatformPage.route);
             print('switchPlatform result: $result');
 
-            if(result != null) {
-              setState(() {
-
-              });
-            }
+//            if(result != null) {
+//              setState(() {
+//
+//              });
+//            }
           }),
           new Divider(height: 0.5),
           _getMenu(ImageAssets.myinfo_icon_2, '指令管理', () {
