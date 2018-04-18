@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'size_change_notifier.dart';
 
 typedef void AutoClose();
-typedef void OnOpen(AutoClose autoClose);
+typedef void OnOpen(Key key, AutoClose autoClose);
 typedef void StartTouch();
 
 class FXRightSideButton extends Object{
@@ -21,7 +21,7 @@ class FXRightSideButton extends Object{
 
 class FXLeftSlide extends StatefulWidget {
     FXLeftSlide({
-      Key key,
+      @required Key key,
       this.onOpen,
       this.startTouch,
       @required this.buttons,
@@ -74,7 +74,7 @@ class _LeftSlideState extends State<FXLeftSlide> {
 
           if(notification.metrics.pixels > 0.0){
             if(widget.onOpen != null){
-              widget.onOpen((){
+              widget.onOpen(widget.key, (){
 //                print('${widget.key} need autoClose');
                 scheduleMicrotask((){
                   try {

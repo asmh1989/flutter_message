@@ -24,7 +24,7 @@ class CommandListPage extends StatefulWidget{
 
 class CommandListPageState extends State<CommandListPage>{
 
-  AutoClose _autoClose;
+  Map<Key, AutoClose> _autoClose = new Map<Key, AutoClose>();
 
   Future<List<CommandValue>> _getData() async{
     return DB.instance.query<CommandValue>();
@@ -33,7 +33,7 @@ class CommandListPageState extends State<CommandListPage>{
   @override
   Widget build(BuildContext context) {
 
-    _autoClose = null;
+    _autoClose.clear();
 
     return new Scaffold(
       appBar: new AppBar(
@@ -103,12 +103,13 @@ class CommandListPageState extends State<CommandListPage>{
                           );
                           return new FXLeftSlide(
                             key: new Key('$index'),
-                            onOpen: (AutoClose autoClose) => _autoClose = autoClose,
+                            onOpen: (Key key,  AutoClose autoClose) => _autoClose[key] = autoClose,
                             startTouch: () {
-                              if(_autoClose != null){
-                                _autoClose();
-                                _autoClose = null;
-                              }
+                              _autoClose.forEach((Key key, AutoClose autoClose){
+                                autoClose();
+                              });
+
+                              _autoClose.clear();
                             },
                             child: new DecoratedBox(
                               position: DecorationPosition.foreground,
