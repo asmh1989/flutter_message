@@ -38,34 +38,27 @@ class RegisterPageState extends State<RegisterPage> {
 
   bool _loading = false;
 
-  bool _autovalidate = false;
+  bool _autoValidate = false;
   PersonData person = new PersonData();
 
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final GlobalKey<ClearTextFieldFormState> _userKey = new GlobalKey<ClearTextFieldFormState>();
 
-
-  void _showMessage(String value) {
-    _scaffoldKey.currentState.showSnackBar(new SnackBar(
-        content: new Text(value, textAlign: TextAlign.center)
-    ));
-  }
-
   Future<Null>  _handleSubmitted() async {
     FocusScope.of(context).requestFocus(new FocusNode());
 
     final FormState form = _formKey.currentState;
     if (!form.validate()) {
-      _autovalidate = true; // Start validating on every change.
-      _showMessage('请先修复错误,再确认');
+      _autoValidate = true; // Start validating on every change.
+      Func.showMessage(_scaffoldKey, '请先修复错误,再确认');
       return;
     } else {
       form.save();
     }
 
     if(person.password_1 != person.password_2){
-      _showMessage('两次密码输入不一致');
+      Func.showMessage(_scaffoldKey, '两次密码输入不一致');
       return;
     }
 
@@ -92,18 +85,15 @@ class RegisterPageState extends State<RegisterPage> {
 
         Map data = NetWork.decodeJson(response.body);
         if(data['Code'] != 0){
-          _showMessage(data['Message']);
+          Func.showMessage(_scaffoldKey, data['Message']);
         } else {
-          _showMessage('注册成功');
+          Func.showMessage(_scaffoldKey, '注册成功');
           Future.delayed(new Duration(milliseconds: 1000),(){
             Navigator.pop(context);
           });
         }
       }
     });
-
-
-
   }
 
   String _validateName(String value) {
@@ -114,22 +104,12 @@ class RegisterPageState extends State<RegisterPage> {
     return null;
   }
 
-  FormFieldValidator<String>  _validateNull(String msg){
-    return (String value) {
-      if(value.isEmpty){
-        return msg;
-      }
-
-      return null;
-    };
-  }
-
   Future<Null> _getPhoneCode() async {
 
     String phone = _userKey.currentState.text;
     if(!Func.validatePhone(phone)) {
       _userKey.currentState.clear();
-      _showMessage('手机号格式错误');
+      Func.showMessage(_scaffoldKey, '手机号格式错误');
       return;
     }
 
@@ -149,9 +129,9 @@ class RegisterPageState extends State<RegisterPage> {
 
         Map data = NetWork.decodeJson(response.body);
         if(data['Code'] != 0){
-          _showMessage(data['Message']);
+          Func.showMessage(_scaffoldKey, data['Message']);
         } else {
-          _showMessage('已发送');
+          Func.showMessage(_scaffoldKey, '已发送');
         }
       }
     });
@@ -163,7 +143,7 @@ class RegisterPageState extends State<RegisterPage> {
     List<Widget> children = <Widget>[
       new Form (
         key: _formKey,
-        autovalidate: _autovalidate,
+        autovalidate: _autoValidate,
         child:new SingleChildScrollView(
           child: new Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -182,7 +162,7 @@ class RegisterPageState extends State<RegisterPage> {
               ),
               new SizedBox(height: SPACE),
               new TextFormField(
-                    validator: _validateNull('验证码不能为空'),
+                    validator: Func.validateNull('验证码不能为空'),
                     keyboardType: TextInputType.number,
                     onSaved: (String value) { person.phoneCode = value; },
                     decoration: new InputDecoration(
@@ -219,7 +199,7 @@ class RegisterPageState extends State<RegisterPage> {
                 ),
                 hintText: '请输入姓名',
                 onSaved: (String value) { person.name = value;},
-                validator: _validateNull('请输入姓名'),
+                validator: Func.validateNull('请输入姓名'),
               ),
               new SizedBox(height: SPACE),
               new ClearTextFieldForm(
@@ -229,7 +209,7 @@ class RegisterPageState extends State<RegisterPage> {
                 ),
                 hintText: '请输入部门/单位/组织等',
                 onSaved: (String value) { person.department = value;},
-                validator: _validateNull('请输入部门/单位/组织等'),
+                validator: Func.validateNull('请输入部门/单位/组织等'),
               ),
               new SizedBox(height: SPACE),
               new ClearTextFieldForm(
@@ -239,7 +219,7 @@ class RegisterPageState extends State<RegisterPage> {
                 ),
                 hintText: '请输入工号',
                 onSaved: (String value) { person.jobNumber = value;},
-                validator: _validateNull('请输入工号'),
+                validator: Func.validateNull('请输入工号'),
               ),
               new SizedBox(height: SPACE),
               new PasswordField(
@@ -248,7 +228,7 @@ class RegisterPageState extends State<RegisterPage> {
                     height: 25.0,
                   ),
                   hintText: '请输入密码',
-                  validator: _validateNull('密码不能为空'),
+                  validator: Func.validateNull('密码不能为空'),
                   onSaved: (String value) {person.password_1 = value;},
               ),
               new SizedBox(height: SPACE),
@@ -258,7 +238,7 @@ class RegisterPageState extends State<RegisterPage> {
                     height: 25.0,
                   ),
                   hintText: '请确认密码',
-                  validator: _validateNull('确认不能为空'),
+                  validator: Func.validateNull('确认不能为空'),
                   onSaved: (String value) {person.password_2 = value;},
               ),
               new SizedBox(height: SPACE* 2),
@@ -278,27 +258,7 @@ class RegisterPageState extends State<RegisterPage> {
     ];
 
     if(_loading){
-      children.add(
-          new Positioned.fill(
-              child: new GestureDetector(
-                  onTap: (){},
-                  behavior: HitTestBehavior.opaque,
-                  child: new Center(
-                      child: new Theme(
-                        data: new ThemeData(
-                          accentColor: Colors.red,
-                        ),
-                        child: new Container(
-                            height: 60.0,
-                            width: 60.0,
-                            child:new CircularProgressIndicator(
-                            )
-                        ),
-                      )
-                  )
-              )
-          )
-      );
+      children.add(Func.topLoadingWidgetInChildren());
     }
 
     return new Scaffold(

@@ -285,27 +285,7 @@ class PasswordState extends State<PasswordPage>{
     ];
 
     if(_loading){
-      children.add(
-          new Positioned.fill(
-              child: new GestureDetector(
-                  onTap: (){},
-                  behavior: HitTestBehavior.opaque,
-                  child: new Center(
-                      child: new Theme(
-                        data: new ThemeData(
-                          accentColor: Colors.red,
-                        ),
-                        child: new Container(
-                            height: 60.0,
-                            width: 60.0,
-                            child:new CircularProgressIndicator(
-                            )
-                        ),
-                      )
-                  )
-              )
-          )
-      );
+      children.add(Func.topLoadingWidgetInChildren());
     }
 
     return new Scaffold(

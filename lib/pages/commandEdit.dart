@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import '../ui/clearTextFieldForm.dart';
 
 import '../utils/db.dart';
+import '../utils/func.dart';
 
 enum Command {
   NEW,
@@ -32,10 +33,6 @@ class CommandEditPage extends StatefulWidget{
 
 class CommandEditState extends State<CommandEditPage> {
 
-  void _showMessage(String msg){
-    _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(msg)));
-  }
-
   GlobalKey<ClearTextFieldFormState> _titleKey = new GlobalKey<ClearTextFieldFormState>();
   GlobalKey<ClearTextFieldFormState> _contentKey = new GlobalKey<ClearTextFieldFormState>();
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -49,7 +46,7 @@ class CommandEditState extends State<CommandEditPage> {
         actions: <Widget>[
           new IconButton(icon: new Text('保存', style: new TextStyle(fontSize: 16.0, fontWeight: FontWeight.w700)) , onPressed: () async{
               if(_titleKey.currentState.text == '' || _contentKey.currentState.text == ''){
-                _showMessage('标题或内容不能为空');
+                Func.showMessage(_scaffoldKey, '标题或内容不能为空');
                 return;
               } else {
                 CommandValue value = new CommandValue(title: _titleKey.currentState.text, content: _contentKey.currentState.text);
@@ -57,7 +54,7 @@ class CommandEditState extends State<CommandEditPage> {
 
 
                   await DB.instance.insertOrUpdate<CommandValue>(value, where: '${CommandValueTable.title} = ?', whereArgs: [value.title]);
-                  _showMessage('保存成功');
+                  Func.showMessage(_scaffoldKey, '保存成功');
 
                   if(widget.titleValue != null){
                     await DB.instance.delete<CommandValue>(where: '${CommandValueTable.title} = ?', whereArgs: [widget.titleValue]);
@@ -69,7 +66,7 @@ class CommandEditState extends State<CommandEditPage> {
 
                 } catch(e){
                   print(e);
-                  _showMessage('保存失败');
+                  Func.showMessage(_scaffoldKey, '保存失败');
 
                 }
               }

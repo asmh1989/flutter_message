@@ -31,6 +31,12 @@ class CommandListPageState extends State<CommandListPage>{
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _autoClose.clear();
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     _autoClose.clear();

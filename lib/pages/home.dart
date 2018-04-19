@@ -103,6 +103,9 @@ class HomeState extends State<HomePage> {
             children: <Widget>[
               new Divider(height: 0.5),
               _getMenu(ImageAssets.ic_platform_manage, '平台管理', () {
+                Navigator.push(context, new MaterialPageRoute(
+                    builder: (BuildContext context) => new SwitchPlatformPage(isManager: true,)
+                ));
               }),
               new Divider(height: 0.5),
               _getMenu(ImageAssets.ic_user_manage, '用户管理', () {

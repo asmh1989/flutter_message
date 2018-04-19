@@ -44,24 +44,18 @@ class LoginPageState extends State<LoginPage> {
 
   }
 
-  void _showMessage(String msg) {
-    _scaffKey.currentState.showSnackBar(new SnackBar(
-      content: new Text(msg, textAlign: TextAlign.center),
-    ));
-  }
-
   Future<Null> _login () async {
     FocusScope.of(context).requestFocus(new FocusNode());
 
     /// 验证用户名
     if(!Func.validatePhone(_userKey.currentState.text)) {
-      _showMessage('手机号格式不正确');
+      Func.showMessage(_scaffoldKey, '手机号格式不正确');
       _userKey.currentState.clear();
       return;
     }
 
     if(_passwdKey.currentState.text.length == 0) {
-      _showMessage('密码为空');
+      Func.showMessage(_scaffoldKey, '密码为空');
       return;
     }
 
@@ -85,7 +79,7 @@ class LoginPageState extends State<LoginPage> {
 
         Map data = NetWork.decodeJson(response.body);
         if(data['Code'] != 0){
-          _showMessage(data['Message']);
+          Func.showMessage(_scaffoldKey, data['Message']);
           _passwdKey.currentState.clear();
         } else {
           _cache.setStringValue(KEY_USERNAME, _userKey.currentState.text);
@@ -106,7 +100,7 @@ class LoginPageState extends State<LoginPage> {
               Navigator.pushReplacementNamed(context, HomePage.route);
             }
           } else {
-            _showMessage('返回格式错误: $res');
+            Func.showMessage(_scaffoldKey, '返回格式错误: $res');
           }
 
         }
@@ -118,7 +112,7 @@ class LoginPageState extends State<LoginPage> {
 
   final GlobalKey<ClearTextFieldFormState> _userKey = new GlobalKey<ClearTextFieldFormState>();
   final GlobalKey<ClearTextFieldFormState> _passwdKey = new GlobalKey<ClearTextFieldFormState>();
-  final GlobalKey<ScaffoldState> _scaffKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   List<Widget> _buildLoginForm() {
     return <Widget>[
@@ -250,30 +244,10 @@ class LoginPageState extends State<LoginPage> {
     List<Widget> children = _buildLoginForm();
 
     if(_loading){
-      children.add(
-          new Positioned.fill(
-              child: new GestureDetector(
-                  onTap: (){},
-                  behavior: HitTestBehavior.opaque,
-                  child: new Center(
-                      child: new Theme(
-                        data: new ThemeData(
-                          accentColor: Colors.red,
-                        ),
-                        child: new Container(
-                            height: 60.0,
-                            width: 60.0,
-                            child:new CircularProgressIndicator(
-                            )
-                        ),
-                      )
-                  )
-              )
-          )
-      );
+      children.add(Func.topLoadingWidgetInChildren());
     }
     return new Scaffold(
-        key: _scaffKey,
+        key: _scaffoldKey,
         resizeToAvoidBottomPadding: false,
         body: new Container(
             decoration: new BoxDecoration(

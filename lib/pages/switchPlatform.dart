@@ -14,11 +14,14 @@ import '../utils/func.dart';
 
 import 'home.dart';
 import 'login.dart';
+import 'platformEdit.dart';
 
 class SwitchPlatformPage extends StatefulWidget {
-  const SwitchPlatformPage({Key key}) : super(key: key);
+  const SwitchPlatformPage({Key key, this.isManager = false}) : super(key: key);
 
   static const String route = '/switchPlatform';
+
+  final bool isManager;
   @override
   State<StatefulWidget> createState() {
     return new SwitchPlatformPageState();
@@ -30,30 +33,37 @@ class SwitchPlatformPageState extends State<SwitchPlatformPage> {
   List<PlatformInfo>  _platforms;
 
   Future<http.Response> _getData() async {
-    return NetWork.getPlatforms(Cache.instance.username, Cache.instance.token);
+    return NetWork.getPlatforms(Cache.instance.username, Cache.instance.token, isManager: widget.isManager);
   }
 
-  final GlobalKey<ScaffoldState> _scaffKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   void _click(int index) async {
-
     PlatformInfo info = _platforms[index];
 
-    KeyValue value = new KeyValue(key: Cache.instance.username, value: info.cdno);
+    if(!widget.isManager) {
 
-    await DB.instance.insertOrUpdate<KeyValue>(value, where: '${KeyValueTable.key} = ?', whereArgs: [value.key]);
+      KeyValue value = new KeyValue(
+          key: Cache.instance.username, value: info.cdno);
 
-    Cache.instance.setStringValue(KEY_CDNO, info.cdno);
-    Cache.instance.setStringValue(KEY_CDADD, info.name);
-    Cache.instance.setStringValue(KEY_CDURL, info.cdurl);
-    Cache.instance.setStringValue(KEY_CDTOKEN, info.cdtoken);
+      await DB.instance.insertOrUpdate<KeyValue>(
+          value, where: '${KeyValueTable.key} = ?', whereArgs: [value.key]);
 
-    if(Navigator.canPop(context)) {
-      Navigator.pop(context, 'refresh');
+      Cache.instance.setStringValue(KEY_CDNO, info.cdno);
+      Cache.instance.setStringValue(KEY_CDADD, info.name);
+      Cache.instance.setStringValue(KEY_CDURL, info.cdurl);
+      Cache.instance.setStringValue(KEY_CDTOKEN, info.cdtoken);
+
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context, 'refresh');
+      } else {
+        Navigator.pushReplacementNamed(context, HomePage.route);
+      }
     } else {
-      Navigator.pushReplacementNamed(context, HomePage.route);
+      Navigator.push(context, new MaterialPageRoute(
+          builder: (BuildContext context) => new PlatformEdit(info: info,))
+      );
     }
-
   }
 
   List<PlatformInfo> parsePlatforms(List<dynamic> data) {
@@ -62,10 +72,22 @@ class SwitchPlatformPageState extends State<SwitchPlatformPage> {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> actions = [];
+    if(widget.isManager){
+      actions.add(new IconButton(icon: new Icon(Icons.add),
+          tooltip: '增加平台',
+          onPressed: (){
+            Navigator.push(context, new MaterialPageRoute(
+                builder: (BuildContext context) => new PlatformEdit()
+            ));
+          }));
+    }
+
     return new Scaffold(
-        key: _scaffKey,
+        key: _scaffoldKey,
         appBar: new AppBar(
-          title: new Text('平台选择'),
+          title: new Text(widget.isManager ? '平台列表' : '平台选择'),
+          actions: actions,
         ),
         body: new FutureBuilder<http.Response>(
             future: _getData(),
@@ -78,23 +100,10 @@ class SwitchPlatformPageState extends State<SwitchPlatformPage> {
                   if (snapshot.hasData) {
                     http.Response response = snapshot.data;
                     if (response.statusCode != 200) {
-                      return new Container(
-                          height: MediaQuery.of(context).size.height,
-                          child: new Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              new Text(response.toString()),
-                              new RaisedButton(
-                                  child: new Text('登出'),
-                                  onPressed: (){
-                                    Navigator.pushReplacementNamed(context, LoginPage.route);
-                                  })
-                            ],
-                          )
-                      );
+                      return Func.logoutWidget(context, response.toString());
                     } else {
                       Map data = NetWork.decodeJson(response.body);
-                      print(data);
+//                      print(data);
 
                       if (data['Code'] != 0) {
                         return new Center(
@@ -141,7 +150,7 @@ class SwitchPlatformPageState extends State<SwitchPlatformPage> {
                                                 ? ImageAssets.ic_off
                                                 : ImageAssets.ic_on),
                                           ),
-                                          title: new Text(item.name),
+                                          title: new Text(item.name, style: new TextStyle(color:  item.eb == 2 ? Colors.grey :Colors.black),),
                                           trailing: new Icon(Icons.navigate_next),
                                           onTap: () {
                                             _click(index);
@@ -155,5 +164,13 @@ class SwitchPlatformPageState extends State<SwitchPlatformPage> {
                   }
               }
             }));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if(_platforms != null){
+      _platforms.clear();
+    }
   }
 }

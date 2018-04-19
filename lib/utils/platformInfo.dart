@@ -1,17 +1,19 @@
-class PlatformInfo{
-  final int lno;
-  final String cdno;
-  final String cdnm;
-  final String name;
-  final String cdurl;
-  final int ct;
-  final int ut;
-  final int eb;
-  final int exp;
-  final String cdtoken;
-  final String cdadd;
+import 'dart:convert';
 
-  const PlatformInfo({
+class PlatformInfo{
+   int lno;
+   String cdno;
+   String cdnm;
+   String name;
+   String cdurl;
+   int ct;
+   int ut;
+   int eb;
+   int exp;
+   String cdtoken;
+   String cdadd;
+
+   PlatformInfo({
     this.lno,
     this.cdno,
     this.cdnm,
@@ -20,7 +22,7 @@ class PlatformInfo{
     this.cdtoken,
     this.cdurl,
     this.ct,
-    this.eb,
+    this.eb = 1,
     this.exp,
     this.ut
   });
@@ -39,5 +41,20 @@ class PlatformInfo{
       cdtoken: json['Cdtoken'] as String,
       cdadd: json['Cdadd'] as String
     );
+  }
+
+  @override
+  String toString() {
+    Map<String, dynamic> data =  {
+      'Lno': lno,
+      'Cdno': cdno,
+      'Cdnm': cdnm,
+      'Name': name,
+      'Cdurl': cdurl,
+      'Eb': eb,
+      'Exp': exp,
+    };
+
+    return json.encode(data);
   }
 }

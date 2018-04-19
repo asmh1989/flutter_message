@@ -41,9 +41,15 @@ class NetWork {
   ///
   static const String PLATFORM_LIST = DL_API + '/api/getlinks.json';
 
+  ///
+  /// 修改平台数据
+  ///
+  static const String SET_PLATFORM_LIST = DL_API + '/api/setlinks.json';
+
 
   static Future<http.Response > post(String url, Map<String, dynamic> params) async {
-      return  _client.post(url, body: params);
+    print('''post: $params''');
+    return  _client.post(url, body: params);
   }
 
   static Map decodeJson(String data) {
@@ -67,11 +73,11 @@ class NetWork {
     return post(VERIFY, params);
   }
 
-  static Future<http.Response> getPlatforms(String name, String token){
+  static Future<http.Response> getPlatforms(String name, String token, {bool isManager = false}){
     Map<String, dynamic> params = {
       'Unm': name,
       'Token': token,
-      'Type': '2',
+      'Type': isManager ? '1' : '2',
       "Cndo":''
     };
 
