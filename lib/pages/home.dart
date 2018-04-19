@@ -8,6 +8,7 @@ import '../utils/style.dart';
 import 'switchPlatform.dart';
 import 'commandList.dart';
 import 'passwd.dart';
+import 'userManager.dart';
 
 class HomePage extends StatefulWidget{
   const HomePage({Key key}): super(key: key);
@@ -109,7 +110,9 @@ class HomeState extends State<HomePage> {
               }),
               new Divider(height: 0.5),
               _getMenu(ImageAssets.ic_user_manage, '用户管理', () {
-
+                Navigator.push(context, new MaterialPageRoute(
+                    builder: (BuildContext context) => new UserManagerPage()
+                ));
               }),
               new Divider(height: 0.5),
             ]        ),

@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 import '../utils/network.dart';
 import '../utils/cache.dart';
-import '../utils/platformInfo.dart';
+import 'package:flutter_message/model/platformInfo.dart';
 import '../utils/assets.dart';
 
 import '../utils/style.dart';

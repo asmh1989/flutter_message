@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
-import '../utils/platformInfo.dart';
+import 'package:flutter_message/model/platformInfo.dart';
 import '../utils/func.dart';
 import '../utils/style.dart';
 import '../utils/network.dart';

@@ -46,6 +46,11 @@ class NetWork {
   ///
   static const String SET_PLATFORM_LIST = DL_API + '/api/setlinks.json';
 
+  ///
+  /// 获取用户列表
+  ///
+  static const String GET_USERS = DL_API+'/api/getusers.json';
+
 
   static Future<http.Response > post(String url, Map<String, dynamic> params) async {
     print('''post: $params''');
@@ -83,4 +88,5 @@ class NetWork {
 
     return post(PLATFORM_LIST, params);
   }
+
 }

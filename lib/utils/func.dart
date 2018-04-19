@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../pages/login.dart';
 
@@ -71,7 +72,15 @@ class Func {
   static String getYearMonthDay(int mill){
 //    print('getYearMonthDay=$mill');
     DateTime time = new DateTime.fromMillisecondsSinceEpoch(mill);
-
-    return '${time.year}-${time.month}-${time.day}';
+    var formatter = new DateFormat('yyyy-MM-dd');
+    return formatter.format(time);
   }
+
+  static String getFullTimeString(int mill){
+    DateTime time = new DateTime.fromMillisecondsSinceEpoch(mill);
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm:ss');
+    return formatter.format(time);
+  }
+
+
 }
