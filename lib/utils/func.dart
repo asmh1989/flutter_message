@@ -10,7 +10,7 @@ class Func {
   }
 
   static Widget loadingWidget(BuildContext context) =>  new Container(
-      height: MediaQuery.of(context).size.height,
+      height: 200.0,//MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
       color: Colors.white,
       child: new Center(
