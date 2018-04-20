@@ -25,6 +25,8 @@ class HomeState extends State<HomePage> {
 
   int _currentIndex = 2;
 
+  PageController _controller;
+
   AppBar _getAppBar() {
     if(_currentIndex == 0 || _currentIndex == 1) {
       return new AppBar(
@@ -65,6 +67,7 @@ class HomeState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _controller = new PageController(initialPage: _currentIndex);
   }
 
   Widget _getPersonView() {
@@ -200,12 +203,16 @@ class HomeState extends State<HomePage> {
   }
 
   Widget _getBody() {
-    switch(_currentIndex){
-      case 2:
-        return _getPersonView();
-      default:
-        return new Text('hello $_currentIndex');
-    }
+
+    return new PageView(
+      physics: new NeverScrollableScrollPhysics(),
+      controller: _controller,
+      children: <Widget>[
+        new Text('hello 0'),
+        new Text('hello 1'),
+        _getPersonView()
+      ],
+    );
   }
 
   @override
@@ -232,6 +239,7 @@ class HomeState extends State<HomePage> {
       iconSize: 16.0,
       onTap: (int index) {
         setState(() {
+          _controller.jumpToPage(index);
           _currentIndex = index;
         });
       },
