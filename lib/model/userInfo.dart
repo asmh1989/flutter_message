@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class CdNos {
   int auth;
   String cdno;
@@ -15,6 +17,23 @@ class CdNos {
       cdno: json['Cdno'] as String,
       name: json['Name'] as String,
     );
+  }
+
+  @override
+  String toString() {
+    return json.encode({
+      'Auth': auth,
+      'Cdno': cdno,
+      'Name': name
+    });
+  }
+
+  Map<String, dynamic> toMap(){
+    return {
+      'Auth': auth,
+      'Cdno': cdno,
+      'Name': name
+    };
   }
 }
 
@@ -41,9 +60,9 @@ class UserInfo {
     this.upid,
     this.udep,
     this.ujob,
-    this.enable,
-    this.admin,
-    this.all,
+    this.enable = 1,
+    this.admin = 2,
+    this.all = 1,
     this.cdnos,
     this.state,
     this.warn,
@@ -73,5 +92,26 @@ class UserInfo {
       all: platform['All'] as int,
       cdnos: c,
     );
+  }
+
+  @override
+  String toString() {
+    List<Map<String, dynamic>> list = [];
+    cdnos.forEach((CdNos c)=> list.add(c.toMap()));
+
+    Map<String, dynamic> data = {
+      'Unm': unm,
+      'Upd': upd,
+      'Upid': upid,
+      'Udep': udep,
+      'Ujob': ujob,
+      'Admin': admin,
+      'Enable': enable,
+      'Platform': {
+        'All': all,
+        'Cdnos': list
+      }
+    };
+    return json.encode(data);
   }
 }

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'login.dart';
+import 'userEdit.dart';
 
 import '../model/userInfo.dart';
 
@@ -13,7 +14,7 @@ import '../utils/index.dart';
 import '../ui/underLine.dart';
 
 typedef  void ShowTips(String msg);
-typedef  void ClickCallback(int index);
+typedef  void ClickCallback(UserInfo user);
 
 class _FutureUserList extends StatefulWidget{
   final ShowTips show;
@@ -60,7 +61,7 @@ class _FutureUserListState extends State<_FutureUserList>{
                 trailing: new Text(_getUpdateTime(item.ut), style: new TextStyle(color: item.enable == 1 ? Colors.black : Colors.grey),),
                 onTap: () {
                   if(widget.callback != null){
-                    widget.callback(index);
+                    widget.callback(item);
                   }
                 },
               )
@@ -179,18 +180,33 @@ class UserManagerState extends State<UserManagerPage>{
     });
   }
 
-  void _click(int index){
+  void _click(UserInfo user){
+    _push(user: user);
+  }
 
+  void _push({UserInfo user}) async{
+    final result = Navigator.push(context, new MaterialPageRoute(
+        builder: (BuildContext context) => new UserEditPage(user: user,)));
+
+    if(result != null){
+      _controller.clear();
+      _userKey.currentState.notify('');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
 
-
     return new Scaffold(
       key: _scaffoldKey,
       appBar: new AppBar(
         title: new Text('用户列表'),
+        actions: <Widget>[
+          new IconButton(icon: new Icon(Icons.add),
+              tooltip: '增加',
+              onPressed: ()=> _push()
+          )
+        ],
       ),
 
       body:new Column(

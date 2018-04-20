@@ -224,7 +224,7 @@ class PlatformEditState extends State<PlatformEdit>{
     return new Scaffold(
         key: _scaffoldKey,
         appBar: new AppBar(
-          title: new Text('平台信息'),
+          title: new Text( widget.info != null ? '平台信息' : '新增平台'),
         ),
 
         body: new Container(

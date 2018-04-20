@@ -51,6 +51,10 @@ class NetWork {
   ///
   static const String GET_USERS = DL_API+'/api/getusers.json';
 
+  ///
+  /// 修改用户信息
+  ///
+  static const String SET_USERS = DL_API+'/api/setusers.json';
 
   static Future<http.Response > post(String url, Map<String, dynamic> params) async {
     print('''post: $params''');
