@@ -10,6 +10,8 @@ import '../model/userInfo.dart';
 
 import '../utils/index.dart';
 
+import '../ui/underLine.dart';
+
 typedef  void ShowTips(String msg);
 typedef  void ClickCallback(int index);
 
@@ -47,31 +49,20 @@ class _FutureUserListState extends State<_FutureUserList>{
         itemBuilder: (BuildContext context, int index) {
           UserInfo item = _users[index];
 
-          final Decoration decoration = new BoxDecoration(
-            border: new Border(
-              bottom: Divider.createBorderSide(context),
-            ),
-          );
-
-          return new Container(
-              color: Colors.white,
-              child: new DecoratedBox(
-                  position: DecorationPosition.foreground,
-                  decoration: decoration,
-                  child: new ListTile(
-                    leading: new Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: new Image.asset(_getImageName(item.enable)),
-                    ),
-                    title: new Text(item.upid, style: new TextStyle(color: item.enable == 1 ? Colors.black : Colors.grey),),
-                    subtitle: new Text(item.unm),
-                    trailing: new Text(_getUpdateTime(item.ut), style: new TextStyle(color: item.enable == 1 ? Colors.black : Colors.grey),),
-                    onTap: () {
-                      if(widget.callback != null){
-                        widget.callback(index);
-                      }
-                    },
-                  )
+          return new UnderLine(
+              child: new ListTile(
+                leading: new Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: new Image.asset(_getImageName(item.enable)),
+                ),
+                title: new Text(item.upid, style: new TextStyle(color: item.enable == 1 ? Colors.black : Colors.grey),),
+                subtitle: new Text(item.unm),
+                trailing: new Text(_getUpdateTime(item.ut), style: new TextStyle(color: item.enable == 1 ? Colors.black : Colors.grey),),
+                onTap: () {
+                  if(widget.callback != null){
+                    widget.callback(index);
+                  }
+                },
               )
           );
         },

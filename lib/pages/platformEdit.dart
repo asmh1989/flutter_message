@@ -121,8 +121,8 @@ class PlatformEditState extends State<PlatformEdit>{
           Func.showMessage(_scaffoldKey, data['Message']);
         } else {
           Func.showMessage(_scaffoldKey, widget.info == null ? '新增平台成功！': '修改平台信息成功！');
-          Future.delayed(new Duration(milliseconds: 1000),(){
-            Navigator.pop(context);
+          Future.delayed(new Duration(milliseconds: 500),(){
+            Navigator.pop(context, 'done');
           });
         }
       }

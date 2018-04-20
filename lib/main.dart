@@ -24,10 +24,23 @@ class MyApp extends StatelessWidget {
     return await Cache.getInstace();
   }
 
+  Widget _getHomePage(){
+    String token = Cache.instance.token?? '';
+    String cdAdd = Cache.instance.cdadd?? '';
+
+    if(token.length > 0){
+      if(cdAdd.length > 0){
+        return new HomePage();
+      } else {
+        return new SwitchPlatformPage();
+      }
+    } else {
+      return new LoginPage();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    print('main build ....');
     return new MaterialApp(
       theme: new ThemeData(
         // This is the theme of your application.
@@ -42,28 +55,16 @@ class MyApp extends StatelessWidget {
         primaryColor: Style.COLOR_THEME,
         accentColor: Style.COLOR_THEME,
       ),
-      home:   new FutureBuilder<Cache>(
+      home:   Cache.instance != null ? _getHomePage() : new FutureBuilder<Cache>(
         future: getData(),
         builder: (BuildContext context, AsyncSnapshot<Cache> snapshot){
           switch(snapshot.connectionState){
             case ConnectionState.waiting: return Func.loadingWidget(context);
             default:
               if(snapshot.hasData){
-                Cache cache = snapshot.data;
+                print('main FutureBuild....');
 
-                String token = cache.token?? '';
-                String cdadd = cache.cdadd?? '';
-
-//                print('token=$token, cdadd=$cdadd, state=${snapshot.connectionState}');
-                if(token.length > 0){
-                  if(cdadd.length > 0){
-                    return new HomePage();
-                  } else {
-                    return new SwitchPlatformPage();
-                  }
-                } else {
-                  return new LoginPage();
-                }
+                return _getHomePage();
               } else {
                 return new Center(child: new CircularProgressIndicator());
               }
