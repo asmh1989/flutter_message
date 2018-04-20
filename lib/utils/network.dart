@@ -57,8 +57,13 @@ class NetWork {
   static const String SET_USERS = DL_API+'/api/setusers.json';
 
   static Future<http.Response > post(String url, Map<String, dynamic> params) async {
-    print('''post: $params''');
-    return  _client.post(url, body: params);
+    print('''$url => post: $params''');
+    try {
+      return _client.post(url, body: params);
+    } catch (e){
+      print('post error: $e');
+      return null;
+    }
   }
 
   static Map decodeJson(String data) {

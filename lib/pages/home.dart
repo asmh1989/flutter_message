@@ -9,6 +9,7 @@ import 'switchPlatform.dart';
 import 'commandList.dart';
 import 'passwd.dart';
 import 'userManager.dart';
+import 'cardManager.dart';
 
 class HomePage extends StatefulWidget{
   const HomePage({Key key}): super(key: key);
@@ -23,9 +24,12 @@ class HomePage extends StatefulWidget{
 
 class HomeState extends State<HomePage> {
 
-  int _currentIndex = 2;
+  int _currentIndex = 0;
 
   PageController _controller;
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
 
   AppBar _getAppBar() {
     if(_currentIndex == 0 || _currentIndex == 1) {
@@ -208,7 +212,7 @@ class HomeState extends State<HomePage> {
       physics: new NeverScrollableScrollPhysics(),
       controller: _controller,
       children: <Widget>[
-        new Text('hello 0'),
+        new CardManagerPage(type: CardType.CARD, scaffoldKey: _scaffoldKey,),
         new Text('hello 1'),
         _getPersonView()
       ],
@@ -246,6 +250,7 @@ class HomeState extends State<HomePage> {
     );
 
     return new Scaffold(
+        key: _scaffoldKey,
         appBar: _getAppBar(),
         body: _getBody(),
         bottomNavigationBar: new Theme(
