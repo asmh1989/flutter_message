@@ -182,6 +182,10 @@ class CardManagerPage extends StatefulWidget{
   State<StatefulWidget> createState() {
     return new CardManagerState();
   }
+
+  static void dispose(){
+    _FutureCardListState._cards.clear();
+  }
 }
 
 class CardManagerState extends State<CardManagerPage>{

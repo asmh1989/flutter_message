@@ -274,6 +274,13 @@ class HomeState extends State<HomePage> {
         )
     );
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+    CardManagerPage.dispose();
+  }
 }
 
 
