@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'login.dart';
+import 'switchPlatform.dart';
 
 import '../utils/index.dart';
 
@@ -35,7 +36,7 @@ class _FutureCardList extends StatefulWidget{
 class _FutureCardListState extends State<_FutureCardList>{
 
   String _snm = '';
-  List<CardInfo> _cards;
+  static List<CardInfo> _cards = new List<CardInfo>();
   bool isNotify = false;
 
 
@@ -90,7 +91,10 @@ class _FutureCardListState extends State<_FutureCardList>{
 
 
   Widget _getCardListWidget(){
-    return new FutureBuilder<http.Response>(
+//    print('isNotify=$isNotify, len=${_cards.length}');
+    if(!isNotify && _cards.length > 0) return _getCardListWidget2();
+
+      return new FutureBuilder<http.Response>(
         future: _getCardData(),
         builder: (BuildContext context, AsyncSnapshot<http.Response> snapshot){
           if(snapshot.connectionState == ConnectionState.waiting){
@@ -101,13 +105,17 @@ class _FutureCardListState extends State<_FutureCardList>{
             }
             http.Response response = snapshot.data;
             if (response.statusCode != 200) {
-              return Func.logoutWidget(context, response.toString());
+              return new Expanded( child: Func.logoutWidget(context, response.body, new RaisedButton(
+                child: new Text('平台切换'),
+                onPressed: () => Navigator.pushNamed(context, SwitchPlatformPage.route),
+              )));
             } else {
               Map data = NetWork.decodeJson(response.body);
 
               print(Func.mapToString(data));
 
               if (data['Code'] != 0) {
+                print(Func.mapToString(data));
                 return new Center(
                     child: new Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -123,7 +131,8 @@ class _FutureCardListState extends State<_FutureCardList>{
                     )
                 );
               } else {
-                _cards =  parseCards(data['Response']);
+                _cards.clear();
+                _cards.addAll(parseCards(data['Response']));
                 if(_cards.length == 0){
                   return new Expanded(child: new Center(child: Image.asset(ImageAssets.ic_card_list_tips,  width: 160.0,)));
                 }
@@ -148,6 +157,18 @@ class _FutureCardListState extends State<_FutureCardList>{
     } else {
       return _getMsgListWidget();
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+//    print('disposed .... ');
+//    _cards?.clear();
   }
 }
 

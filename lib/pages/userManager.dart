@@ -117,27 +117,14 @@ class _FutureUserListState extends State<_FutureUserList>{
           if (snapshot.hasData) {
             http.Response response = snapshot.data;
             if (response.statusCode != 200) {
-              return Func.logoutWidget(context, response.toString());
+              return new Expanded(child: Func.logoutWidget(context, response.body));
             } else {
               Map data = NetWork.decodeJson(response.body);
 
 //              print(data);
 
               if (data['Code'] != 0) {
-                return new Center(
-                    child: new Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        new Text(data['Message']),
-                        new SizedBox(height: 10.0,),
-                        new RaisedButton(
-                            child: new Text('登出'),
-                            onPressed: (){
-                              Navigator.pushReplacementNamed(context, LoginPage.route);
-                            })
-                      ],
-                    )
-                );
+                return new Expanded(child: Func.logoutWidget(context, data['Message']));
               } else {
                 _users =  parseUsers(data['Response']);
                 if(_users.length == 0){

@@ -120,4 +120,10 @@ class ClearTextFieldFormState extends State<ClearTextFieldForm> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 }

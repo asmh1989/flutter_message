@@ -20,14 +20,14 @@ class Func {
       )
   );
 
-  static Widget logoutWidget(BuildContext context, String msg) =>  new Container(
-      height: MediaQuery.of(context).size.height,
+  static Widget logoutWidget(BuildContext context, String msg, [Widget button]) =>  new Container(
       child: new Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           new Text(msg),
-          new RaisedButton(
-              child: new Text('登出'),
+          new SizedBox(height: 10.0),
+          button??new RaisedButton(
+              child: new Text('退出登录'),
               onPressed: (){
                 Navigator.pushReplacementNamed(context, LoginPage.route);
               })
