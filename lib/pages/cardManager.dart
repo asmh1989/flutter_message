@@ -44,8 +44,6 @@ class _FutureCardListState extends State<_FutureCardList>{
 
   Map<Key, AutoClose> _autoClose = new Map<Key, AutoClose>();
 
-
-
   void notify(String snm){
 
   }
@@ -164,7 +162,7 @@ class _FutureCardListState extends State<_FutureCardList>{
           );
         },
       ),
-    );;
+    );
   }
 
 
@@ -254,9 +252,9 @@ class _FutureCardListState extends State<_FutureCardList>{
 
 class CardManagerPage extends StatefulWidget{
 
-  final GlobalKey<ScaffoldState> scaffoldKey;
   final CardType type;
-  const CardManagerPage({this.scaffoldKey, @required this.type});
+  final ShowTips show;
+  const CardManagerPage({@required this.show, @required this.type});
 
   @override
   State<StatefulWidget> createState() {
@@ -312,7 +310,7 @@ class CardManagerState extends State<CardManagerPage>{
             key: _userKey,
             type: widget.type,
             show: (String msg){
-              Func.showMessage(widget.scaffoldKey, msg);
+              widget.show(msg);
             },
           ),
         ]);

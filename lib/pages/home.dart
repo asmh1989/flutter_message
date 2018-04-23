@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../utils/cache.dart';
-import '../pages/login.dart';
-import '../utils/assets.dart';
-import '../utils/style.dart';
-
+import 'login.dart';
 import 'switchPlatform.dart';
 import 'commandList.dart';
 import 'passwd.dart';
 import 'userManager.dart';
 import 'cardManager.dart';
 import 'cardEdit.dart';
+
+import '../utils/index.dart';
 
 class HomePage extends StatefulWidget{
   const HomePage({Key key}): super(key: key);
@@ -223,7 +221,7 @@ class HomeState extends State<HomePage> {
       physics: new NeverScrollableScrollPhysics(),
       controller: _controller,
       children: <Widget>[
-        new CardManagerPage(type: CardType.CARD, scaffoldKey: _scaffoldKey,),
+        new CardManagerPage(type: CardType.CARD, show: (String value)=>Func.showMessage(_scaffoldKey, value),),
         new Text('hello 1'),
         _getPersonView()
       ],
