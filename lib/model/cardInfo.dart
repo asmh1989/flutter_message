@@ -10,21 +10,26 @@ class CardInfo{
   int insdt;
   String unm;
   String re;
+  String type;
 //  String content;
   Map<String, dynamic> coord;
 
   CardInfo({
-    this.no,
+    this.no='',
     this.sid,
-    this.nnm,
-    this.addr,
-    this.opnm,
+    this.nnm='',
+    this.addr='',
+    this.opnm='',
     this.insdt,
     this.unm,
-    this.re,
-    this.coord
+    this.re='',
+    this.coord,
+    this.type = '1'
   });
 
+  static List<CardInfo> parseCards(List<dynamic> data) {
+    return data.map((json) => new CardInfo.fromJson(json)).toList();
+  }
 
   factory CardInfo.fromJson(Map<String, dynamic> json) {
     return new CardInfo(
@@ -38,6 +43,22 @@ class CardInfo{
       re: json['Re'] as String,
       coord: json['Coord'] as Map<String, dynamic>
     );
+  }
+
+  @override
+  String toString() {
+    Map<String, dynamic> data = {
+      'No': this.no,
+      'Nnm': this.nnm,
+      'Addr': this.addr,
+      'Opnm': this.opnm,
+      'Insdt': this.insdt,
+      'Re': this.re,
+      'Type': this.type,
+      'Coord': json.encode(this.coord),
+    };
+
+    return json.encode(data);
   }
 
 

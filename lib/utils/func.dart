@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -86,6 +87,17 @@ class Func {
 
   static String mapToString(Map map){
     return json.encode(map);
+  }
+
+  static Future<Null> selectDate(BuildContext context, DateTime selectedDate, ValueChanged<DateTime> selectDate) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        firstDate: new DateTime(2015, 8),
+        lastDate: new DateTime(2201)
+    );
+    if (picked != null && picked != selectedDate)
+      selectDate(picked);
   }
 
 }

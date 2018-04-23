@@ -5,10 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter_message/model/platformInfo.dart';
-import '../utils/func.dart';
-import '../utils/style.dart';
-import '../utils/network.dart';
-import '../utils/cache.dart';
+import '../utils/index.dart';
 
 
 class PlatformEdit extends StatefulWidget{
@@ -50,17 +47,6 @@ class PlatformEditState extends State<PlatformEdit>{
     }
   }
 
-
-  Future<Null> _selectDate(BuildContext context, DateTime selectedDate, ValueChanged<DateTime> selectDate) async {
-    final DateTime picked = await showDatePicker(
-        context: context,
-        initialDate: selectedDate,
-        firstDate: new DateTime(2015, 8),
-        lastDate: new DateTime(2201)
-    );
-    if (picked != null && picked != selectedDate)
-      selectDate(picked);
-  }
 
   Widget _getMenus({
     String preText,
@@ -181,7 +167,7 @@ class PlatformEditState extends State<PlatformEdit>{
                   new InkWell(
                     onTap: (){
                       DateTime time = new DateTime.fromMillisecondsSinceEpoch(_info.exp * 1000);
-                      _selectDate(context, time, (DateTime date){
+                      Func.selectDate(context, time, (DateTime date){
                         setState(() {
                           _info.exp = (date.millisecondsSinceEpoch ~/ 1000).toInt();
                         });

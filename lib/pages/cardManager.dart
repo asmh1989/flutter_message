@@ -6,12 +6,14 @@ import 'package:http/http.dart' as http;
 
 import 'login.dart';
 import 'switchPlatform.dart';
+import 'cardEdit.dart';
 
 import '../utils/index.dart';
 
 import '../model/cardInfo.dart';
 
 import '../ui/underLine.dart';
+import '../ui/swide_widget.dart';
 
 enum CardType {
   CARD,
@@ -39,13 +41,12 @@ class _FutureCardListState extends State<_FutureCardList>{
   static List<CardInfo> _cards = new List<CardInfo>();
   bool isNotify = false;
 
+  Map<Key, AutoClose> _autoClose = new Map<Key, AutoClose>();
+
+
 
   void notify(String snm){
 
-  }
-
-  List<CardInfo> parseCards(List<dynamic> data) {
-    return data.map((json) => new CardInfo.fromJson(json)).toList();
   }
 
 
@@ -64,24 +65,99 @@ class _FutureCardListState extends State<_FutureCardList>{
     return NetWork.post(url, params);
   }
 
+  Future<http.Response> _setCardData(CardInfo card) async{
+    String url = Cache.instance.cdurl+'/api/setnos.json';
+
+    card.type = '2';
+    return  NetWork.post(url, {
+      'Unm': Cache.instance.username,
+      'Cdtoken': Cache.instance.cdtoekn,
+      'Token': Cache.instance.token,
+      'Nos': [card].toString(),
+    });
+  }
+
   Widget _getCardListWidget2(){
+    _autoClose.clear();
+
     return new Expanded(
       child: new ListView.builder(
         itemCount: _cards.length,
         itemBuilder: (BuildContext context, int index) {
           CardInfo item = _cards[index];
 
-          return new UnderLine(
-              child: new ListTile(
-                leading: new Padding(
-                  padding: EdgeInsets.all(2.0),
-                  child: new Image.asset(ImageAssets.icon_card, color: Style.COLOR_THEME,),
-                ),
-                title: new Text(item.nnm??item.no),
-                subtitle: new Text(item.addr??''),
-                trailing: new Text(Func.getFullTimeString(item.insdt* 1000)),
-                onTap: () {
-                },
+          final List<FXRightSideButton> buttons= [
+            new FXRightSideButton(name: '编辑',
+                backgroundColor: Colors.grey,
+                fontColor: Colors.white,
+                onPress: (){
+                  Navigator.push(context, new MaterialPageRoute(
+                      builder: (BuildContext context) => new CardEdit(
+                        card: item,
+                      )));
+                }),
+            new FXRightSideButton(name: '删除',
+                backgroundColor: Colors.red,
+                fontColor: Colors.white,
+                onPress: ()  {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) => new AlertDialog(
+                        content: new Text('您确定要删除卡号吗？'),
+                        actions: <Widget>[
+                          new FlatButton(onPressed: (){
+                            Navigator.pop(context);
+                          }, child: new Text('取消')),
+                          new FlatButton(onPressed: () async {
+                            Navigator.pop(context);
+
+                            http.Response response = await _setCardData(item);
+                            if(response.statusCode == 200) {
+                              print(response.body);
+
+                              Map data = NetWork.decodeJson(response.body);
+                              if(data['Code'] != 0){
+                                widget.show(data['Message']);
+                              } else {
+                                CardManagerPage.dispose();
+                                setState(() {
+
+                                });
+                              }
+                            } else {
+                              widget.show(response.body);
+                            }
+
+                          }, child: new Text('确定'))
+                        ],
+                      )
+                  );
+                })
+          ];
+
+          return new FXLeftSlide(
+              key: new Key('$index'),
+              onOpen: (Key key,  AutoClose autoClose) => _autoClose[key] = autoClose,
+              startTouch: () {
+                _autoClose.forEach((Key key, AutoClose autoClose){
+                  autoClose();
+                });
+
+                _autoClose.clear();
+              },
+              buttons: buttons,
+              child: new UnderLine(
+                  child: new ListTile(
+                    leading: new Padding(
+                      padding: EdgeInsets.all(2.0),
+                      child: new Image.asset(ImageAssets.icon_card, color: Style.COLOR_THEME,),
+                    ),
+                    title: new Text(item.nnm.length == 0 ?item.no : '${item.nnm}（${item.no}）'),
+                    subtitle: new Text(item.addr),
+                    trailing: new Text(Func.getFullTimeString(item.insdt* 1000)),
+                    onTap: () {
+                    },
+                  )
               )
           );
         },
@@ -94,7 +170,7 @@ class _FutureCardListState extends State<_FutureCardList>{
 //    print('isNotify=$isNotify, len=${_cards.length}');
     if(!isNotify && _cards.length > 0) return _getCardListWidget2();
 
-      return new FutureBuilder<http.Response>(
+    return new FutureBuilder<http.Response>(
         future: _getCardData(),
         builder: (BuildContext context, AsyncSnapshot<http.Response> snapshot){
           if(snapshot.connectionState == ConnectionState.waiting){
@@ -132,7 +208,7 @@ class _FutureCardListState extends State<_FutureCardList>{
                 );
               } else {
                 _cards.clear();
-                _cards.addAll(parseCards(data['Response']));
+                _cards.addAll(CardInfo.parseCards(data['Response']));
                 if(_cards.length == 0){
                   return new Expanded(child: new Center(child: Image.asset(ImageAssets.ic_card_list_tips,  width: 160.0,)));
                 }
@@ -167,6 +243,8 @@ class _FutureCardListState extends State<_FutureCardList>{
   @override
   void dispose() {
     super.dispose();
+    _autoClose.clear();
+
 //    print('disposed .... ');
 //    _cards?.clear();
   }

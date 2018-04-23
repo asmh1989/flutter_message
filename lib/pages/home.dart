@@ -10,6 +10,7 @@ import 'commandList.dart';
 import 'passwd.dart';
 import 'userManager.dart';
 import 'cardManager.dart';
+import 'cardEdit.dart';
 
 class HomePage extends StatefulWidget{
   const HomePage({Key key}): super(key: key);
@@ -39,9 +40,19 @@ class HomeState extends State<HomePage> {
         actions: <Widget>[
           new IconButton(
               icon: const Icon(Icons.add),
-              tooltip: '添加卡',
-              onPressed: () {
+              tooltip: _currentIndex == 0 ? '添加卡' : '新建消息',
+              onPressed: () async {
+                if(_currentIndex == 0){
+                  final result = await Navigator.push(context, new MaterialPageRoute(
+                      builder: (BuildContext context) => new CardEdit()));
+                  if(result != null){
+                    CardManagerPage.dispose();
+                    setState(() {
 
+                    });
+                  }
+
+                }
               }
           ),
         ],
