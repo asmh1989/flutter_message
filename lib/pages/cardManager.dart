@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'login.dart';
 import 'switchPlatform.dart';
 import 'cardEdit.dart';
+import 'cardDetail.dart';
 
 import '../utils/index.dart';
 
@@ -156,6 +157,7 @@ class _FutureCardListState extends State<_FutureCardList>{
                     subtitle: new Text(item.addr),
                     trailing: new Text(Func.getFullTimeString(item.insdt* 1000)),
                     onTap: () {
+                      Navigator.push(context, new MaterialPageRoute(builder: (context)=> new CardDetailPage(card: item)));
                     },
                   )
               )
