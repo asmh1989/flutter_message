@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -183,7 +182,7 @@ class CardEditState extends State<CardEdit>{
   @override
   Widget build(BuildContext context) {
 
-    print('build _card=$_card');
+//    print('build _card=$_card');
 
     List<Widget> children = <Widget>[
       new SingleChildScrollView(
@@ -199,10 +198,10 @@ class CardEditState extends State<CardEdit>{
                       validator: Func.validateNull('请输入设备卡号'),
                       enable: widget.card == null ? true :  false,
                       controller: _controller,
-                      btn: new RaisedButton(
+                      btn: widget.card != null ? null : new RaisedButton(
                         color: const Color(0xFF029de0),
                         highlightColor: const Color(0xFF029de0),
-                        child: const Text('获取验证码',
+                        child: const Text('获取信息',
                             style: const TextStyle(
                               inherit: false,
                               fontSize: 14.0,
@@ -282,6 +281,12 @@ class CardEditState extends State<CardEdit>{
           children: children,
         )),
     );
+
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
 }

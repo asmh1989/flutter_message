@@ -54,7 +54,7 @@ class LoginPageState extends State<LoginPage> {
       return;
     }
 
-    if(_passwdKey.currentState.text.length == 0) {
+    if(_passwordKey.currentState.text.length == 0) {
       Func.showMessage(_scaffoldKey, '密码为空');
       return;
     }
@@ -66,7 +66,7 @@ class LoginPageState extends State<LoginPage> {
 
     http.Response response= await NetWork.post(NetWork.LOGIN, {
       'Unm': _userKey.currentState.text,
-      'Upd': _passwdKey.currentState.text,
+      'Upd': _passwordKey.currentState.text,
     });
 
     Future.delayed(new Duration(milliseconds: 200), () async {
@@ -80,10 +80,10 @@ class LoginPageState extends State<LoginPage> {
         Map data = NetWork.decodeJson(response.body);
         if(data['Code'] != 0){
           Func.showMessage(_scaffoldKey, data['Message']);
-          _passwdKey.currentState.clear();
+          _passwordKey.currentState.clear();
         } else {
           _cache.setStringValue(KEY_USERNAME, _userKey.currentState.text);
-          _cache.setStringValue(KEY_PASSWORD, _passwdKey.currentState.text);
+          _cache.setStringValue(KEY_PASSWORD, _passwordKey.currentState.text);
 
           Map res = data['Response'];
 
@@ -111,7 +111,7 @@ class LoginPageState extends State<LoginPage> {
 
 
   final GlobalKey<ClearTextFieldFormState> _userKey = new GlobalKey<ClearTextFieldFormState>();
-  final GlobalKey<ClearTextFieldFormState> _passwdKey = new GlobalKey<ClearTextFieldFormState>();
+  final GlobalKey<ClearTextFieldFormState> _passwordKey = new GlobalKey<ClearTextFieldFormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   List<Widget> _buildLoginForm() {
@@ -159,7 +159,7 @@ class LoginPageState extends State<LoginPage> {
                       hintColor: Colors.white
                   ),
                   child: new ClearTextFieldForm(
-                    key: _passwdKey,
+                    key: _passwordKey,
                     obscureText: true,
                     initialValue: _remember ? _password : '',
                     style: Style.inputTextStyle,
