@@ -27,8 +27,9 @@ class _FutureCardList extends StatefulWidget{
 
   final ShowTips show;
   final CardType type;
+  final PageCache cache;
 
-  const _FutureCardList({Key key, @required this.show, @required this.type}): super(key:key);
+  const _FutureCardList({Key key, @required this.show, @required this.type, @required this.cache}): super(key:key);
 
   @override
   State<StatefulWidget> createState() {
@@ -38,14 +39,19 @@ class _FutureCardList extends StatefulWidget{
 
 class _FutureCardListState extends State<_FutureCardList>{
 
-  String _snm = '';
-  static List<CardInfo> _cards = new List<CardInfo>();
   bool isNotify = false;
+  String _snm = '';
 
   Map<Key, AutoClose> _autoClose = new Map<Key, AutoClose>();
 
   void notify(String snm){
+    if(_snm == snm) return;
+    _snm = snm;
+    isNotify = true;
 
+    setState(() {
+
+    });
   }
 
 
@@ -56,7 +62,7 @@ class _FutureCardListState extends State<_FutureCardList>{
       'Unm': Cache.instance.username,
       'Cdtoken': Cache.instance.cdtoekn,
       'Token': Cache.instance.token,
-      'No': _snm??'',
+      'No': _snm,
       'Idx': '1',
       'Size': '100'
     };
@@ -81,19 +87,26 @@ class _FutureCardListState extends State<_FutureCardList>{
 
     return new Expanded(
       child: new ListView.builder(
-        itemCount: _cards.length,
+        itemCount: widget.cache.cards.length,
         itemBuilder: (BuildContext context, int index) {
-          CardInfo item = _cards[index];
+          CardInfo item = widget.cache.cards[index];
 
           final List<FXRightSideButton> buttons= [
             new FXRightSideButton(name: '编辑',
                 backgroundColor: Colors.grey,
                 fontColor: Colors.white,
-                onPress: (){
-                  Navigator.push(context, new MaterialPageRoute(
+                onPress: () async {
+                  final result = await Navigator.push(context, new MaterialPageRoute(
                       builder: (BuildContext context) => new CardEdit(
                         card: item,
                       )));
+
+                  if(result != null) {
+                    widget.cache.clear();
+                    setState(() {
+
+                    });
+                  }
                 }),
             new FXRightSideButton(name: '删除',
                 backgroundColor: Colors.red,
@@ -118,7 +131,7 @@ class _FutureCardListState extends State<_FutureCardList>{
                               if(data['Code'] != 0){
                                 widget.show(data['Message']);
                               } else {
-                                CardManagerPage.dispose();
+                                widget.cache.clear();
                                 setState(() {
 
                                 });
@@ -167,8 +180,9 @@ class _FutureCardListState extends State<_FutureCardList>{
 
 
   Widget _getCardListWidget(){
-//    print('isNotify=$isNotify, len=${_cards.length}');
-    if(!isNotify && _cards.length > 0) return _getCardListWidget2();
+//    print('isNotify=$isNotify, len=${widget.cache.cards.length}, snm=${widget.cache.snm}');
+    if(!isNotify && widget.cache.cards.length > 0) return _getCardListWidget2();
+    isNotify = false;
 
     return new FutureBuilder<http.Response>(
         future: _getCardData(),
@@ -207,9 +221,9 @@ class _FutureCardListState extends State<_FutureCardList>{
                     )
                 );
               } else {
-                _cards.clear();
-                _cards.addAll(CardInfo.parseCards(data['Response']));
-                if(_cards.length == 0){
+                widget.cache.cards.clear();
+                widget.cache.cards.addAll(CardInfo.parseCards(data['Response']));
+                if(widget.cache.cards.length == 0){
                   return new Expanded(child: new Center(child: Image.asset(ImageAssets.ic_card_list_tips,  width: 160.0,)));
                 }
 
@@ -238,6 +252,8 @@ class _FutureCardListState extends State<_FutureCardList>{
   @override
   void initState() {
     super.initState();
+
+    _snm = widget.cache.snm;
   }
 
   @override
@@ -254,25 +270,36 @@ class CardManagerPage extends StatefulWidget{
 
   final CardType type;
   final ShowTips show;
-  const CardManagerPage({@required this.show, @required this.type});
+  final PageCache cache;
+  const CardManagerPage({@required this.show, @required this.type, @required this.cache});
 
   @override
   State<StatefulWidget> createState() {
     return new CardManagerState();
-  }
-
-  static void dispose(){
-    _FutureCardListState._cards.clear();
   }
 }
 
 class CardManagerState extends State<CardManagerPage>{
 
   final GlobalKey<_FutureCardListState> _userKey = new GlobalKey<_FutureCardListState>();
-  TextEditingController _controller = new TextEditingController();
+  TextEditingController _controller;
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = new TextEditingController(text: widget.cache.snm);
+    _controller.addListener((){
+      _userKey.currentState.notify(widget.cache.snm = _controller.text);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+
+//    print('cardManager , snm=${widget.cache.snm}');
+    _controller.text = widget.cache.snm;
     return new Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -280,34 +307,34 @@ class CardManagerState extends State<CardManagerPage>{
           new Container(
             color: Style.COLOR_BACKGROUND,
             padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
-            child: new TextField(
+            child: new Theme(data: new ThemeData(
+                primaryColor: Colors.white,
+                accentColor: Colors.white,
+                hintColor: Colors.white
+            ), child: new TextField(
               controller: _controller,
-              onSubmitted: (String value){
-              },
               decoration: new InputDecoration(
-                  prefixIcon: new Icon(Icons.search),
-                  suffixIcon: new InkWell(
-                    onTap: (){
-                      if(_controller.text.length == 0) return;
-                      _controller.clear();
-                      _userKey.currentState.notify('');
-                    },
-                    child: new Text('清除',
-                      style: new TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.w700),
-                    ),
+                prefixIcon: new Icon(Icons.search, color: Colors.grey,),
+                suffixIcon: new GestureDetector(
+                  onTap: (){
+                    if(_controller.text.length == 0) return;
+                    _controller.clear();
+                    _userKey.currentState.notify('');
+                  },
+                  child: new Text('清除',style: new TextStyle(fontWeight: FontWeight.w700, color: Style.COLOR_THEME),
                   ),
-                  hintText: '搜索',
-                  fillColor: Colors.white,
-                  filled: true,
-                  contentPadding: EdgeInsets.all(8.0),
-                  border: new OutlineInputBorder(
-                      borderSide: new BorderSide(color: Colors.white, width: 0.5))),
-            ),
+                ),
+                hintText: '搜索',
+                hintStyle: new TextStyle(color: Colors.grey),
+                fillColor: Colors.white,
+                filled: true,
+                contentPadding: EdgeInsets.all(8.0),
+              ),
+            )),
           ),
           new _FutureCardList(
             key: _userKey,
+            cache: widget.cache,
             type: widget.type,
             show: (String msg){
               widget.show(msg);
@@ -317,4 +344,14 @@ class CardManagerState extends State<CardManagerPage>{
   }
 
 
+}
+
+class PageCache {
+  List<CardInfo> cards = new List<CardInfo>();
+  String snm = '';
+
+  void clear(){
+    snm='';
+    cards.clear();
+  }
 }

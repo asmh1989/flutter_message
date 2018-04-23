@@ -28,7 +28,7 @@ class HomeState extends State<HomePage> {
   PageController _controller;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
+  final PageCache _cache = new PageCache();
 
   AppBar _getAppBar() {
     if(_currentIndex == 0 || _currentIndex == 1) {
@@ -43,10 +43,10 @@ class HomeState extends State<HomePage> {
                 if(_currentIndex == 0){
                   final result = await Navigator.push(context, new MaterialPageRoute(
                       builder: (BuildContext context) => new CardEdit()));
-                  if(result != null){
-                    CardManagerPage.dispose();
-                    setState(() {
 
+                  if(result != null){
+                    setState(() {
+                      _cache.clear();
                     });
                   }
 
@@ -80,7 +80,7 @@ class HomeState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _controller = new PageController(initialPage: _currentIndex);
+//    _controller = new PageController(initialPage: _currentIndex);
   }
 
   Widget _getPersonView() {
@@ -217,15 +217,28 @@ class HomeState extends State<HomePage> {
 
   Widget _getBody() {
 
-    return new PageView(
-      physics: new NeverScrollableScrollPhysics(),
-      controller: _controller,
-      children: <Widget>[
-        new CardManagerPage(type: CardType.CARD, show: (String value)=>Func.showMessage(_scaffoldKey, value),),
-        new Text('hello 1'),
-        _getPersonView()
-      ],
-    );
+    switch(_currentIndex){
+      case 0:
+        return new CardManagerPage(
+          type: CardType.CARD,
+          show: (String value)=>Func.showMessage(_scaffoldKey, value),
+          cache: _cache,
+        );
+      case 1:
+        return new Text('hello 1');
+      default:
+        return  _getPersonView();
+
+    }
+
+//    return new PageView(
+//      physics: new NeverScrollableScrollPhysics(),
+//      controller: _controller,
+//      children: <Widget>[
+//        new CardManagerPage(type: CardType.CARD, show: (String value)=>Func.showMessage(_scaffoldKey, value),),
+//        new Text('hello 1'),
+//      ],
+//    );
   }
 
   @override
@@ -252,7 +265,7 @@ class HomeState extends State<HomePage> {
       iconSize: 16.0,
       onTap: (int index) {
         setState(() {
-          _controller.jumpToPage(index);
+//          _controller.jumpToPage(index);
           _currentIndex = index;
         });
       },
@@ -287,8 +300,7 @@ class HomeState extends State<HomePage> {
   @override
   void dispose() {
     super.dispose();
-    _controller.dispose();
-    CardManagerPage.dispose();
+//    _controller.dispose();
   }
 }
 
