@@ -17,6 +17,10 @@ class ClearTextFieldForm extends StatefulWidget {
   final InputBorder border;
   final int maxLine;
   final EdgeInsets contentPadding;
+  final VoidCallback listener;
+  final bool filled;
+  final Color filledColor;
+  final Color clearColor;
 
   const ClearTextFieldForm({
     Key key,
@@ -31,8 +35,12 @@ class ClearTextFieldForm extends StatefulWidget {
     this.onSaved,
     this.validator,
     this.border,
-    this.maxLine,
-    this.contentPadding
+    this.maxLine = 1,
+    this.contentPadding,
+    this.listener,
+    this.filled = false,
+    this.filledColor,
+    this.clearColor
   }) : super (key: key);
 
   @override
@@ -61,6 +69,11 @@ class ClearTextFieldFormState extends State<ClearTextFieldForm> {
 
     _controller.addListener(() {
 //      print('_controller.text='+_controller.text);
+
+      if(widget.listener != null){
+        widget.listener();
+      }
+
       if(_controller.text.length > 0 && !_showClearIcon){
         setState(() {
           _showClearIcon = true;
@@ -83,6 +96,12 @@ class ClearTextFieldFormState extends State<ClearTextFieldForm> {
 
   get text => _controller.text;
 
+  set text(String value){
+    _controller.text = value;
+    _controller.selection = new TextSelection.collapsed(offset: value.length);
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return new TextFormField(
@@ -93,30 +112,32 @@ class ClearTextFieldFormState extends State<ClearTextFieldForm> {
       onFieldSubmitted: widget.onFieldSubmitted,
       onSaved: widget.onSaved,
       validator: widget.validator,
-      maxLines: widget.maxLine??1,
+      maxLines: widget.maxLine,
       decoration: new InputDecoration(
-        prefixIcon: widget.icon != null ? new Padding(
-          padding: EdgeInsets.all(12.0),
-          child: widget.icon,
-        ): null,
-        suffixIcon: _showClearIcon ? GestureDetector(
-            onTap: () {
-              _controller.clear();
-              setState(() {
-                _showClearIcon = false;
-              });
-            },
-            child: new Image.asset(
-              ImageAssets.clearfill,
-              height: 20.0,
-              fit: BoxFit.fill,
-              color: Theme.of(context).accentColor,
-            )
-        ) : null,
-        border: widget.border??const UnderlineInputBorder(),
-        hintText: widget.hintText,
-        hintStyle: widget.hintStyle,
-        contentPadding: widget.contentPadding
+          prefixIcon: widget.icon != null ? new Padding(
+            padding: EdgeInsets.all(12.0),
+            child: widget.icon,
+          ): null,
+          suffixIcon: _showClearIcon ? GestureDetector(
+              onTap: () {
+                _controller.clear();
+                setState(() {
+                  _showClearIcon = false;
+                });
+              },
+              child: new Image.asset(
+                ImageAssets.clearfill,
+                height: 20.0,
+                fit: BoxFit.fill,
+                color: widget.clearColor ?? Theme.of(context).accentColor,
+              )
+          ) : null,
+          border: widget.border??const UnderlineInputBorder(),
+          hintText: widget.hintText,
+          hintStyle: widget.hintStyle,
+          filled: widget.filled,
+          fillColor: widget.filledColor,
+          contentPadding: widget.contentPadding
       ),
     );
   }

@@ -12,7 +12,8 @@ import '../utils/func.dart';
 import '../ui/swide_widget.dart';
 
 class CommandListPage extends StatefulWidget{
-  const CommandListPage({Key key}): super(key: key);
+  final bool result;
+  const CommandListPage({Key key, this.result = false}): super(key: key);
 
   static const String route = '/home/commonds';
 
@@ -124,6 +125,11 @@ class CommandListPageState extends State<CommandListPage>{
                                 title: new Text(value.title),
                                 subtitle: new Text(
                                     values[index].content),
+                                onTap: (){
+                                  if(widget.result){
+                                    Navigator.pop(context, value.content);
+                                  }
+                                },
                               ),
                             ),
                             buttons: buttons,

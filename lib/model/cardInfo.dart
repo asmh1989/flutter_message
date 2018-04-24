@@ -19,6 +19,7 @@ class CardInfo{
     this.sid,
     this.nnm='',
     this.addr='',
+    this.cdno,
     this.opnm='',
     this.insdt,
     this.unm,

@@ -167,8 +167,9 @@ class _FutureCardListState extends State<_FutureCardList>{
                     title: new Text(item.nnm.length == 0 ?item.no : '${item.nnm}（${item.no}）'),
                     subtitle: new Text(item.addr),
                     trailing: new Text(Func.getFullTimeString(item.insdt* 1000)),
-                    onTap: () {
-                      Navigator.push(context, new MaterialPageRoute(builder: (context)=> new CardDetailPage(card: item)));
+                    onTap: () async {
+                      await Navigator.push(context, new MaterialPageRoute(builder: (context)=> new CardDetailPage(card: item)));
+                      widget.cache.clear();
                     },
                   )
               )

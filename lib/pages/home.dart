@@ -25,7 +25,7 @@ class HomeState extends State<HomePage> {
 
   int _currentIndex = 0;
 
-  PageController _controller;
+//  PageController _controller;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final PageCache _cache = new PageCache();

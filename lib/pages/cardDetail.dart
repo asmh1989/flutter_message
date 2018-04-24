@@ -1,8 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+
 import '../model/cardInfo.dart';
 
 import '../utils/index.dart';
+
+import 'msgDetail.dart';
 
 class CardDetailPage extends StatefulWidget {
   final CardInfo card;
@@ -15,6 +21,41 @@ class CardDetailPage extends StatefulWidget {
 }
 
 class CardDetailState extends State<CardDetailPage>{
+  CardInfo _card;
+
+  @override
+  void initState() {
+    super.initState();
+    _card = widget.card ?? new CardInfo();
+  }
+
+  void _get() async {
+    String url = Cache.instance.cdurl + '/api/getnos.json';
+
+    http.Response response = await NetWork.post(url, {
+      'Unm': Cache.instance.username,
+      'Cdtoken': Cache.instance.cdtoekn,
+      'Token': Cache.instance.token,
+      'No': _card.no??'',
+      'Idx': '1',
+      'Size': '100'
+    });
+
+    if(response.statusCode == 200) {
+      Map data = NetWork.decodeJson(response.body);
+      if (data['Code'] == 0) {
+        List<CardInfo> cards = CardInfo.parseCards(data['Response']);
+        if (cards.length > 0) {
+          setState(() {
+            _card = cards[0];
+          });
+        }
+      }
+    }
+
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -40,7 +81,7 @@ class CardDetailState extends State<CardDetailPage>{
                         width: 72.0,
                       ),
                       new SizedBox(height: 8.0),
-                      new Text(widget.card.no, style: new TextStyle(
+                      new Text(_card.no, style: new TextStyle(
                           color: Colors.white,
                           fontSize: 16.0
                       )),
@@ -69,20 +110,20 @@ class CardDetailState extends State<CardDetailPage>{
                           new Divider(height: 0.5),
                           new Padding(padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), child:new Text('基本信息', style: new TextStyle(color: Style.COLOR_THEME, fontWeight: FontWeight.w700))),
                           new Divider(height: 0.5),
-                          new ListTile(title: new Text(widget.card.nnm), subtitle: new Text('设备卡名'),),
+                          new ListTile(title: new Text(_card.nnm), subtitle: new Text('设备卡名'),),
                           new Divider(height: 0.5),
-                          new ListTile(title: new Text(widget.card.no), subtitle: new Text('设备卡号'),),
+                          new ListTile(title: new Text(_card.no), subtitle: new Text('设备卡号'),),
 
                           new Divider(height: 0.5),
-                          new ListTile(title: new Text(widget.card.addr), subtitle: new Text('安装地址'),),
+                          new ListTile(title: new Text(_card.addr), subtitle: new Text('安装地址'),),
 
                           new Divider(height: 0.5),
-                          new ListTile(title: new Text(widget.card.opnm), subtitle: new Text('操作员'),),
+                          new ListTile(title: new Text(_card.opnm), subtitle: new Text('操作员'),),
 
                           new Divider(height: 0.5),
-                          new ListTile(title: new Text(Func.getFullTimeString(widget.card.insdt* 1000)), subtitle: new Text('安装时间'),),
+                          new ListTile(title: new Text(Func.getFullTimeString(_card.insdt* 1000)), subtitle: new Text('安装时间'),),
                           new Divider(height: 0.5),
-                          new ListTile(title: new Text(widget.card.re), subtitle: new Text('备注'),),
+                          new ListTile(title: new Text(_card.re), subtitle: new Text('备注'),),
                           new Divider(height: 0.5),
 
                         ]))))),
@@ -94,7 +135,11 @@ class CardDetailState extends State<CardDetailPage>{
                     highlightColor: const Color(0xFF029de0),
                     child: const Text('发消息', style: Style.loginTextStyle),
                     padding: EdgeInsets.all(10.0),
-                    onPressed: (){
+                    onPressed: () async {
+                      await Navigator.push(context, new MaterialPageRoute(
+                          builder: (BuildContext context) => new MsgDetailPage(card: _card,)));
+
+                      _get();
 
                     },
                   ),

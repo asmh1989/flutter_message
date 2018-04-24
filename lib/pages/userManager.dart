@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-import 'login.dart';
 import 'userEdit.dart';
 
 import '../model/userInfo.dart';

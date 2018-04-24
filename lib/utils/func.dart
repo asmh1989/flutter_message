@@ -100,4 +100,19 @@ class Func {
       selectDate(picked);
   }
 
+  static Widget getWhiteTheme(Widget child){
+    return new Theme(data: new ThemeData(
+      primaryColor: Colors.white,
+      hintColor: Colors.white,
+      accentColor: Colors.white,
+    ), child: child);
+  }
+
+  static Widget getCircleAvatar(double height, Color backGroundColor, String image ){
+    return new CircleAvatar(
+      backgroundColor: backGroundColor,
+      child: new Image.asset(image, height: height, width: height,),
+    );
+  }
+
 }

@@ -91,6 +91,35 @@ class CommandValue extends Value {
 
 }
 
+class CardValueTable {
+  static const String name = 'CardValue';
+  static const String id = 'ID';
+  static const String no = 'NO';
+  static const String cdno = 'CDNO';
+}
+
+class CardValue extends Value {
+  String no;
+  String cdno;
+
+  @override
+  Map<String, dynamic> toMap() {
+
+    Map<String, dynamic> map = super.toMap();
+
+    map.addAll({CardValueTable.no: no, CardValueTable.cdno: cdno});
+
+    return map;
+  }
+
+  CardValue({int id, String no, String cdno}): this.no=no, this.cdno = cdno, super(id);
+
+  CardValue.fromMap(Map map):super.fromMap(map) {
+    no = map[CardValueTable.no];
+    cdno = map[CardValueTable.cdno];
+  }
+}
+
 
 
 class DB {
@@ -122,6 +151,13 @@ create table ${CommandValueTable.name} (
   ${CommandValueTable.id} integer primary key autoincrement, 
   ${CommandValueTable.title} text not null,
   ${CommandValueTable.content} text not null)
+''');
+            /// commandValue table
+            await db.execute('''
+create table ${CardValueTable.name} ( 
+  ${CardValueTable.id} integer primary key autoincrement, 
+  ${CardValueTable.no} text not null,
+  ${CardValueTable.cdno} text not null)
 ''');
           });
 
@@ -170,6 +206,8 @@ create table ${CommandValueTable.name} (
       return new KeyValue.fromMap(map);
     } else if(T.toString() == CommandValueTable.name){
       return new CommandValue.fromMap(map);
+    } else if(T.toString() == CardValueTable.name){
+      return new CardValue.fromMap(map);
     }
     return new Value.fromMap(map);
   }
