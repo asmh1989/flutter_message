@@ -35,6 +35,8 @@ class MsgDetailState extends State<MsgDetailPage> {
   List<MsgInfo> _msg = new List<MsgInfo>();
   int _page = 1;
 
+  ScrollController _controller;
+
   /// 根据时间间隔load信息流
   Future<Null> _getData([String stime = '', String etime = '']) async {
 
@@ -78,6 +80,15 @@ class MsgDetailState extends State<MsgDetailPage> {
             setState(() {
 
             });
+            var scrollPosition = _controller.position;
+
+            if(scrollPosition.viewportDimension > scrollPosition.minScrollExtent){
+              _controller.animateTo(
+                scrollPosition.minScrollExtent,
+                duration: new Duration(milliseconds: 100),
+                curve: Curves.easeOut,
+              );
+            }
           }
         } else {
           if(list.length == 0 ){
@@ -89,6 +100,23 @@ class MsgDetailState extends State<MsgDetailPage> {
 
               });
             }
+
+            new Future.delayed(new Duration(milliseconds: 200), () async {
+              var scrollPosition = _controller.position;
+
+//            if (scrollPosition.viewportDimension < scrollPosition.maxScrollExtent+100) {
+//              await _controller.animateTo(
+//                scrollPosition.maxScrollExtent+ 50.0,
+//                duration: new Duration(milliseconds: 200),
+//                curve: Curves.easeOut,
+//              );
+              _controller.jumpTo(scrollPosition.maxScrollExtent);
+
+//              print('${_controller.offset} ${scrollPosition.minScrollExtent}, ${scrollPosition.maxScrollExtent} ....111111');
+              //            }
+            });
+
+
           }
         }
       }
@@ -122,13 +150,14 @@ class MsgDetailState extends State<MsgDetailPage> {
       new Container(
         constraints: new BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.6),
         decoration: new BoxDecoration(
-//            color: info.tp == 0 ? Colors.grey : Style.COLOR_THEME,
-//            borderRadius: new BorderRadius.all(Radius.circular(10.0)),
-            image: new DecorationImage(
-                image: new AssetImage(info.tp == 0 ?ImageAssets.bubble_gray : ImageAssets.bubble_blue),
-                fit: BoxFit.fill,
-//                centerSlice: new Rect.fromLTRB(1.0, 0.0, 9.0, 0.0)
-            )
+          color: info.tp == 0 ? Colors.grey : Style.COLOR_THEME,
+          borderRadius: new BorderRadius.all(Radius.circular(6.0)),
+
+//            image: new DecorationImage(
+//                image: new AssetImage(info.tp == 0 ?ImageAssets.bubble_gray : ImageAssets.bubble_blue),
+//                fit: BoxFit.fill,
+//                centerSlice: new Rect.fromLTRB(12.0, 12.0, 38.0, 12.0)
+//            )
         ),
         padding: new EdgeInsets.only(left: 8.0, right: 12.0, top: 8.0, bottom: 6.0),
         child: new Text(info.t, style: new TextStyle(fontSize: 14.0),),
@@ -158,7 +187,7 @@ class MsgDetailState extends State<MsgDetailPage> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          new Padding(padding: EdgeInsets.all(8.0), child: Func.getCircleAvatar(40.0, const Color(0xFFE9E9E9), ImageAssets.icon_card)),
+          new Padding(padding: EdgeInsets.all(4.0), child: Func.getCircleAvatar(40.0, const Color(0xFFE9E9E9), ImageAssets.icon_card)),
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
@@ -300,6 +329,7 @@ class MsgDetailState extends State<MsgDetailPage> {
     }
 
     return new ListView.builder(
+        controller: _controller,
         itemCount: _msg.length,
         itemBuilder: (BuildContext context, int index){
           MsgInfo msg = _msg[index];
@@ -348,10 +378,26 @@ class MsgDetailState extends State<MsgDetailPage> {
     super.initState();
 
     _card = widget.card ?? null;
+    _controller = new ScrollController();
   }
 
   @override
   Widget build(BuildContext context) {
+
+    try {
+//      print('${_controller.offset} ....');
+      if(_controller.position.maxScrollExtent > 0){
+        new Future.delayed(new Duration(milliseconds: 17), (){
+          _controller.animateTo(
+            _controller.position.maxScrollExtent,
+            duration: new Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+          );
+        }
+        );
+      }
+    } catch(e){}
+
 
     List<Widget> children = new List<Widget>();
     if(_card.no.length == 0){
@@ -421,7 +467,7 @@ class MsgDetailState extends State<MsgDetailPage> {
                 if(response.statusCode != 200){
                   Func.showMessage(_scaffoldKey, response.body);
                 } else {
-                  Func.showMessage(_scaffoldKey, '已发送');
+//                  Func.showMessage(_scaffoldKey, '已发送');
                   FocusScope.of(context).requestFocus(new FocusNode());
                   _inputKey.currentState.clear();
 
