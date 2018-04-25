@@ -12,13 +12,11 @@ import '../utils/index.dart';
 
 import '../ui/underLine.dart';
 
-typedef  void ShowTips(String msg);
 typedef  void ClickCallback(UserInfo user);
 
 class _FutureUserList extends StatefulWidget{
-  final ShowTips show;
   final ClickCallback callback;
-  const _FutureUserList({Key key, @required this.show, @required this.callback}) :super(key:key);
+  const _FutureUserList({Key key, @required this.callback}) :super(key:key);
 
   @override
   State<StatefulWidget> createState() {
@@ -230,9 +228,6 @@ class UserManagerState extends State<UserManagerPage>{
             ),
             new _FutureUserList(
               key: _userKey,
-              show: (String msg){
-                Func.showMessage(_scaffoldKey, msg);
-              },
               callback: _click,
             ),
           ]),

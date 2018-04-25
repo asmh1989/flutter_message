@@ -49,13 +49,13 @@ class LoginPageState extends State<LoginPage> {
 
     /// 验证用户名
     if(!Func.validatePhone(_userKey.currentState.text)) {
-      Func.showMessage(_scaffoldKey, '手机号格式不正确');
+      Func.showMessage('手机号格式不正确');
       _userKey.currentState.clear();
       return;
     }
 
     if(_passwordKey.currentState.text.length == 0) {
-      Func.showMessage(_scaffoldKey, '密码为空');
+      Func.showMessage('密码为空');
       return;
     }
 
@@ -79,7 +79,7 @@ class LoginPageState extends State<LoginPage> {
 
         Map data = NetWork.decodeJson(response.body);
         if(data['Code'] != 0){
-          Func.showMessage(_scaffoldKey, data['Message']);
+          Func.showMessage(data['Message']);
           _passwordKey.currentState.clear();
         } else {
           _cache.setStringValue(KEY_USERNAME, _userKey.currentState.text);
@@ -100,7 +100,7 @@ class LoginPageState extends State<LoginPage> {
               Navigator.pushReplacementNamed(context, HomePage.route);
             }
           } else {
-            Func.showMessage(_scaffoldKey, '返回格式错误: $res');
+            Func.showMessage('返回格式错误: $res');
           }
 
         }

@@ -78,7 +78,7 @@ class PlatformEditState extends State<PlatformEdit>{
     final FormState form = _formKey.currentState;
     if (!form.validate()) {
       _autoValidate = true; // Start validating on every change.
-      Func.showMessage(_scaffoldKey, '请先修复错误,再确认');
+      Func.showMessage('请先修复错误,再确认');
       return;
     } else {
       form.save();
@@ -104,9 +104,9 @@ class PlatformEditState extends State<PlatformEdit>{
 
         Map data = NetWork.decodeJson(response.body);
         if(data['Code'] != 0){
-          Func.showMessage(_scaffoldKey, data['Message']);
+          Func.showMessage(data['Message']);
         } else {
-          Func.showMessage(_scaffoldKey, widget.info == null ? '新增平台成功！': '修改平台信息成功！');
+          Func.showMessage(widget.info == null ? '新增平台成功！': '修改平台信息成功！');
           Future.delayed(new Duration(milliseconds: 500),(){
             Navigator.pop(context, 'done');
           });

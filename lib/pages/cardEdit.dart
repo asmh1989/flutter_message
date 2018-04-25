@@ -85,7 +85,7 @@ class CardEditState extends State<CardEdit>{
 
   void _getCardInfo() async{
     if(_controller.text.length == 0){
-      Func.showMessage(_scaffoldKey, '请输入设备卡号！');
+      Func.showMessage('请输入设备卡号！');
     } else {
       setState(() {
         _loading = true;
@@ -100,11 +100,11 @@ class CardEditState extends State<CardEdit>{
 
         Map data = NetWork.decodeJson(response.body);
         if(data['Code'] != 0){
-          Func.showMessage(_scaffoldKey, data['Message']);
+          Func.showMessage(data['Message']);
         } else {
           List<CardInfo> cards = CardInfo.parseCards(data['Response']);
           if(cards.length == 0){
-            Func.showMessage(_scaffoldKey, '暂无该设备卡号！');
+            Func.showMessage('暂无该设备卡号！');
             setState(() {
               _enable = true;
             });
@@ -128,7 +128,7 @@ class CardEditState extends State<CardEdit>{
     final FormState form = _formKey.currentState;
     if (!form.validate()) {
       _autoValidate = true; // Start validating on every change.
-      Func.showMessage(_scaffoldKey, '请先修复错误,再确认');
+      Func.showMessage('请先修复错误,再确认');
       return;
     } else {
       form.save();
@@ -151,15 +151,15 @@ class CardEditState extends State<CardEdit>{
 
         Map data = NetWork.decodeJson(response.body);
         if(data['Code'] != 0){
-          Func.showMessage(_scaffoldKey, data['Message']);
+          Func.showMessage(data['Message']);
         } else {
-          Func.showMessage(_scaffoldKey, widget.card == null ? '添加卡成功！': '修改卡信息成功！');
+          Func.showMessage(widget.card == null ? '添加卡成功！': '修改卡信息成功！');
           Future.delayed(new Duration(milliseconds: 500),(){
             Navigator.pop(context, 'done');
           });
         }
       } else {
-        Func.showMessage(_scaffoldKey, response.body);
+        Func.showMessage(response.body);
       }
     });
   }

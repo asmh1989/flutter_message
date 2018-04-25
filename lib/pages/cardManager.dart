@@ -21,15 +21,13 @@ enum CardType {
   MESSAGE
 }
 
-typedef  void ShowTips(String msg);
 
 class _FutureCardList extends StatefulWidget{
 
-  final ShowTips show;
   final CardType type;
   final PageCache cache;
 
-  const _FutureCardList({Key key, @required this.show, @required this.type, @required this.cache}): super(key:key);
+  const _FutureCardList({Key key, @required this.type, @required this.cache}): super(key:key);
 
   @override
   State<StatefulWidget> createState() {
@@ -129,7 +127,7 @@ class _FutureCardListState extends State<_FutureCardList>{
 
                               Map data = NetWork.decodeJson(response.body);
                               if(data['Code'] != 0){
-                                widget.show(data['Message']);
+                                Func.showMessage(data['Message']);
                               } else {
                                 widget.cache.clear();
                                 setState(() {
@@ -137,7 +135,7 @@ class _FutureCardListState extends State<_FutureCardList>{
                                 });
                               }
                             } else {
-                              widget.show(response.body);
+                              Func.showMessage(response.body);
                             }
 
                           }, child: new Text('确定'))
@@ -270,9 +268,8 @@ class _FutureCardListState extends State<_FutureCardList>{
 class CardManagerPage extends StatefulWidget{
 
   final CardType type;
-  final ShowTips show;
   final PageCache cache;
-  const CardManagerPage({@required this.show, @required this.type, @required this.cache});
+  const CardManagerPage({@required this.type, @required this.cache});
 
   @override
   State<StatefulWidget> createState() {
@@ -337,9 +334,6 @@ class CardManagerState extends State<CardManagerPage>{
             key: _userKey,
             cache: widget.cache,
             type: widget.type,
-            show: (String msg){
-              widget.show(msg);
-            },
           ),
         ]);
   }

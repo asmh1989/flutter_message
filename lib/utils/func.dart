@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../pages/login.dart';
 
@@ -65,10 +66,13 @@ class Func {
     };
   }
 
-  static void showMessage(GlobalKey<ScaffoldState> key, String value) {
-    key.currentState.showSnackBar(new SnackBar(
-        content: new Text(value, textAlign: TextAlign.center)
-    ));
+  static void showMessage(String value) {
+    Fluttertoast.showToast(
+        msg: value,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIos: 1
+    );
   }
 
   /// 标准的unix时间戳 需要扩大1000倍

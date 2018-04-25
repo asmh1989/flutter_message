@@ -46,7 +46,7 @@ class CommandEditState extends State<CommandEditPage> {
         actions: <Widget>[
           new IconButton(icon: new Text('保存', style: new TextStyle(fontSize: 16.0, fontWeight: FontWeight.w700)) , onPressed: () async{
               if(_titleKey.currentState.text == '' || _contentKey.currentState.text == ''){
-                Func.showMessage(_scaffoldKey, '标题或内容不能为空');
+                Func.showMessage('标题或内容不能为空');
                 return;
               } else {
                 CommandValue value = new CommandValue(title: _titleKey.currentState.text, content: _contentKey.currentState.text);
@@ -54,7 +54,7 @@ class CommandEditState extends State<CommandEditPage> {
 
 
                   await DB.instance.insertOrUpdate<CommandValue>(value, where: '${CommandValueTable.title} = ?', whereArgs: [value.title]);
-                  Func.showMessage(_scaffoldKey, '保存成功');
+                  Func.showMessage('保存成功');
 
                   if(widget.titleValue != null){
                     await DB.instance.delete<CommandValue>(where: '${CommandValueTable.title} = ?', whereArgs: [widget.titleValue]);
@@ -66,7 +66,7 @@ class CommandEditState extends State<CommandEditPage> {
 
                 } catch(e){
                   print(e);
-                  Func.showMessage(_scaffoldKey, '保存失败');
+                  Func.showMessage('保存失败');
 
                 }
               }

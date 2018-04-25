@@ -51,14 +51,14 @@ class RegisterPageState extends State<RegisterPage> {
     final FormState form = _formKey.currentState;
     if (!form.validate()) {
       _autoValidate = true; // Start validating on every change.
-      Func.showMessage(_scaffoldKey, '请先修复错误,再确认');
+      Func.showMessage('请先修复错误,再确认');
       return;
     } else {
       form.save();
     }
 
     if(person.password_1 != person.password_2){
-      Func.showMessage(_scaffoldKey, '两次密码输入不一致');
+      Func.showMessage('两次密码输入不一致');
       return;
     }
 
@@ -85,9 +85,9 @@ class RegisterPageState extends State<RegisterPage> {
 
         Map data = NetWork.decodeJson(response.body);
         if(data['Code'] != 0){
-          Func.showMessage(_scaffoldKey, data['Message']);
+          Func.showMessage(data['Message']);
         } else {
-          Func.showMessage(_scaffoldKey, '注册成功');
+          Func.showMessage('注册成功');
           Future.delayed(new Duration(milliseconds: 1000),(){
             Navigator.pop(context);
           });
@@ -109,7 +109,7 @@ class RegisterPageState extends State<RegisterPage> {
     String phone = _userKey.currentState.text;
     if(!Func.validatePhone(phone)) {
       _userKey.currentState.clear();
-      Func.showMessage(_scaffoldKey, '手机号格式错误');
+      Func.showMessage('手机号格式错误');
       return;
     }
 
@@ -129,9 +129,9 @@ class RegisterPageState extends State<RegisterPage> {
 
         Map data = NetWork.decodeJson(response.body);
         if(data['Code'] != 0){
-          Func.showMessage(_scaffoldKey, data['Message']);
+          Func.showMessage(data['Message']);
         } else {
-          Func.showMessage(_scaffoldKey, '已发送');
+          Func.showMessage('已发送');
         }
       }
     });

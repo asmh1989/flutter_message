@@ -35,6 +35,8 @@ class MsgDetailState extends State<MsgDetailPage> {
   List<MsgInfo> _msg = new List<MsgInfo>();
   int _page = 1;
 
+  double _offset = 0.0;
+
   ScrollController _controller;
 
   /// 根据时间间隔load信息流
@@ -63,18 +65,18 @@ class MsgDetailState extends State<MsgDetailPage> {
     http.Response response =  await NetWork.post(url, data);
 
     if(response.statusCode != 200){
-      Func.showMessage(_scaffoldKey, response.body);
+      Func.showMessage(response.body);
     } else {
       print(response.body);
       Map data = NetWork.decodeJson(response.body);
       if(data['Code'] != 0){
-        Func.showMessage(_scaffoldKey, data['Message']);
+        Func.showMessage(data['Message']);
       } else {
         List<MsgInfo> list =  MsgInfo.parseMessages(data['Response'])??new List<MsgInfo>();
         if(stime.length > 0){
           _page++;
           if(list.length == 0){
-            Func.showMessage(_scaffoldKey, '没有更多历史消息！');
+            Func.showMessage('没有更多历史消息！');
           } else {
             _msg.insertAll(0, list);
             setState(() {
@@ -88,11 +90,13 @@ class MsgDetailState extends State<MsgDetailPage> {
                 duration: new Duration(milliseconds: 100),
                 curve: Curves.easeOut,
               );
+
+              _offset = 0.0;
             }
           }
         } else {
           if(list.length == 0 ){
-            Func.showMessage(_scaffoldKey, '没有更多新消息！');
+            Func.showMessage('没有更多新消息！');
           } else {
             _msg.addAll(list);
             if(etime.length > 0){
@@ -111,8 +115,8 @@ class MsgDetailState extends State<MsgDetailPage> {
 //                curve: Curves.easeOut,
 //              );
               _controller.jumpTo(scrollPosition.maxScrollExtent);
+              _offset = scrollPosition.maxScrollExtent;
 
-//              print('${_controller.offset} ${scrollPosition.minScrollExtent}, ${scrollPosition.maxScrollExtent} ....111111');
               //            }
             });
 
@@ -222,6 +226,12 @@ class MsgDetailState extends State<MsgDetailPage> {
     }
   }
 
+  Future<Null> _handleRefresh() async{
+    if (_msg.length > 0) {
+      await _getData(_msg[0].rst, "");
+    }
+  }
+
   Widget _getAppBar() {
     if(widget.card == null){
       return new AppBar(
@@ -264,13 +274,13 @@ class MsgDetailState extends State<MsgDetailPage> {
                               });
 
                               if(response.statusCode != 200){
-                                Func.showMessage(_scaffoldKey, response.body);
+                                Func.showMessage(response.body);
                               } else {
                                 Map data = NetWork.decodeJson(response.body);
                                 if(data['Code'] != 0){
-                                  Func.showMessage(_scaffoldKey, data['Message']);
+                                  Func.showMessage(data['Message']);
                                 } else {
-                                  Func.showMessage(_scaffoldKey, '设置备注成功！');
+                                  Func.showMessage('设置备注成功！');
                                   setState(() {
                                     _card.nnm = controller.text;
                                   });
@@ -328,7 +338,15 @@ class MsgDetailState extends State<MsgDetailPage> {
       return new Text('');
     }
 
-    return new ListView.builder(
+    _controller = new ScrollController(initialScrollOffset: _offset);
+    _controller.addListener((){
+      _offset = _controller.offset;
+    });
+
+
+    return new RefreshIndicator(
+        onRefresh: _handleRefresh,
+        child: new ListView.builder(
         controller: _controller,
         itemCount: _msg.length,
         itemBuilder: (BuildContext context, int index){
@@ -348,6 +366,7 @@ class MsgDetailState extends State<MsgDetailPage> {
             ],
           );
         }
+        )
     );
   }
 
@@ -378,26 +397,10 @@ class MsgDetailState extends State<MsgDetailPage> {
     super.initState();
 
     _card = widget.card ?? null;
-    _controller = new ScrollController();
   }
 
   @override
   Widget build(BuildContext context) {
-
-    try {
-//      print('${_controller.offset} ....');
-      if(_controller.position.maxScrollExtent > 0){
-        new Future.delayed(new Duration(milliseconds: 17), (){
-          _controller.animateTo(
-            _controller.position.maxScrollExtent,
-            duration: new Duration(milliseconds: 200),
-            curve: Curves.easeOut,
-          );
-        }
-        );
-      }
-    } catch(e){}
-
 
     List<Widget> children = new List<Widget>();
     if(_card.no.length == 0){
@@ -457,7 +460,7 @@ class MsgDetailState extends State<MsgDetailPage> {
               onPressed: () async{
                 if(_card.no.length == 0){
                   if(_noKey.currentState.text.length == 0){
-                    Func.showMessage(_scaffoldKey, '请输入卡号');
+                    Func.showMessage('请输入卡号');
                     return;
                   }
                   _card.no = _noKey.currentState.text;
@@ -465,9 +468,9 @@ class MsgDetailState extends State<MsgDetailPage> {
 
                 http.Response response = await _send(_inputKey.currentState.text);
                 if(response.statusCode != 200){
-                  Func.showMessage(_scaffoldKey, response.body);
+                  Func.showMessage(response.body);
                 } else {
-//                  Func.showMessage(_scaffoldKey, '已发送');
+                  Func.showMessage('已发送');
                   FocusScope.of(context).requestFocus(new FocusNode());
                   _inputKey.currentState.clear();
 

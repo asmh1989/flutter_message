@@ -96,6 +96,9 @@ class HomeState extends State<HomePage> {
             /// 默认返回会主动刷新界面
             final result = await Navigator.pushNamed(context, SwitchPlatformPage.route);
             print('switchPlatform result: $result');
+            if(result != null){
+              _cache.clear();
+            }
 
           }),
           new Divider(height: 0.5),
@@ -221,7 +224,6 @@ class HomeState extends State<HomePage> {
       case 0:
         return new CardManagerPage(
           type: CardType.CARD,
-          show: (String value)=>Func.showMessage(_scaffoldKey, value),
           cache: _cache,
         );
       case 1:

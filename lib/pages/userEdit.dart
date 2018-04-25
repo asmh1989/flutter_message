@@ -79,7 +79,7 @@ class UserEditState extends State<UserEditPage>{
     final FormState form = _formKey.currentState;
     if (!form.validate()) {
       _autoValidate = true; // Start validating on every change.
-      Func.showMessage(_scaffoldKey, '请先修复错误,再确认');
+      Func.showMessage('请先修复错误,再确认');
       return;
     } else {
       form.save();
@@ -106,9 +106,9 @@ class UserEditState extends State<UserEditPage>{
 
         Map data = NetWork.decodeJson(response.body);
         if(data['Code'] != 0){
-          Func.showMessage(_scaffoldKey, data['Message']);
+          Func.showMessage(data['Message']);
         } else {
-          Func.showMessage(_scaffoldKey, widget.user == null ? '新增用户成功！': '修改用户信息成功！');
+          Func.showMessage(widget.user == null ? '新增用户成功！': '修改用户信息成功！');
           Future.delayed(new Duration(milliseconds: 500),(){
             Navigator.pop(context, 'done');
           });
