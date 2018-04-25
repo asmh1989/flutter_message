@@ -89,7 +89,7 @@ class UserEditState extends State<UserEditPage>{
       _loading = true;
     });
 
-    http.Response response = await NetWork.post(NetWork.SET_USERS, {
+    http.Response response = await NetWork.post(NetWork.apiSetUsers, {
       'Unm': Cache.instance.username,
       'Token': Cache.instance.token,
       'Type': widget.user == null ? '1' : '2',

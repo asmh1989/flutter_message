@@ -88,13 +88,13 @@ class PasswordState extends State<PasswordPage>{
 
     http.Response response;
     if(!widget.isModify){
-      response = await NetWork.post(NetWork.FIND_PWD, {
+      response = await NetWork.post(NetWork.apiFindPassword, {
         'Unm': person.username,
         'Ver': person.phoneCode,
         'Npd': person.password_1
       });
     } else {
-      response = await NetWork.post(NetWork.MODIFY_PWD, {
+      response = await NetWork.post(NetWork.apiModifyPassword, {
         'Unm': person.username,
         'Upd': person.password_0,
         'Npd': person.password_1

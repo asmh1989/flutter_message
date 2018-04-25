@@ -88,7 +88,7 @@ class PlatformEditState extends State<PlatformEdit>{
       _loading = true;
     });
 
-    http.Response response = await NetWork.post(NetWork.SET_PLATFORM_LIST, {
+    http.Response response = await NetWork.post(NetWork.apiSetPlatformList, {
       'Unm': Cache.instance.username,
       'Token': Cache.instance.token,
       'Links': [_info].toString()

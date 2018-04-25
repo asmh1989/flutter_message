@@ -12,7 +12,6 @@ import 'utils/db.dart';
 import 'utils/func.dart';
 
 void main() {
-  MaterialPageRoute.debugEnableFadingRoutes = true; // ignore: deprecated_member_use
   runApp(new MyApp());
 }
 

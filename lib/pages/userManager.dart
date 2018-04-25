@@ -37,7 +37,7 @@ class _FutureUserListState extends State<_FutureUserList>{
       'Snm': _snm??''
     };
 
-    return NetWork.post(NetWork.GET_USERS, params);
+    return NetWork.post(NetWork.apiGetUsers, params);
   }
 
   Widget _getUserListWidget(){

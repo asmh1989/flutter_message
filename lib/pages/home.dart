@@ -289,7 +289,7 @@ class HomeState extends State<HomePage> {
             ),
             child: botNavBar
         ),
-        floatingActionButton:new FloatingActionButton(
+        floatingActionButton: NetWork.isDebug ? new FloatingActionButton(
           onPressed: () async{
             Cache cache = await Cache.getInstace();
             cache.remove(KEY_TOKEN);
@@ -301,7 +301,7 @@ class HomeState extends State<HomePage> {
             Icons.lock_open,
             semanticLabel: '注销',
           ),
-        )
+        ) : null
     );
   }
 
