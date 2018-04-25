@@ -4,14 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-import 'login.dart';
 import 'switchPlatform.dart';
 import 'cardEdit.dart';
 import 'cardDetail.dart';
+import 'msgDetail.dart';
 
 import '../utils/index.dart';
 
 import '../model/cardInfo.dart';
+import '../model/msgInfo.dart';
 
 import '../ui/underLine.dart';
 import '../ui/swide_widget.dart';
@@ -68,6 +69,54 @@ class _FutureCardListState extends State<_FutureCardList>{
     return NetWork.post(url, params);
   }
 
+
+  Future<http.Response> _getMsg() async {
+    List<CardValue> cards = await DB.instance.query<CardValue>(where: '${CardValueTable.cdno} = ?', whereArgs: [Cache.instance.cdno]);
+    if(cards.length > 0){
+      String url = Cache.instance.cdurl +'/api/getmsgs.json';
+      String s = '';
+
+      for(int i=0, len = cards.length; i < len; i++){
+        if (_snm.length > 0) {
+          if (cards[i].no.contains(_snm)) {
+            s += cards[i].no + ",";
+          } else {
+            s += "";
+          }
+        } else {
+          s += cards[i].no + ",";
+        }
+      }
+
+      Map<String, dynamic> data = {
+        'Unm': Cache.instance.username,
+        'Cdtoken': Cache.instance.cdtoekn,
+        'Token': Cache.instance.token,
+        'Idx': '1',
+        'Size': '100'
+      };
+      if(s.length > 1){
+        data['Nolst'] = s.substring(0, s.length -1);
+      }
+
+      return NetWork.post(url, data);
+    } else {
+      widget.cache.msg.clear();
+      return null;
+    }
+  }
+
+  Future<Null> _handleRefresh() async{
+    if(widget.type == CardType.CARD){
+      widget.cache.cards.clear();
+    } else {
+      widget.cache.msg.clear();
+    }
+    setState(() {
+
+    });
+  }
+
   Future<http.Response> _setCardData(CardInfo card) async{
     String url = Cache.instance.cdurl+'/api/setnos.json';
 
@@ -84,7 +133,9 @@ class _FutureCardListState extends State<_FutureCardList>{
     _autoClose.clear();
 
     return new Expanded(
-      child: new ListView.builder(
+      child: new RefreshIndicator(
+        onRefresh: _handleRefresh,
+        child: new ListView.builder(
         itemCount: widget.cache.cards.length,
         itemBuilder: (BuildContext context, int index) {
           CardInfo item = widget.cache.cards[index];
@@ -100,7 +151,7 @@ class _FutureCardListState extends State<_FutureCardList>{
                       )));
 
                   if(result != null) {
-                    widget.cache.clear();
+                    widget.cache.clearCards();
                     setState(() {
 
                     });
@@ -129,7 +180,7 @@ class _FutureCardListState extends State<_FutureCardList>{
                               if(data['Code'] != 0){
                                 Func.showMessage(data['Message']);
                               } else {
-                                widget.cache.clear();
+                                widget.cache.clearCards();
                                 setState(() {
 
                                 });
@@ -160,23 +211,22 @@ class _FutureCardListState extends State<_FutureCardList>{
                   child: new ListTile(
                     leading: new Padding(
                       padding: EdgeInsets.all(2.0),
-                      child: new Image.asset(ImageAssets.icon_card, color: Style.COLOR_THEME,),
+                      child: new CircleAvatar(child: Image.asset(ImageAssets.icon_card), backgroundColor: Style.COLOR_THEME),
                     ),
-                    title: new Text(item.nnm.length == 0 ?item.no : '${item.nnm}（${item.no}）'),
+                    title: new Text(item.no.length == 0 ?item.no : '${item.nnm}（${item.no}）'),
                     subtitle: new Text(item.addr),
-                    trailing: new Text(Func.getFullTimeString(item.insdt* 1000)),
+                    trailing: new Text(Func.getFullTimeString(item.insdt* 1000), style: TextStyle(color: Colors.grey),),
                     onTap: () async {
                       await Navigator.push(context, new MaterialPageRoute(builder: (context)=> new CardDetailPage(card: item)));
-                      widget.cache.clear();
+                      widget.cache.clearCards();
                     },
                   )
               )
           );
         },
-      ),
+      )),
     );
   }
-
 
   Widget _getCardListWidget(){
 //    print('isNotify=$isNotify, len=${widget.cache.cards.length}, snm=${widget.cache.snm}');
@@ -206,18 +256,7 @@ class _FutureCardListState extends State<_FutureCardList>{
               if (data['Code'] != 0) {
                 print(Func.mapToString(data));
                 return new Center(
-                    child: new Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        new Text(data['Message']),
-                        new SizedBox(height: 10.0,),
-                        new RaisedButton(
-                            child: new Text('登出'),
-                            onPressed: (){
-                              Navigator.pushReplacementNamed(context, LoginPage.route);
-                            })
-                      ],
-                    )
+                  child: new Text(data['Message']),
                 );
               } else {
                 widget.cache.cards.clear();
@@ -235,8 +274,124 @@ class _FutureCardListState extends State<_FutureCardList>{
         });
   }
 
+  Widget _getMsgListWidget2(){
+    _autoClose.clear();
+
+    return new Expanded(
+      child:new RefreshIndicator(
+        onRefresh: _handleRefresh,
+        child: new ListView.builder(
+        itemCount: widget.cache.msg.length,
+        itemBuilder: (BuildContext context, int index) {
+          MsgInfo item = widget.cache.msg[index];
+
+          final List<FXRightSideButton> buttons= [
+
+            new FXRightSideButton(name: '删除',
+                backgroundColor: Colors.red,
+                fontColor: Colors.white,
+                onPress: ()  {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) => new AlertDialog(
+                        content: new Text('您确定要删除消息吗？'),
+                        actions: <Widget>[
+                          new FlatButton(onPressed: (){
+                            Navigator.pop(context);
+                          }, child: new Text('取消')),
+                          new FlatButton(onPressed: () async {
+                            Navigator.pop(context);
+
+                            DB.instance.delete<CardValue>(where: '${CardValueTable.no} = ?', whereArgs: [item.nomsg.no]);
+                            widget.cache.clearMsg();
+                            setState(() {
+
+                            });
+
+                          }, child: new Text('确定'))
+                        ],
+                      )
+                  );
+                })
+          ];
+
+          return new FXLeftSlide(
+              key: new Key('$index'),
+              onOpen: (Key key,  AutoClose autoClose) => _autoClose[key] = autoClose,
+              startTouch: () {
+                _autoClose.forEach((Key key, AutoClose autoClose){
+                  autoClose();
+                });
+
+                _autoClose.clear();
+              },
+              buttons: buttons,
+              child: new UnderLine(
+                  child: new ListTile(
+                    leading: new Padding(
+                      padding: EdgeInsets.all(2.0),
+                      child: new CircleAvatar(child: Image.asset(ImageAssets.icon_card), backgroundColor: Style.COLOR_THEME),
+                    ),
+                    title: new Text(item.nomsg.nnm.length == 0 ?item.no : '${item.nomsg.nnm}（${item.no}）'),
+                    subtitle: new Text(item.t),
+                    trailing: new Text(Func.getFullTimeString(int.parse(item.rst)* 1000), style: TextStyle(color: Colors.grey),),
+                    onTap: () async {
+                      await Navigator.push(context, new MaterialPageRoute(builder: (context)=> new MsgDetailPage(card: item.nomsg)));
+                      widget.cache.clearCards();
+                    },
+                  )
+              )
+          );
+        },
+      ),
+      ));
+  }
+
   Widget _getMsgListWidget(){
-    return new Text('消息');
+    if(!isNotify && widget.cache.msg.length > 0) {
+      return _getMsgListWidget2();
+    }
+    isNotify = false;
+
+    return new FutureBuilder<http.Response>(
+        future: _getMsg(),
+        builder: (BuildContext context, AsyncSnapshot<http.Response> snapshot){
+          if(snapshot.connectionState == ConnectionState.waiting){
+            return new Expanded(child: new Container(child: new Center(child: new CircularProgressIndicator(),),));
+          } else {
+            if(snapshot.connectionState == ConnectionState.done && !snapshot.hasData){
+              return new Expanded(child: new Center(child: new Text('没有消息')));
+            }
+            http.Response response = snapshot.data;
+            if (response.statusCode != 200) {
+              return new Expanded( child: Func.logoutWidget(context, response.body, new RaisedButton(
+                child: new Text('平台切换'),
+                onPressed: () => Navigator.pushNamed(context, SwitchPlatformPage.route),
+              )));
+            } else {
+              Map data = NetWork.decodeJson(response.body);
+
+              print(Func.mapToString(data));
+
+              if (data['Code'] != 0) {
+                print(Func.mapToString(data));
+                return new Center(
+                    child: new Text(data['Message'])
+                );
+              } else {
+                widget.cache.msg.clear();
+                widget.cache.msg.addAll(MsgInfo.parseMessages(data['Response']));
+                if(widget.cache.msg.length == 0){
+                  return  new Expanded(child: new Center(child: new Text('没有消息')));
+                }
+
+                return _getMsgListWidget2();
+
+              }
+            }
+          }
+
+        });
   }
 
   @override
@@ -252,7 +407,7 @@ class _FutureCardListState extends State<_FutureCardList>{
   void initState() {
     super.initState();
 
-    _snm = widget.cache.snm;
+    _snm = widget.type == CardType.CARD ? widget.cache.snm : widget.cache.snm2;
   }
 
   @override
@@ -264,7 +419,6 @@ class _FutureCardListState extends State<_FutureCardList>{
 //    _cards?.clear();
   }
 }
-
 class CardManagerPage extends StatefulWidget{
 
   final CardType type;
@@ -282,14 +436,17 @@ class CardManagerState extends State<CardManagerPage>{
   final GlobalKey<_FutureCardListState> _userKey = new GlobalKey<_FutureCardListState>();
   TextEditingController _controller;
 
-
   @override
   void initState() {
     super.initState();
 
-    _controller = new TextEditingController(text: widget.cache.snm);
+    _controller = new TextEditingController(text: widget.type == CardType.CARD ?  widget.cache.snm : widget.cache.snm2);
     _controller.addListener((){
-      _userKey.currentState.notify(widget.cache.snm = _controller.text);
+      if(widget.type == CardType.CARD){
+        _userKey.currentState.notify(widget.cache.snm = _controller.text);
+      } else {
+        _userKey.currentState.notify(widget.cache.snm2 = _controller.text);
+      }
     });
   }
 
@@ -297,7 +454,7 @@ class CardManagerState extends State<CardManagerPage>{
   Widget build(BuildContext context) {
 
 //    print('cardManager , snm=${widget.cache.snm}');
-    _controller.text = widget.cache.snm;
+    _controller.text = widget.type == CardType.CARD ?  widget.cache.snm : widget.cache.snm2;
     return new Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -338,15 +495,29 @@ class CardManagerState extends State<CardManagerPage>{
         ]);
   }
 
-
 }
 
 class PageCache {
   List<CardInfo> cards = new List<CardInfo>();
+  List<MsgInfo> msg = new List<MsgInfo>();
+
   String snm = '';
+  String snm2 = '';
+
+  void clearMsg(){
+    snm2 = '';
+    msg.clear();
+  }
 
   void clear(){
-    snm='';
+    snm = '';
+    snm2 = '';
+    cards.clear();
+    msg.clear();
+  }
+
+  void clearCards(){
+    snm = '';
     cards.clear();
   }
 }

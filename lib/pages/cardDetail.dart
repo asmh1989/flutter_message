@@ -43,7 +43,7 @@ class CardDetailState extends State<CardDetailPage>{
       Map data = NetWork.decodeJson(response.body);
       if (data['Code'] == 0) {
         List<CardInfo> cards = CardInfo.parseCards(data['Response']);
-        if (cards.length > 0) {
+        if (cards.length > 0 && mounted) {
           setState(() {
             _card = cards[0];
           });

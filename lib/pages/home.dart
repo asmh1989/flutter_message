@@ -7,6 +7,7 @@ import 'passwd.dart';
 import 'userManager.dart';
 import 'cardManager.dart';
 import 'cardEdit.dart';
+import 'msgDetail.dart';
 
 import '../utils/index.dart';
 
@@ -40,17 +41,19 @@ class HomeState extends State<HomePage> {
               icon: const Icon(Icons.add),
               tooltip: _currentIndex == 0 ? '添加卡' : '新建消息',
               onPressed: () async {
-                if(_currentIndex == 0){
-                  final result = await Navigator.push(context, new MaterialPageRoute(
-                      builder: (BuildContext context) => new CardEdit()));
+                final result = await Navigator.push(context, new MaterialPageRoute(
+                    builder: (BuildContext context) => _currentIndex == 0 ? new CardEdit() : new MsgDetailPage()));
 
-                  if(result != null){
-                    setState(() {
-                      _cache.clear();
-                    });
-                  }
-
+                if(result != null){
+                  setState(() {
+                    if(_currentIndex == 0){
+                      _cache.clearCards();
+                    } else {
+                      _cache.clearMsg();
+                    }
+                  });
                 }
+
               }
           ),
         ],
@@ -227,7 +230,10 @@ class HomeState extends State<HomePage> {
           cache: _cache,
         );
       case 1:
-        return new Text('hello 1');
+        return new CardManagerPage(
+          type: CardType.MESSAGE,
+          cache: _cache,
+        );
       default:
         return  _getPersonView();
 

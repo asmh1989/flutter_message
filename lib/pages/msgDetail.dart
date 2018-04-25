@@ -101,20 +101,20 @@ class MsgDetailState extends State<MsgDetailPage> {
             _msg.addAll(list);
             if(etime.length > 0){
               setState(() {
-
               });
             }
 
-            new Future.delayed(new Duration(milliseconds: 200), () async {
+            new Future.delayed(new Duration(milliseconds: 50), () async {
               var scrollPosition = _controller.position;
 
-//            if (scrollPosition.viewportDimension < scrollPosition.maxScrollExtent+100) {
-//              await _controller.animateTo(
-//                scrollPosition.maxScrollExtent+ 50.0,
-//                duration: new Duration(milliseconds: 200),
-//                curve: Curves.easeOut,
-//              );
-              _controller.jumpTo(scrollPosition.maxScrollExtent);
+            if (_controller.offset < scrollPosition.maxScrollExtent) {
+              _controller.animateTo(
+                scrollPosition.maxScrollExtent,
+                duration: new Duration(milliseconds: 200),
+                curve: Curves.fastOutSlowIn,
+              );
+            }
+//              _controller.jumpTo(scrollPosition.maxScrollExtent);
               _offset = scrollPosition.maxScrollExtent;
 
               //            }
@@ -228,12 +228,12 @@ class MsgDetailState extends State<MsgDetailPage> {
 
   Future<Null> _handleRefresh() async{
     if (_msg.length > 0) {
-      await _getData(_msg[0].rst, "");
+      _getData(_msg[0].rst, "");
     }
   }
 
   Widget _getAppBar() {
-    if(widget.card == null){
+    if(_card.no.length == 0){
       return new AppBar(
         title: new Text('新建信息'),
       );
@@ -396,7 +396,7 @@ class MsgDetailState extends State<MsgDetailPage> {
   void initState() {
     super.initState();
 
-    _card = widget.card ?? null;
+    _card = widget.card ?? new CardInfo();
   }
 
   @override
@@ -405,23 +405,25 @@ class MsgDetailState extends State<MsgDetailPage> {
     List<Widget> children = new List<Widget>();
     if(_card.no.length == 0){
       children.add(Container(
-        padding: new EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+        height: 44.0,
+        margin: new EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Expanded(child: ClearTextFieldForm(
               key: _noKey,
               hintText: '请输入卡号',
               keyboardType: TextInputType.number,
               border: OutlineInputBorder(),
+              contentPadding: new EdgeInsets.all(8.0),
             ),
             ),
-            IconButton(icon: Image.asset(ImageAssets.ic_mark, height: 44.0,),onPressed: (){},)
-
+            new Image.asset(ImageAssets.ic_mark, height: 44.0, color: Colors.grey)
           ],
         ),
       ));
-      children.add(Divider());
+      children.add(Divider(height: 0.5,));
     }
 
     children.add(Expanded(child: _getMsgList()));
