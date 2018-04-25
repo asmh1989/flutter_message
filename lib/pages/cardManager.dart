@@ -107,14 +107,35 @@ class _FutureCardListState extends State<_FutureCardList>{
   }
 
   Future<Null> _handleRefresh() async{
+    http.Response response;
     if(widget.type == CardType.CARD){
-      widget.cache.cards.clear();
+      response =  await _getCardData();
     } else {
-      widget.cache.msg.clear();
+      response =await _getMsg();
     }
-    setState(() {
 
-    });
+    if(response.statusCode == 200){
+      Map data = NetWork.decodeJson(response.body);
+      List<dynamic> list = data['Response'];
+      if(data['Code'] == 0){
+        if(widget.type == CardType.CARD){
+          List<CardInfo> cards = CardInfo.parseCards(list);
+          if(cards.length > 0){
+            widget.cache.cards.clear();
+            widget.cache.cards.addAll(cards);
+          }
+        } else {
+          List<MsgInfo> msg = MsgInfo.parseMessages(list);
+          if(msg.length > 0){
+            widget.cache.msg.clear();
+            widget.cache.msg.addAll(msg);
+          }
+        }
+        setState(() {
+
+        });
+      }
+    }
   }
 
   Future<http.Response> _setCardData(CardInfo card) async{
@@ -134,97 +155,97 @@ class _FutureCardListState extends State<_FutureCardList>{
 
     return new Expanded(
       child: new RefreshIndicator(
-        onRefresh: _handleRefresh,
-        child: new ListView.builder(
-        itemCount: widget.cache.cards.length,
-        itemBuilder: (BuildContext context, int index) {
-          CardInfo item = widget.cache.cards[index];
+          onRefresh: _handleRefresh,
+          child: new ListView.builder(
+            itemCount: widget.cache.cards.length,
+            itemBuilder: (BuildContext context, int index) {
+              CardInfo item = widget.cache.cards[index];
 
-          final List<FXRightSideButton> buttons= [
-            new FXRightSideButton(name: '编辑',
-                backgroundColor: Colors.grey,
-                fontColor: Colors.white,
-                onPress: () async {
-                  final result = await Navigator.push(context, new MaterialPageRoute(
-                      builder: (BuildContext context) => new CardEdit(
-                        card: item,
-                      )));
+              final List<FXRightSideButton> buttons= [
+                new FXRightSideButton(name: '编辑',
+                    backgroundColor: Colors.grey,
+                    fontColor: Colors.white,
+                    onPress: () async {
+                      final result = await Navigator.push(context, new MaterialPageRoute(
+                          builder: (BuildContext context) => new CardEdit(
+                            card: item,
+                          )));
 
-                  if(result != null) {
-                    widget.cache.clearCards();
-                    setState(() {
+                      if(result != null) {
+                        widget.cache.clearCards();
+                        setState(() {
 
+                        });
+                      }
+                    }),
+                new FXRightSideButton(name: '删除',
+                    backgroundColor: Colors.red,
+                    fontColor: Colors.white,
+                    onPress: ()  {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) => new AlertDialog(
+                            content: new Text('您确定要删除卡号吗？'),
+                            actions: <Widget>[
+                              new FlatButton(onPressed: (){
+                                Navigator.pop(context);
+                              }, child: new Text('取消')),
+                              new FlatButton(onPressed: () async {
+                                Navigator.pop(context);
+
+                                http.Response response = await _setCardData(item);
+                                if(response.statusCode == 200) {
+                                  print(response.body);
+
+                                  Map data = NetWork.decodeJson(response.body);
+                                  if(data['Code'] != 0){
+                                    Func.showMessage(data['Message']);
+                                  } else {
+                                    widget.cache.clearCards();
+                                    setState(() {
+
+                                    });
+                                  }
+                                } else {
+                                  Func.showMessage(response.body);
+                                }
+
+                              }, child: new Text('确定'))
+                            ],
+                          )
+                      );
+                    })
+              ];
+
+              return new FXLeftSlide(
+                  key: new Key('$index'),
+                  onOpen: (Key key,  AutoClose autoClose) => _autoClose[key] = autoClose,
+                  startTouch: () {
+                    _autoClose.forEach((Key key, AutoClose autoClose){
+                      autoClose();
                     });
-                  }
-                }),
-            new FXRightSideButton(name: '删除',
-                backgroundColor: Colors.red,
-                fontColor: Colors.white,
-                onPress: ()  {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) => new AlertDialog(
-                        content: new Text('您确定要删除卡号吗？'),
-                        actions: <Widget>[
-                          new FlatButton(onPressed: (){
-                            Navigator.pop(context);
-                          }, child: new Text('取消')),
-                          new FlatButton(onPressed: () async {
-                            Navigator.pop(context);
 
-                            http.Response response = await _setCardData(item);
-                            if(response.statusCode == 200) {
-                              print(response.body);
-
-                              Map data = NetWork.decodeJson(response.body);
-                              if(data['Code'] != 0){
-                                Func.showMessage(data['Message']);
-                              } else {
-                                widget.cache.clearCards();
-                                setState(() {
-
-                                });
-                              }
-                            } else {
-                              Func.showMessage(response.body);
-                            }
-
-                          }, child: new Text('确定'))
-                        ],
+                    _autoClose.clear();
+                  },
+                  buttons: buttons,
+                  child: new UnderLine(
+                      child: new ListTile(
+                        leading: new Padding(
+                          padding: EdgeInsets.all(2.0),
+                          child: new CircleAvatar(child: Image.asset(ImageAssets.icon_card), backgroundColor: Style.COLOR_THEME),
+                        ),
+                        title: new Text(item.no.length == 0 ?item.no : '${item.nnm}（${item.no}）'),
+                        subtitle: new Text(item.addr),
+                        trailing: new Text(Func.getFullTimeString(item.insdt* 1000), style: TextStyle(color: Colors.grey),),
+                        onTap: () async {
+                          await Navigator.push(context, new MaterialPageRoute(builder: (context)=> new CardDetailPage(card: item)));
+                          widget.cache.clearCards();
+                        },
                       )
-                  );
-                })
-          ];
-
-          return new FXLeftSlide(
-              key: new Key('$index'),
-              onOpen: (Key key,  AutoClose autoClose) => _autoClose[key] = autoClose,
-              startTouch: () {
-                _autoClose.forEach((Key key, AutoClose autoClose){
-                  autoClose();
-                });
-
-                _autoClose.clear();
-              },
-              buttons: buttons,
-              child: new UnderLine(
-                  child: new ListTile(
-                    leading: new Padding(
-                      padding: EdgeInsets.all(2.0),
-                      child: new CircleAvatar(child: Image.asset(ImageAssets.icon_card), backgroundColor: Style.COLOR_THEME),
-                    ),
-                    title: new Text(item.no.length == 0 ?item.no : '${item.nnm}（${item.no}）'),
-                    subtitle: new Text(item.addr),
-                    trailing: new Text(Func.getFullTimeString(item.insdt* 1000), style: TextStyle(color: Colors.grey),),
-                    onTap: () async {
-                      await Navigator.push(context, new MaterialPageRoute(builder: (context)=> new CardDetailPage(card: item)));
-                      widget.cache.clearCards();
-                    },
                   )
-              )
-          );
-        },
-      )),
+              );
+            },
+          )),
     );
   }
 
@@ -251,7 +272,7 @@ class _FutureCardListState extends State<_FutureCardList>{
             } else {
               Map data = NetWork.decodeJson(response.body);
 
-              print(Func.mapToString(data));
+//              print(Func.mapToString(data));
 
               if (data['Code'] != 0) {
                 print(Func.mapToString(data));
@@ -278,73 +299,73 @@ class _FutureCardListState extends State<_FutureCardList>{
     _autoClose.clear();
 
     return new Expanded(
-      child:new RefreshIndicator(
-        onRefresh: _handleRefresh,
-        child: new ListView.builder(
-        itemCount: widget.cache.msg.length,
-        itemBuilder: (BuildContext context, int index) {
-          MsgInfo item = widget.cache.msg[index];
+        child:new RefreshIndicator(
+          onRefresh: _handleRefresh,
+          child: new ListView.builder(
+            itemCount: widget.cache.msg.length,
+            itemBuilder: (BuildContext context, int index) {
+              MsgInfo item = widget.cache.msg[index];
 
-          final List<FXRightSideButton> buttons= [
+              final List<FXRightSideButton> buttons= [
 
-            new FXRightSideButton(name: '删除',
-                backgroundColor: Colors.red,
-                fontColor: Colors.white,
-                onPress: ()  {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) => new AlertDialog(
-                        content: new Text('您确定要删除消息吗？'),
-                        actions: <Widget>[
-                          new FlatButton(onPressed: (){
-                            Navigator.pop(context);
-                          }, child: new Text('取消')),
-                          new FlatButton(onPressed: () async {
-                            Navigator.pop(context);
+                new FXRightSideButton(name: '删除',
+                    backgroundColor: Colors.red,
+                    fontColor: Colors.white,
+                    onPress: ()  {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) => new AlertDialog(
+                            content: new Text('您确定要删除消息吗？'),
+                            actions: <Widget>[
+                              new FlatButton(onPressed: (){
+                                Navigator.pop(context);
+                              }, child: new Text('取消')),
+                              new FlatButton(onPressed: () async {
+                                Navigator.pop(context);
 
-                            DB.instance.delete<CardValue>(where: '${CardValueTable.no} = ?', whereArgs: [item.nomsg.no]);
-                            widget.cache.clearMsg();
-                            setState(() {
+                                DB.instance.delete<CardValue>(where: '${CardValueTable.no} = ?', whereArgs: [item.nomsg.no]);
+                                widget.cache.clearMsg();
+                                setState(() {
 
-                            });
+                                });
 
-                          }, child: new Text('确定'))
-                        ],
+                              }, child: new Text('确定'))
+                            ],
+                          )
+                      );
+                    })
+              ];
+
+              return new FXLeftSlide(
+                  key: new Key('$index'),
+                  onOpen: (Key key,  AutoClose autoClose) => _autoClose[key] = autoClose,
+                  startTouch: () {
+                    _autoClose.forEach((Key key, AutoClose autoClose){
+                      autoClose();
+                    });
+
+                    _autoClose.clear();
+                  },
+                  buttons: buttons,
+                  child: new UnderLine(
+                      child: new ListTile(
+                        leading: new Padding(
+                          padding: EdgeInsets.all(2.0),
+                          child: new CircleAvatar(child: Image.asset(ImageAssets.icon_card), backgroundColor: Style.COLOR_THEME),
+                        ),
+                        title: new Text(item.nomsg.nnm.length == 0 ?item.no : '${item.nomsg.nnm}（${item.no}）'),
+                        subtitle: new Text(item.t),
+                        trailing: new Text(Func.getFullTimeString(int.parse(item.rst)* 1000), style: TextStyle(color: Colors.grey),),
+                        onTap: () async {
+                          await Navigator.push(context, new MaterialPageRoute(builder: (context)=> new MsgDetailPage(card: item.nomsg)));
+                          widget.cache.clearCards();
+                        },
                       )
-                  );
-                })
-          ];
-
-          return new FXLeftSlide(
-              key: new Key('$index'),
-              onOpen: (Key key,  AutoClose autoClose) => _autoClose[key] = autoClose,
-              startTouch: () {
-                _autoClose.forEach((Key key, AutoClose autoClose){
-                  autoClose();
-                });
-
-                _autoClose.clear();
-              },
-              buttons: buttons,
-              child: new UnderLine(
-                  child: new ListTile(
-                    leading: new Padding(
-                      padding: EdgeInsets.all(2.0),
-                      child: new CircleAvatar(child: Image.asset(ImageAssets.icon_card), backgroundColor: Style.COLOR_THEME),
-                    ),
-                    title: new Text(item.nomsg.nnm.length == 0 ?item.no : '${item.nomsg.nnm}（${item.no}）'),
-                    subtitle: new Text(item.t),
-                    trailing: new Text(Func.getFullTimeString(int.parse(item.rst)* 1000), style: TextStyle(color: Colors.grey),),
-                    onTap: () async {
-                      await Navigator.push(context, new MaterialPageRoute(builder: (context)=> new MsgDetailPage(card: item.nomsg)));
-                      widget.cache.clearCards();
-                    },
                   )
-              )
-          );
-        },
-      ),
-      ));
+              );
+            },
+          ),
+        ));
   }
 
   Widget _getMsgListWidget(){

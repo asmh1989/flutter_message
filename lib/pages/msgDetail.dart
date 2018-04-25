@@ -36,6 +36,7 @@ class MsgDetailState extends State<MsgDetailPage> {
   int _page = 1;
 
   double _offset = 0.0;
+  bool _first = true;
 
   ScrollController _controller;
 
@@ -107,13 +108,13 @@ class MsgDetailState extends State<MsgDetailPage> {
             new Future.delayed(new Duration(milliseconds: 50), () async {
               var scrollPosition = _controller.position;
 
-            if (_controller.offset < scrollPosition.maxScrollExtent) {
-              _controller.animateTo(
-                scrollPosition.maxScrollExtent,
-                duration: new Duration(milliseconds: 200),
-                curve: Curves.fastOutSlowIn,
-              );
-            }
+              if (_controller.offset < scrollPosition.maxScrollExtent) {
+                _controller.animateTo(
+                  scrollPosition.maxScrollExtent,
+                  duration: new Duration(milliseconds: 200),
+                  curve: Curves.fastOutSlowIn,
+                );
+              }
 //              _controller.jumpTo(scrollPosition.maxScrollExtent);
               _offset = scrollPosition.maxScrollExtent;
 
@@ -229,6 +230,9 @@ class MsgDetailState extends State<MsgDetailPage> {
   Future<Null> _handleRefresh() async{
     if (_msg.length > 0) {
       _getData(_msg[0].rst, "");
+    } else {
+      _getData('', '');
+
     }
   }
 
@@ -334,9 +338,6 @@ class MsgDetailState extends State<MsgDetailPage> {
   }
 
   Widget _getMsgList2(){
-    if(_msg.length == 0){
-      return new Text('');
-    }
 
     _controller = new ScrollController(initialScrollOffset: _offset);
     _controller.addListener((){
@@ -344,52 +345,51 @@ class MsgDetailState extends State<MsgDetailPage> {
     });
 
 
-    return new RefreshIndicator(
+    return new Expanded(child: new RefreshIndicator(
         onRefresh: _handleRefresh,
         child: new ListView.builder(
-        controller: _controller,
-        itemCount: _msg.length,
-        itemBuilder: (BuildContext context, int index){
-          MsgInfo msg = _msg[index];
+            controller: _controller,
+            physics: new AlwaysScrollableScrollPhysics(),
+            itemCount: _msg.length,
+            itemBuilder: (BuildContext context, int index){
+              MsgInfo msg = _msg[index];
 
-          return new Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              new Padding(padding: EdgeInsets.all(12.0),
-                  child: new Center(
-                      child: new Text(Func.getFullTimeString(int.parse(msg.rst) * 1000),
-                        style: new TextStyle(color: Colors.grey),)
-                  )
-              ),
-              _getRow(msg)
-            ],
-          );
-        }
+              return new Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  new Padding(padding: EdgeInsets.all(12.0),
+                      child: new Center(
+                          child: new Text(Func.getFullTimeString(int.parse(msg.rst) * 1000),
+                            style: new TextStyle(color: Colors.grey),)
+                      )
+                  ),
+                  _getRow(msg)
+                ],
+              );
+            }
         )
-    );
+    ));
   }
 
   Widget _getMsgList(){
-    if(_card.no.length == 0) {
-      return new Text('');
+    if(_msg.length == 0 && _first) {
+      _first = false;
+      return new FutureBuilder<http.Response>(
+          future: _getData(),
+          builder: (BuildContext context, AsyncSnapshot<http.Response> snapshot){
+            if(snapshot.connectionState == ConnectionState.done){
+              return _getMsgList2();
+            } else if(snapshot.connectionState == ConnectionState.waiting){
+              return new Container(child: new Center(child: new CircularProgressIndicator(),));
+            } else {
+              return new Container(child: new Center(child: new Text(snapshot.error.toString())));
+            }
+          });
     } else {
-      if(_msg.length == 0) {
-        return new FutureBuilder<http.Response>(
-            future: _getData(),
-            builder: (BuildContext context, AsyncSnapshot<http.Response> snapshot){
-              if(snapshot.connectionState == ConnectionState.done){
-                return _getMsgList2();
-              } else if(snapshot.connectionState == ConnectionState.waiting){
-                return new Container(child: new Center(child: new CircularProgressIndicator(),));
-              } else {
-                return new Container(child: new Center(child: new Text(snapshot.error.toString())));
-              }
-            });
-      } else {
-        return _getMsgList2();
-      }
+      return _getMsgList2();
     }
+
   }
 
   @override
@@ -426,7 +426,7 @@ class MsgDetailState extends State<MsgDetailPage> {
       children.add(Divider(height: 0.5,));
     }
 
-    children.add(Expanded(child: _getMsgList()));
+    children.add(_getMsgList());
 
     children.add(new Container(
       color: Color(0xFFECF0F3),
