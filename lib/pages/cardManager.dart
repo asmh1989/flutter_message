@@ -476,7 +476,7 @@ class CardManagerState extends State<CardManagerPage>{
                     _controller.clear();
                     _userKey.currentState.notify('');
                   },
-                  child: new Text('清除',style: new TextStyle(fontWeight: FontWeight.w700, color: Style.COLOR_THEME),
+                  child: new Text('清除',style: new TextStyle(color: Style.COLOR_THEME),
                   ),
                 ),
                 hintText: '搜索',

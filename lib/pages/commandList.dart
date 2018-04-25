@@ -26,15 +26,91 @@ class CommandListPage extends StatefulWidget{
 class CommandListPageState extends State<CommandListPage>{
 
   Map<Key, AutoClose> _autoClose = new Map<Key, AutoClose>();
+  List<CommandValue> _values = new List<CommandValue>();
 
-  Future<List<CommandValue>> _getData() async{
-    return DB.instance.query<CommandValue>();
+
+  Future<Null> _getData() async{
+    _values.clear();
+    _values.addAll(await DB.instance.query<CommandValue>());
   }
 
   @override
   void dispose() {
     super.dispose();
     _autoClose.clear();
+  }
+
+  Widget _getList(){
+    return new Container(
+        color: Style.COLOR_BACKGROUND,
+        height: MediaQuery.of(context).size.height,
+        child: _values.length > 0 ? new ListView.builder(
+            itemCount: _values.length,
+            itemBuilder: (BuildContext context,
+                int index) {
+
+              CommandValue value = _values[index];
+
+              final List<FXRightSideButton> buttons= [
+                new FXRightSideButton(name: '编辑',
+                    backgroundColor: Colors.grey,
+                    fontColor: Colors.white,
+                    onPress: (){
+                      Navigator.push(context, new MaterialPageRoute(
+                          builder: (BuildContext context) => new CommandEditPage(
+                            title: Command.EDIT,
+                            titleValue: value.title,
+                            contentValue: value.content,
+                          )));
+                    }),
+                new FXRightSideButton(name: '删除',
+                    backgroundColor: Colors.red,
+                    fontColor: Colors.white,
+                    onPress: () async {
+                      await DB.instance.delete<CommandValue>(
+                          where: '${CommandValueTable.title} = ?',
+                          whereArgs: [value.title]
+                      );
+
+                      setState(() {
+
+                      });
+                    })
+              ];
+
+              final Decoration decoration = new BoxDecoration(
+                border: new Border(
+                  bottom: Divider.createBorderSide(context),
+                ),
+              );
+              return new FXLeftSlide(
+                key: new Key('$index'),
+                onOpen: (Key key,  AutoClose autoClose) => _autoClose[key] = autoClose,
+                startTouch: () {
+                  _autoClose.forEach((Key key, AutoClose autoClose){
+                    autoClose();
+                  });
+
+                  _autoClose.clear();
+                },
+                child: new DecoratedBox(
+                  position: DecorationPosition.foreground,
+                  decoration: decoration,
+                  child:new ListTile(
+                    title: new Text(value.title),
+                    subtitle: new Text(_values[index].content),
+                    onTap: (){
+                      if(widget.result){
+                        Navigator.pop(context, value.content);
+                      }
+                    },
+                  ),
+                ),
+                buttons: buttons,
+              );
+
+            }) : null
+    );
   }
 
   @override
@@ -49,94 +125,28 @@ class CommandListPageState extends State<CommandListPage>{
           new IconButton(icon: new Icon(Icons.add),
               tooltip: '添加指令',
               onPressed: () async {
-                Navigator.push(context, new MaterialPageRoute(
+                final result = await Navigator.push(context, new MaterialPageRoute(
                     builder: (BuildContext context) => new CommandEditPage(title: Command.NEW))
                 );
+
+                if(result != null){
+                  await _getData();
+                  setState(() {
+                  });
+                }
 
               }),
         ],
       ),
-      body: new FutureBuilder<List<CommandValue>>(
+      body: _values.length > 0 ? _getList() : new FutureBuilder<Null>(
           future: _getData(),
           builder: (BuildContext context, AsyncSnapshot<List<CommandValue>> snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:
                 return Func.loadingWidget(context);
               default:
-                List<CommandValue> values = snapshot.data;
-//                print('find CommandValue = ${values.length}');
+                return _getList();
 
-                return new Container(
-                    color: Style.COLOR_BACKGROUND,
-                    height: MediaQuery.of(context).size.height,
-                    child: values.length > 0 ? new ListView.builder(
-                        itemCount: values.length,
-                        itemBuilder: (BuildContext context,
-                            int index) {
-
-                          CommandValue value = values[index];
-
-                          final List<FXRightSideButton> buttons= [
-                            new FXRightSideButton(name: '编辑',
-                                backgroundColor: Colors.grey,
-                                fontColor: Colors.white,
-                                onPress: (){
-                                  Navigator.push(context, new MaterialPageRoute(
-                                      builder: (BuildContext context) => new CommandEditPage(
-                                        title: Command.EDIT,
-                                        titleValue: value.title,
-                                        contentValue: value.content,
-                                      )));
-                                }),
-                            new FXRightSideButton(name: '删除',
-                                backgroundColor: Colors.red,
-                                fontColor: Colors.white,
-                                onPress: () async {
-                                  await DB.instance.delete<CommandValue>(
-                                      where: '${CommandValueTable.title} = ?',
-                                      whereArgs: [value.title]
-                                  );
-
-                                  setState(() {
-
-                                  });
-                                })
-                          ];
-
-                          final Decoration decoration = new BoxDecoration(
-                            border: new Border(
-                              bottom: Divider.createBorderSide(context),
-                            ),
-                          );
-                          return new FXLeftSlide(
-                            key: new Key('$index'),
-                            onOpen: (Key key,  AutoClose autoClose) => _autoClose[key] = autoClose,
-                            startTouch: () {
-                              _autoClose.forEach((Key key, AutoClose autoClose){
-                                autoClose();
-                              });
-
-                              _autoClose.clear();
-                            },
-                            child: new DecoratedBox(
-                              position: DecorationPosition.foreground,
-                              decoration: decoration,
-                              child:new ListTile(
-                                title: new Text(value.title),
-                                subtitle: new Text(
-                                    values[index].content),
-                                onTap: (){
-                                  if(widget.result){
-                                    Navigator.pop(context, value.content);
-                                  }
-                                },
-                              ),
-                            ),
-                            buttons: buttons,
-                          );
-
-                        }) : null
-                );
             }
           }
       ),
