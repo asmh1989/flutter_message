@@ -200,12 +200,12 @@ class UserManagerState extends State<UserManagerPage>{
             new Container(
               color: Style.COLOR_BACKGROUND,
               padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
-              child: new TextField(
+              child: Func.getWhiteTheme(new TextField(
                 controller: _controller,
                 onSubmitted: (String value){
                 },
                 decoration: new InputDecoration(
-                    prefixIcon: new Icon(Icons.search),
+                    prefixIcon: new Icon(Icons.search, color: Colors.grey,),
                     suffixIcon: new InkWell(
                       onTap: (){
                         if(_controller.text.length == 0) return;
@@ -213,18 +213,17 @@ class UserManagerState extends State<UserManagerPage>{
                         _userKey.currentState.notify('');
                       },
                       child: new Text('清除',
-                        style: new TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontWeight: FontWeight.w700),
+                        style: new TextStyle(color: Style.COLOR_THEME,),
                       ),
                     ),
                     hintText: '搜索',
+                    hintStyle: TextStyle(color: Colors.grey),
                     fillColor: Colors.white,
                     filled: true,
                     contentPadding: EdgeInsets.all(8.0),
                     border: new OutlineInputBorder(
                         borderSide: new BorderSide(color: Colors.white, width: 0.5))),
-              ),
+              )),
             ),
             new _FutureUserList(
               key: _userKey,
