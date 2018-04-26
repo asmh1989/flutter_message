@@ -59,12 +59,15 @@ class NetWork {
   static String apiSetUsers = _server+'/api/setusers.json';
 
   static Future<http.Response > post(String url, Map<String, dynamic> params) async {
-    print('''$url => post: $params''');
+    print('''${new DateTime.now()}:, $url => post: $params''');
     try {
-      return _client.post(url, body: params);
+      return _client.post(url, body: params).timeout(new Duration(seconds: 10), onTimeout: (){
+        print('${new DateTime.now()}: timeout');
+        return http.Response('' , 9527);
+      });
     } catch (e){
       print('post error: $e');
-      return null;
+      return  http.Response('$e', 9527);
     }
   }
 
