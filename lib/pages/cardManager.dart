@@ -54,7 +54,7 @@ class _FutureCardListState extends State<_FutureCardList>{
   }
 
 
-  Future<Null> _getCardData() async{
+  Future<http.Response> _getCardData() async{
     String url = Cache.instance.cdurl+'/api/getunos.json';
 
     Map<String, dynamic> params =  {
@@ -66,31 +66,11 @@ class _FutureCardListState extends State<_FutureCardList>{
       'Size': '100'
     };
 
-    http.Response response = await NetWork.post(url, params);
-
-    if (response.statusCode != 200) {
-      Func.showMessage('请求出错: ${response.body}');
-      return;
-    } else {
-      Map data = NetWork.decodeJson(response.body);
-
-      if (data['Code'] != 0) {
-        print(Func.mapToString(data));
-        Func.showMessage(data['Message']);
-        return;
-      } else {
-        List<CardInfo> list = CardInfo.parseCards(data['Response']);
-
-        if (list.length > 0) {
-          widget.cache.cards.clear();
-          widget.cache.cards.addAll(list);
-        }
-      }
-    }
+    return NetWork.post(url, params);
   }
 
 
-  Future<Null> _getMsg() async {
+  Future<http.Response> _getMsg() async {
     List<CardValue> cards = await DB.instance.query<CardValue>(where: '${CardValueTable.cdno} = ?', whereArgs: [Cache.instance.cdno]);
     if(cards.length > 0){
       String url = Cache.instance.cdurl +'/api/getmsgs.json';
@@ -119,49 +99,44 @@ class _FutureCardListState extends State<_FutureCardList>{
         data['Nolst'] = s.substring(0, s.length -1);
       }
 
-      http.Response response = await NetWork.post(url, data);
-
-
-      if (response.statusCode != 200) {
-        Func.showMessage('请求出错: ${response.body}');
-        return;
-      } else {
-        Map data = NetWork.decodeJson(response.body);
-
-        print(Func.mapToString(data));
-
-        if (data['Code'] != 0) {
-          print(Func.mapToString(data));
-          Func.showMessage(data['Message']);
-          return;
-        } else {
-          List<MsgInfo> lists = MsgInfo.parseMessages(data['Response']);
-
-          if (lists.length > 0) {
-            widget.cache.msg.clear();
-            widget.cache.msg.addAll(lists);
-          }
-        }
-      }
+      return NetWork.post(url, data);
     } else {
       widget.cache.msg.clear();
-      return;
+      return null;
     }
   }
 
   Future<Null> _handleRefresh() async{
+    http.Response response;
     if(widget.type == CardType.CARD){
-      await _getCardData();
+      response =  await _getCardData();
     } else {
-      await _getMsg();
+      response =await _getMsg();
     }
 
-    setState(() {
+    if(response.statusCode == 200){
+      Map data = NetWork.decodeJson(response.body);
+      List<dynamic> list = data['Response'];
+      if(data['Code'] == 0){
+        if(widget.type == CardType.CARD){
+          List<CardInfo> cards = CardInfo.parseCards(list);
+          if(cards.length > 0){
+            widget.cache.cards.clear();
+            widget.cache.cards.addAll(cards);
+          }
+        } else {
+          List<MsgInfo> msg = MsgInfo.parseMessages(list);
+          if(msg.length > 0){
+            widget.cache.msg.clear();
+            widget.cache.msg.addAll(msg);
+          }
+        }
+        setState(() {
 
-    });
-
+        });
+      }
+    }
   }
-
 
   Future<http.Response> _setCardData(CardInfo card) async{
     String url = Cache.instance.cdurl+'/api/setnos.json';
@@ -177,14 +152,6 @@ class _FutureCardListState extends State<_FutureCardList>{
 
   Widget _getCardListWidget2(){
     _autoClose.clear();
-
-    if(widget.cache.cards.length == 0){
-      return new Expanded(child: RefreshIndicator(
-          onRefresh: _handleRefresh,
-          child: new SingleChildScrollView(
-              physics: new AlwaysScrollableScrollPhysics(),
-              child: new Center(child: Image.asset(ImageAssets.ic_card_list_tips,  width: 160.0,)))));
-    }
 
     return new Expanded(
       child: new RefreshIndicator(
@@ -267,7 +234,7 @@ class _FutureCardListState extends State<_FutureCardList>{
                           padding: EdgeInsets.all(2.0),
                           child: new CircleAvatar(child: Image.asset(ImageAssets.icon_card), backgroundColor: Style.COLOR_THEME),
                         ),
-                        title: new Text(item.no.length == 0 ?item.no : '${item.nnm}(${item.no})', maxLines: 1,),
+                        title: new Text(item.no.length == 0 ?item.no : '${item.nnm}（${item.no}）'),
                         subtitle: new Text(item.addr),
                         trailing: new Text(Func.getFullTimeString(item.insdt* 1000), style: TextStyle(color: Colors.grey),),
                         onTap: () async {
@@ -284,10 +251,8 @@ class _FutureCardListState extends State<_FutureCardList>{
 
   Widget _getCardListWidget(){
 //    print('isNotify=$isNotify, len=${widget.cache.cards.length}, snm=${widget.cache.snm}');
-    if((!isNotify && widget.cache.cards.length > 0) || !widget.cache.first) return _getCardListWidget2();
+    if(!isNotify && widget.cache.cards.length > 0) return _getCardListWidget2();
     isNotify = false;
-
-    widget.cache.first = false;
 
     return new FutureBuilder<http.Response>(
         future: _getCardData(),
@@ -295,8 +260,35 @@ class _FutureCardListState extends State<_FutureCardList>{
           if(snapshot.connectionState == ConnectionState.waiting){
             return new Expanded(child: new Container(child: new Center(child: new CircularProgressIndicator(),),));
           } else {
-            if(snapshot.connectionState == ConnectionState.done ) {
-              return _getCardListWidget2();
+            if(snapshot.connectionState == ConnectionState.done && !snapshot.hasData){
+              return new Expanded(child: new Center(child: Image.asset(ImageAssets.ic_card_list_tips, width: 160.0)));
+            }
+            http.Response response = snapshot.data;
+            if (response.statusCode != 200) {
+              return new Expanded( child: Func.logoutWidget(context, response.body, new RaisedButton(
+                child: new Text('平台切换'),
+                onPressed: () => Navigator.pushNamed(context, SwitchPlatformPage.route),
+              )));
+            } else {
+              Map data = NetWork.decodeJson(response.body);
+
+//              print(Func.mapToString(data));
+
+              if (data['Code'] != 0) {
+                print(Func.mapToString(data));
+                return new Center(
+                  child: new Text(data['Message']),
+                );
+              } else {
+                widget.cache.cards.clear();
+                widget.cache.cards.addAll(CardInfo.parseCards(data['Response']));
+                if(widget.cache.cards.length == 0){
+                  return new Expanded(child: new Center(child: Image.asset(ImageAssets.ic_card_list_tips,  width: 160.0,)));
+                }
+
+                return _getCardListWidget2();
+
+              }
             }
           }
 
@@ -306,13 +298,6 @@ class _FutureCardListState extends State<_FutureCardList>{
   Widget _getMsgListWidget2(){
     _autoClose.clear();
 
-    if(widget.cache.msg.length == 0){
-      return new Expanded(child: new RefreshIndicator(
-          onRefresh: _handleRefresh,
-          child:new SingleChildScrollView( physics: new AlwaysScrollableScrollPhysics(),
-              child:  new Center(child: new Text('没有消息')))));
-
-    }
     return new Expanded(
         child:new RefreshIndicator(
           onRefresh: _handleRefresh,
@@ -368,7 +353,7 @@ class _FutureCardListState extends State<_FutureCardList>{
                           padding: EdgeInsets.all(2.0),
                           child: new CircleAvatar(child: Image.asset(ImageAssets.icon_card), backgroundColor: Style.COLOR_THEME),
                         ),
-                        title: new Text(item.nomsg.nnm.length == 0 ?item.no : '${item.nomsg.nnm}(${item.no})', maxLines: 1,),
+                        title: new Text(item.nomsg.nnm.length == 0 ?item.no : '${item.nomsg.nnm}（${item.no}）'),
                         subtitle: new Text(item.t),
                         trailing: new Text(Func.getFullTimeString(int.parse(item.rst)* 1000), style: TextStyle(color: Colors.grey),),
                         onTap: () async {
@@ -384,20 +369,49 @@ class _FutureCardListState extends State<_FutureCardList>{
   }
 
   Widget _getMsgListWidget(){
-    if((!isNotify && widget.cache.msg.length > 0) || !widget.cache.first2) {
+    if(!isNotify && widget.cache.msg.length > 0) {
       return _getMsgListWidget2();
     }
     isNotify = false;
-    widget.cache.first2 = false;
 
-    return new FutureBuilder(
+    return new FutureBuilder<http.Response>(
         future: _getMsg(),
-        builder: (BuildContext context, AsyncSnapshot snapshot){
+        builder: (BuildContext context, AsyncSnapshot<http.Response> snapshot){
           if(snapshot.connectionState == ConnectionState.waiting){
             return new Expanded(child: new Container(child: new Center(child: new CircularProgressIndicator(),),));
-          } else if(snapshot.connectionState == ConnectionState.done ){
-            return _getMsgListWidget2();
+          } else {
+            if(snapshot.connectionState == ConnectionState.done && !snapshot.hasData){
+              return new Expanded(child: new Center(child: new Text('没有消息')));
+            }
+            http.Response response = snapshot.data;
+            if (response.statusCode != 200) {
+              return new Expanded( child: Func.logoutWidget(context, response.body, new RaisedButton(
+                child: new Text('平台切换'),
+                onPressed: () => Navigator.pushNamed(context, SwitchPlatformPage.route),
+              )));
+            } else {
+              Map data = NetWork.decodeJson(response.body);
+
+              print(Func.mapToString(data));
+
+              if (data['Code'] != 0) {
+                print(Func.mapToString(data));
+                return new Center(
+                    child: new Text(data['Message'])
+                );
+              } else {
+                widget.cache.msg.clear();
+                widget.cache.msg.addAll(MsgInfo.parseMessages(data['Response']));
+                if(widget.cache.msg.length == 0){
+                  return  new Expanded(child: new Center(child: new Text('没有消息')));
+                }
+
+                return _getMsgListWidget2();
+
+              }
+            }
           }
+
         });
   }
 
@@ -510,9 +524,6 @@ class PageCache {
 
   String snm = '';
   String snm2 = '';
-
-  bool first = true;
-  bool first2 = true;
 
   void clearMsg(){
     snm2 = '';
