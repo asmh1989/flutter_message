@@ -37,7 +37,7 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.+'
     implementation 'com.android.support.constraint:constraint-layout:+'
     implementation 'com.android.support:design:27.+'
-    compile 'com.amap.api:location:latest.integration'
-    compile 'com.amap.api:map2d:latest.integration'
+    implementation 'com.amap.api:location:latest.integration'
+    implementation 'com.amap.api:map2d:latest.integration'
     implementation 'com.yanzhenjie:permission:2.0.0-rc4'
 }

@@ -234,7 +234,7 @@ class _FutureCardListState extends State<_FutureCardList>{
                           padding: EdgeInsets.all(2.0),
                           child: new CircleAvatar(child: Image.asset(ImageAssets.icon_card), backgroundColor: Style.COLOR_THEME),
                         ),
-                        title: new Text(item.no.length == 0 ?item.no : '${item.nnm}（${item.no}）'),
+                        title: new Text(item.no.length == 0 ?item.no : '${item.nnm}(${item.no})', maxLines: 1,),
                         subtitle: new Text(item.addr),
                         trailing: new Text(Func.getFullTimeString(item.insdt* 1000), style: TextStyle(color: Colors.grey),),
                         onTap: () async {
@@ -353,7 +353,7 @@ class _FutureCardListState extends State<_FutureCardList>{
                           padding: EdgeInsets.all(2.0),
                           child: new CircleAvatar(child: Image.asset(ImageAssets.icon_card), backgroundColor: Style.COLOR_THEME),
                         ),
-                        title: new Text(item.nomsg.nnm.length == 0 ?item.no : '${item.nomsg.nnm}（${item.no}）'),
+                        title: new Text(item.nomsg.nnm.length == 0 ?item.no : '${item.nomsg.nnm}(${item.no})', maxLines: 1,),
                         subtitle: new Text(item.t),
                         trailing: new Text(Func.getFullTimeString(int.parse(item.rst)* 1000), style: TextStyle(color: Colors.grey),),
                         onTap: () async {

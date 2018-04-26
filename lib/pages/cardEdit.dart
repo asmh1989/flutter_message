@@ -43,7 +43,7 @@ class CardEditState extends State<CardEdit> {
   }) {
     return new TextFormField(
       controller:
-          controller ?? new TextEditingController(text: initString ?? ''),
+          controller ?? new TextEditingController(text: initString.replaceAll('\n', '') ?? ''),
       keyboardType: type ?? TextInputType.text,
       onSaved: onSave,
       validator: validator ?? (String value) => null,
@@ -284,7 +284,7 @@ class CardEditState extends State<CardEdit> {
                                 await Fluttermap.getLocation;
                             print('获取定位数据, $data');
                             if (data['error'] == null) {
-                              if (mounted) {
+                              try{
                                 setState(() {
                                   _card.addr = data['address'];
                                   _card.coord = {
@@ -292,11 +292,11 @@ class CardEditState extends State<CardEdit> {
                                     'Lng': data['lng'],
                                   };
                                 });
+                              } catch(e){}
                               } else {
                                 Func.showMessage(data['error']);
                               }
                             }
-                          },
                         )),
               new Divider(
                 height: 1.0,

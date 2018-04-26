@@ -55,8 +55,8 @@ class CardDetailState extends State<CardDetailPage> {
 
   bool get isRightLocation {
     try {
-      double lat = double.parse(_card.coord['Lat']);
-      double lng = double.parse(_card.coord['Lng']);
+      double lat = _card.coord['Lat'];
+      double lng = _card.coord['Lng'];
       if (lat != 0.0 && lng != 0.0) return true;
     } catch (e) {}
     return false;
