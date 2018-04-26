@@ -155,7 +155,8 @@ public class FluttermapPlugin implements MethodCallHandler , AMapLocationListene
       AndPermission.with(mActivity)
               .permission(
                       Permission.ACCESS_COARSE_LOCATION,
-                      Permission.ACCESS_FINE_LOCATION)
+                      Permission.ACCESS_FINE_LOCATION,
+                      Permission.WRITE_EXTERNAL_STORAGE)
               .onGranted(
                       new Action() {
                         @Override
