@@ -102,6 +102,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  fluttermap:
+    dependency: "direct main"
+    description:
+      path: fluttermap
+      relative: true
+    source: path
+    version: "0.0.1"
   fluttertoast:
     dependency: "direct main"
     description:
