@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'pages/login.dart';
 import 'pages/home.dart';
@@ -18,17 +19,17 @@ void main() {
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
 
-  Future<Cache> getData() async{
+  Future<Cache> getData() async {
     await DB.getDB();
     return await Cache.getInstace();
   }
 
-  Widget _getHomePage(){
-    String token = Cache.instance.token?? '';
-    String cdAdd = Cache.instance.cdadd?? '';
+  Widget _getHomePage() {
+    String token = Cache.instance.token ?? '';
+    String cdAdd = Cache.instance.cdadd ?? '';
 
-    if(token.length > 0){
-      if(cdAdd.length > 0){
+    if (token.length > 0) {
+      if (cdAdd.length > 0) {
         return new HomePage();
       } else {
         return new SwitchPlatformPage();
@@ -41,6 +42,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
+      localizationsDelegates: [
+        // ... app-specific localization delegate[s] here
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en', 'US'), // English
+        const Locale('zh', 'ZH'), // Chinese
+        // ... other locales the app supports
+      ],
       theme: new ThemeData(
         // This is the theme of your application.
         //
@@ -54,26 +65,26 @@ class MyApp extends StatelessWidget {
         primaryColor: Style.COLOR_THEME,
         accentColor: Style.COLOR_THEME,
       ),
-      home:   Cache.instance != null ? _getHomePage() : new FutureBuilder<Cache>(
-        future: getData(),
-        builder: (BuildContext context, AsyncSnapshot<Cache> snapshot){
-          switch(snapshot.connectionState){
-            case ConnectionState.waiting: return Func.loadingWidget(context);
-            default:
-              if(snapshot.hasData){
-                print('main FutureBuild....');
+      home: Cache.instance != null
+          ? _getHomePage()
+          : new FutureBuilder<Cache>(
+              future: getData(),
+              builder: (BuildContext context, AsyncSnapshot<Cache> snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.waiting:
+                    return Func.loadingWidget(context);
+                  default:
+                    if (snapshot.hasData) {
+                      print('main FutureBuild....');
 
-                return _getHomePage();
-              } else {
-                return new Center(child: new CircularProgressIndicator());
-              }
-          }
-        },
-
-
-      ),
+                      return _getHomePage();
+                    } else {
+                      return new Center(child: new CircularProgressIndicator());
+                    }
+                }
+              },
+            ),
       routes: routes,
     );
   }
 }
-
