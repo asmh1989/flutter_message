@@ -44,13 +44,16 @@ class HomeState extends State<HomePage> {
                 final result = await Navigator.push(context, new MaterialPageRoute(
                     builder: (BuildContext context) => _currentIndex == 0 ? new CardEdit() : new MsgDetailPage()));
 
+                print('edit ...');
                 if(result != null){
+                  if(_currentIndex == 0){
+                    _cache.clearCards();
+                  } else {
+                    _cache.clearMsg();
+                  }
+
                   setState(() {
-                    if(_currentIndex == 0){
-                      _cache.clearCards();
-                    } else {
-                      _cache.clearMsg();
-                    }
+
                   });
                 }
 
