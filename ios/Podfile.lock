@@ -1,4 +1,5 @@
 PODS:
+  - Bugly (2.5.0)
   - device_info (0.0.1):
     - Flutter
   - Flutter (1.0.0)
@@ -18,8 +19,9 @@ PODS:
     - FMDB (~> 2.7.2)
 
 DEPENDENCIES:
+  - Bugly
   - device_info (from `Pods/.symlinks/plugins/device_info/ios`)
-  - Flutter (from `Pods/.symlinks/flutter/ios`)
+  - Flutter (from `Pods/.symlinks/flutter/ios-release`)
   - fluttermap (from `Pods/.symlinks/plugins/fluttermap/ios`)
   - fluttertoast (from `Pods/.symlinks/plugins/fluttertoast/ios`)
   - path_provider (from `Pods/.symlinks/plugins/path_provider/ios`)
@@ -28,13 +30,14 @@ DEPENDENCIES:
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
+    - Bugly
     - FMDB
 
 EXTERNAL SOURCES:
   device_info:
     :path: Pods/.symlinks/plugins/device_info/ios
   Flutter:
-    :path: Pods/.symlinks/flutter/ios
+    :path: Pods/.symlinks/flutter/ios-release
   fluttermap:
     :path: Pods/.symlinks/plugins/fluttermap/ios
   fluttertoast:
@@ -47,6 +50,7 @@ EXTERNAL SOURCES:
     :path: Pods/.symlinks/plugins/sqflite/ios
 
 SPEC CHECKSUMS:
+  Bugly: 3ca9f255c01025582df26f9222893b383c7e4b4e
   device_info: 76ce0b32e13034d1883be4a382433648f9dcee63
   Flutter: 9d0fac939486c9aba2809b7982dfdbb47a7b0296
   fluttermap: 44d50ee973e4e767e7a97bb2ee68e0698741c0c6
@@ -56,6 +60,6 @@ SPEC CHECKSUMS:
   shared_preferences: 5a1d487c427ee18fcd3ea1f2a131569481834b53
   sqflite: d1612813fa7db7c667bed9f1d1b508deffc56999
 
-PODFILE CHECKSUM: 13dcf421f4da2e937a57e8ba760ed880beae536f
+PODFILE CHECKSUM: a79375079d5966a296eb97416d38d9a963f981be
 
 COCOAPODS: 1.5.0
