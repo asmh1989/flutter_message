@@ -373,7 +373,7 @@ class MsgDetailState extends State<MsgDetailPage> {
   }
 
   Widget _getMsgList(){
-    if(_msg.length == 0 && _first) {
+    if(_msg.length == 0 && _first && widget.card != null) {
       _first = false;
       return new FutureBuilder<http.Response>(
           future: _getData(),
