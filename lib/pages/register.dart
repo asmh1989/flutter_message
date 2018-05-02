@@ -66,7 +66,7 @@ class RegisterPageState extends State<RegisterPage> {
       _loading = true;
     });
 
-    http.Response response = await NetWork.post(NetWork.apiFindPassword, {
+    http.Response response = await NetWork.post(NetWork.apiRegister, {
       'Unm': person.username,
       'Ver': person.phoneCode,
       'Npd': person.password_1,
