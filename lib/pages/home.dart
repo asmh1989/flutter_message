@@ -8,6 +8,8 @@ import 'userManager.dart';
 import 'cardManager.dart';
 import 'cardEdit.dart';
 import 'msgDetail.dart';
+import 'msgManager.dart';
+
 
 import '../utils/index.dart';
 
@@ -29,7 +31,6 @@ class HomeState extends State<HomePage> {
 //  PageController _controller;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final PageCache _cache = new PageCache();
 
   AppBar _getAppBar() {
     if(_currentIndex == 0 || _currentIndex == 1) {
@@ -44,12 +45,11 @@ class HomeState extends State<HomePage> {
                 final result = await Navigator.push(context, new MaterialPageRoute(
                     builder: (BuildContext context) => _currentIndex == 0 ? new CardEdit() : new MsgDetailPage()));
 
-                print('edit ...');
                 if(result != null){
                   if(_currentIndex == 0){
-                    _cache.clearCards();
+                    CardManagerPage.clear();
                   } else {
-                    _cache.clearMsg();
+                    MsgManagerPage.clear();
                   }
 
                   setState(() {
@@ -103,7 +103,8 @@ class HomeState extends State<HomePage> {
             final result = await Navigator.pushNamed(context, SwitchPlatformPage.route);
             print('switchPlatform result: $result');
             if(result != null){
-              _cache.clear();
+              MsgManagerPage.clear();
+              CardManagerPage.clear();
             }
 
           }),
@@ -170,6 +171,8 @@ class HomeState extends State<HomePage> {
                         Cache cache = await Cache.getInstace();
                         cache.remove(KEY_TOKEN);
                         cache.remove(KEY_ADMIN);
+                        CardManagerPage.clear();
+                        MsgManagerPage.clear();
                         Navigator.pushReplacementNamed(context, LoginPage.route);
                       }, child: new Text('确定'))
                     ],
@@ -228,15 +231,9 @@ class HomeState extends State<HomePage> {
 
     switch(_currentIndex){
       case 0:
-        return new CardManagerPage(
-          type: CardType.CARD,
-          cache: _cache,
-        );
+        return new CardManagerPage();
       case 1:
-        return new CardManagerPage(
-          type: CardType.MESSAGE,
-          cache: _cache,
-        );
+        return new MsgManagerPage();
       default:
         return  _getPersonView();
 
@@ -297,6 +294,8 @@ class HomeState extends State<HomePage> {
             Cache cache = await Cache.getInstace();
             cache.remove(KEY_TOKEN);
             cache.remove(KEY_ADMIN);
+            CardManagerPage.clear();
+            MsgManagerPage.clear();
             Navigator.pushReplacementNamed(context, LoginPage.route);
           },
           backgroundColor: Colors.redAccent,

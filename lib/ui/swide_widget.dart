@@ -121,9 +121,15 @@ class _LeftSlideState extends State<FXLeftSlide> {
         onNotification: (FXSizeChangedLayoutNotification notification){
           childSize = notification.newSize;
 //                    print(notification.newSize);
-          scheduleMicrotask((){
-            setState((){});
+          scheduleMicrotask(() {
+            try {
+
+              setState(() {});
+            } catch(e) {
+
+            }
           });
+
         },
 
       );

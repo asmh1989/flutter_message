@@ -27,10 +27,6 @@
       <excludeFolder url="file://$MODULE_DIR$/ios/Pods/.symlinks/plugins/fluttermap/example/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/ios/Pods/.symlinks/plugins/fluttermap/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/ios/Pods/.symlinks/plugins/fluttermap/example/build" />
-      <excludeFolder url="file://$MODULE_DIR$/ios/Pods/.symlinks/plugins/fluttermap/example/ios/Flutter/flutter_assets/packages" />
-      <excludeFolder url="file://$MODULE_DIR$/ios/Pods/.symlinks/plugins/fluttermap/example/ios/Pods/.symlinks/plugins/fluttermap/example/build/app/intermediates/assets/debug/flutter_assets/packages" />
-      <excludeFolder url="file://$MODULE_DIR$/ios/Pods/.symlinks/plugins/fluttermap/example/ios/Pods/.symlinks/plugins/fluttermap/example/build/app/intermediates/flutter/debug/flutter_assets/packages" />
-      <excludeFolder url="file://$MODULE_DIR$/ios/Pods/.symlinks/plugins/fluttermap/example/ios/Pods/.symlinks/plugins/fluttermap/example/ios/Flutter/flutter_assets/packages" />
       <excludeFolder url="file://$MODULE_DIR$/ios/Pods/.symlinks/plugins/fluttertoast/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/ios/Pods/.symlinks/plugins/fluttertoast/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/ios/Pods/.symlinks/plugins/fluttertoast/build" />
