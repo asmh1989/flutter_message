@@ -96,8 +96,11 @@ class UserInfo {
 
   @override
   String toString() {
-    List<Map<String, dynamic>> list = [];
-    cdnos.forEach((CdNos c)=> list.add(c.toMap()));
+    List<String> list = [];
+    cdnos.forEach((CdNos c){
+      if(c.auth == 1)
+        list.add(c.cdno);
+    });
 
     Map<String, dynamic> data = {
       'Unm': unm,

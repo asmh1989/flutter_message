@@ -159,6 +159,19 @@ class UserEditState extends State<UserEditPage>{
             onChanged: (bool value){
               setState(() {
                 _user.cdnos[i].auth = value?1:2;
+
+                if(value) {
+                  for (int j = 0, len = _user.cdnos.length; j < len; j++) {
+                    if(_user.cdnos[j].auth == 2){
+                      _user.all = 2;
+                      return;
+                    }
+                  }
+
+                  _user.all = 1;
+                } else {
+                  _user.all = 2;
+                }
               });
             }))
         );

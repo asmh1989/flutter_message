@@ -171,8 +171,6 @@ class HomeState extends State<HomePage> {
                         Cache cache = await Cache.getInstace();
                         cache.remove(KEY_TOKEN);
                         cache.remove(KEY_ADMIN);
-                        CardManagerPage.clear();
-                        MsgManagerPage.clear();
                         Navigator.pushReplacementNamed(context, LoginPage.route);
                       }, child: new Text('确定'))
                     ],
@@ -294,8 +292,7 @@ class HomeState extends State<HomePage> {
             Cache cache = await Cache.getInstace();
             cache.remove(KEY_TOKEN);
             cache.remove(KEY_ADMIN);
-            CardManagerPage.clear();
-            MsgManagerPage.clear();
+
             Navigator.pushReplacementNamed(context, LoginPage.route);
           },
           backgroundColor: Colors.redAccent,
@@ -310,6 +307,8 @@ class HomeState extends State<HomePage> {
   @override
   void dispose() {
     super.dispose();
+    CardManagerPage.clear();
+    MsgManagerPage.clear();
 //    _controller.dispose();
   }
 }

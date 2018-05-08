@@ -11,6 +11,7 @@ import '../ui/passwordField.dart';
 
 import '../utils/func.dart';
 import '../utils/network.dart';
+import 'login.dart';
 
 const double SPACE = 20.0;
 
@@ -114,8 +115,14 @@ class PasswordState extends State<PasswordPage>{
           _showMessage(data['Message']);
         } else {
           _showMessage(widget.isModify ? '修改成功': '找回成功');
-          Future.delayed(new Duration(milliseconds: 400),(){
+          Future.delayed(new Duration(milliseconds: 400),() async{
             Navigator.pop(context);
+            if(widget.isModify){
+              Cache cache = await Cache.getInstace();
+              cache.remove(KEY_TOKEN);
+              cache.remove(KEY_ADMIN);
+              Navigator.pushReplacementNamed(context, LoginPage.route);
+            }
           });
         }
       }

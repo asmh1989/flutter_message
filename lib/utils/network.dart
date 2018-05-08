@@ -59,7 +59,7 @@ class NetWork {
   static String apiSetUsers = _server+'/api/setusers.json';
 
   static Future<http.Response > post(String url, Map<String, dynamic> params) async {
-    print('''$url => post: $params''');
+    print('''$url => post: ${json.encode(params)}''');
     try {
       return _client.post(url, body: params);
     } catch (e){
