@@ -65,9 +65,10 @@ class _FutureCardListState extends State<_FutureCardList>{
 
 
     if(response != null && response.statusCode == 200){
+      print(response.body);
       Map data = NetWork.decodeJson(response.body);
-      List<dynamic> list = data['Response'];
       if(data['Code'] == 0){
+        List<dynamic> list = data['Response'];
         List<CardInfo> cards = CardInfo.parseCards(list);
         if(cards.length > 0){
           _pageHelper.addData(cards, clear: true);
@@ -78,6 +79,8 @@ class _FutureCardListState extends State<_FutureCardList>{
         setState(() {
 
         });
+      } else {
+        Func.showMessage(data['Message']);
       }
     }
   }

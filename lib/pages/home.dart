@@ -48,9 +48,13 @@ class HomeState extends State<HomePage> {
                 if(result != null){
                   if(_currentIndex == 0){
                     CardManagerPage.clear();
-                  } else {
-                    MsgManagerPage.clear();
+
+                    setState(() {
+
+                    });
                   }
+                } else if(_currentIndex == 1){
+                  MsgManagerPage.clear();
 
                   setState(() {
 
@@ -171,6 +175,7 @@ class HomeState extends State<HomePage> {
                         Cache cache = await Cache.getInstace();
                         cache.remove(KEY_TOKEN);
                         cache.remove(KEY_ADMIN);
+                        Navigator.pop(context);
                         Navigator.pushReplacementNamed(context, LoginPage.route);
                       }, child: new Text('确定'))
                     ],
@@ -278,15 +283,15 @@ class HomeState extends State<HomePage> {
     );
 
     return new Scaffold(
-        key: _scaffoldKey,
-        appBar: _getAppBar(),
-        body: _getBody(),
-        bottomNavigationBar: new Theme(
-            data: new ThemeData(
-              canvasColor: const Color(0xfff5f5f5),
-            ),
-            child: botNavBar
-        ),
+      key: _scaffoldKey,
+      appBar: _getAppBar(),
+      body: _getBody(),
+      bottomNavigationBar: new Theme(
+          data: new ThemeData(
+            canvasColor: const Color(0xfff5f5f5),
+          ),
+          child: botNavBar
+      ),
 //        floatingActionButton: NetWork.isDebug ? new FloatingActionButton(
 //          onPressed: () async{
 //            Cache cache = await Cache.getInstace();

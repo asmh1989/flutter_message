@@ -80,9 +80,8 @@ class _MsgListState extends State<MsgList> {
 
     if(response != null && response.statusCode == 200){
       Map data = NetWork.decodeJson(response.body);
-      List<dynamic> list = data['Response'];
       if(data['Code'] == 0){
-
+        List<dynamic> list = data['Response'];
         List<MsgInfo> msg = MsgInfo.parseMessages(list);
         if(msg.length > 0){
           _pageHelper.addData(msg, clear: true);
@@ -95,6 +94,8 @@ class _MsgListState extends State<MsgList> {
         setState(() {
 
         });
+      } else {
+        Func.showMessage(data['Message']);
       }
     }
   }
@@ -149,7 +150,7 @@ class _MsgListState extends State<MsgList> {
                                   new FlatButton(onPressed: () async {
                                     Navigator.pop(context);
 
-                                    await DB.instance.delete(CardValueTable.name, where: '${CardValueTable.no} = ?', whereArgs: [item.nomsg.no]);
+                                    await DB.instance.delete(CardValueTable.name, where: '${CardValueTable.no} = ?', whereArgs: [item.no]);
                                     _pageHelper.datas.removeAt(index);
                                     setState(() {
 
@@ -192,6 +193,8 @@ class _MsgListState extends State<MsgList> {
                                 addr: item.nomsg.addr,
                                 coord: item.nomsg.coord
                               ))));
+
+                              _handleRefresh();
                             },
                           )
                       )
