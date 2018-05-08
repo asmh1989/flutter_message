@@ -87,8 +87,9 @@ class _FutureUserListState extends State<_FutureUserList>{
     return data.map((json) => new UserInfo.fromJson(json)).toList();
   }
 
-  void notify(String snm){
-    if(_snm == snm) return;
+  void notify(String snm, [bool force = false]){
+
+    if(_snm == snm && ! force) return;
     _snm = snm;
     isNotify = true;
 
@@ -169,12 +170,12 @@ class UserManagerState extends State<UserManagerPage>{
   }
 
   void _push({UserInfo user}) async{
-    final result = Navigator.push(context, new MaterialPageRoute(
+    final result = await Navigator.push(context, new MaterialPageRoute(
         builder: (BuildContext context) => new UserEditPage(user: user,)));
 
     if(result != null){
       _controller.clear();
-      _userKey.currentState.notify('');
+      _userKey.currentState.notify('', true);
     }
   }
 

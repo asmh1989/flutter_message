@@ -109,7 +109,7 @@ class UserEditState extends State<UserEditPage>{
           Func.showMessage(data['Message']);
         } else {
           Func.showMessage(widget.user == null ? '新增用户成功！': '修改用户信息成功！');
-          Future.delayed(new Duration(milliseconds: 500),(){
+          Future.delayed(new Duration(milliseconds: 200),(){
             Navigator.pop(context, 'done');
           });
         }
