@@ -287,20 +287,20 @@ class HomeState extends State<HomePage> {
             ),
             child: botNavBar
         ),
-        floatingActionButton: NetWork.isDebug ? new FloatingActionButton(
-          onPressed: () async{
-            Cache cache = await Cache.getInstace();
-            cache.remove(KEY_TOKEN);
-            cache.remove(KEY_ADMIN);
-
-            Navigator.pushReplacementNamed(context, LoginPage.route);
-          },
-          backgroundColor: Colors.redAccent,
-          child: const Icon(
-            Icons.lock_open,
-            semanticLabel: '注销',
-          ),
-        ) : null
+//        floatingActionButton: NetWork.isDebug ? new FloatingActionButton(
+//          onPressed: () async{
+//            Cache cache = await Cache.getInstace();
+//            cache.remove(KEY_TOKEN);
+//            cache.remove(KEY_ADMIN);
+//
+//            Navigator.pushReplacementNamed(context, LoginPage.route);
+//          },
+//          backgroundColor: Colors.redAccent,
+//          child: const Icon(
+//            Icons.lock_open,
+//            semanticLabel: '注销',
+//          ),
+//        ) : null
     );
   }
 

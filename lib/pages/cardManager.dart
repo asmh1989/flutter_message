@@ -73,7 +73,7 @@ class _FutureCardListState extends State<_FutureCardList>{
           _pageHelper.addData(cards, clear: true);
         }
         while(!mounted){
-          await new Future.delayed(new Duration(milliseconds: 20));
+          await new Future.delayed(new Duration(milliseconds: 50));
         }
         setState(() {
 
@@ -197,7 +197,7 @@ class _FutureCardListState extends State<_FutureCardList>{
                               child: new CircleAvatar(child: Image.asset(ImageAssets.icon_card), backgroundColor: Style.COLOR_THEME),
                             ),
                             title: new Text(item.no.length == 0 ?item.no : '${item.nnm}(${item.no})', maxLines: 1,),
-                            subtitle: new Text(item.addr),
+                            subtitle: new Text(item.addr, maxLines: 2,),
                             trailing: new Text(Func.getFullTimeString(item.insdt* 1000), style: TextStyle(color: Colors.grey),),
                             onTap: () async {
                               await Navigator.push(context, new MaterialPageRoute(builder: (context)=> new CardDetailPage(card: item)));
@@ -254,15 +254,15 @@ class _FutureCardListState extends State<_FutureCardList>{
 
   @override
   Widget build(BuildContext context) {
+    _pageHelper.init((){
+      _handleRefresh();
+    });
     return _getCardListWidget2();
   }
 
   @override
   void initState() {
     super.initState();
-    _pageHelper.init((){
-      _handleRefresh();
-    });
   }
 
   @override

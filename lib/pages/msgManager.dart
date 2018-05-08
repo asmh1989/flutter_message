@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 
 import '../helper/pageHelper.dart';
 import '../model/msgInfo.dart';
+import '../model/cardInfo.dart';
+
 import 'msgDetail.dart';
 
 import '../utils/index.dart';
@@ -36,9 +38,6 @@ class _MsgListState extends State<MsgList> {
   @override
   void initState() {
     super.initState();
-    _pageHelper.init((){
-      _handleRefresh();
-    });
   }
 
   Future<http.Response> _getMsg() async {
@@ -89,6 +88,10 @@ class _MsgListState extends State<MsgList> {
           _pageHelper.addData(msg, clear: true);
         }
 
+        while(!mounted){
+          await new Future.delayed(new Duration(milliseconds: 50));
+        }
+
         setState(() {
 
         });
@@ -98,7 +101,9 @@ class _MsgListState extends State<MsgList> {
 
   @override
   Widget build(BuildContext context) {
-
+    _pageHelper.init((){
+      _handleRefresh();
+    });
     if(_pageHelper.datas.length == 0){
       return new Expanded(
           child: new Stack(
@@ -175,10 +180,18 @@ class _MsgListState extends State<MsgList> {
                               child: new CircleAvatar(child: Image.asset(ImageAssets.icon_card), backgroundColor: Style.COLOR_THEME),
                             ),
                             title: new Text(item.nomsg.nnm.length == 0 ?item.no : '${item.nomsg.nnm}(${item.no})', maxLines: 1,),
-                            subtitle: new Text(item.t),
+                            subtitle: new Text(item.t, maxLines: 2,),
                             trailing: new Text(Func.getFullTimeString(int.parse(item.rst)* 1000), style: TextStyle(color: Colors.grey),),
                             onTap: () async {
-                              await Navigator.push(context, new MaterialPageRoute(builder: (context)=> new MsgDetailPage(card: item.nomsg)));
+                              await Navigator.push(context, new MaterialPageRoute(builder: (context)=> new MsgDetailPage(card: new CardInfo(
+                                no: item.no,
+                                re: item.re,
+                                nnm: item.nomsg.nnm,
+                                opnm: item.nomsg.opnm,
+                                insdt: item.nomsg.insdt,
+                                addr: item.nomsg.addr,
+                                coord: item.nomsg.coord
+                              ))));
                             },
                           )
                       )

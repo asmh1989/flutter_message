@@ -64,6 +64,7 @@ class CardDetailState extends State<CardDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('card信息: ${widget.card}');
     return new Scaffold(
       body: new Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -151,7 +152,7 @@ class CardDetailState extends State<CardDetailPage> {
                                       new ListTile(
                                         title: new Text(_card.addr),
                                         subtitle: new Text('安装地址'),
-                                        trailing: !isRightLocation ? null : new IconButton(icon: new Icon(Icons.location_on), onPressed: (){
+                                        trailing: !isRightLocation ? null : new IconButton(icon: new Icon(Icons.location_on), color: Style.COLOR_THEME, onPressed: (){
                                           Fluttermap.openMap(
                                             lat: _card.coord['Lat'],
                                             lng: _card.coord['Lng'],

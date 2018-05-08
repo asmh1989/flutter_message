@@ -55,7 +55,7 @@ class _FutureUserListState extends State<_FutureUserList>{
                 ),
                 title: new Text(item.upid, style: new TextStyle(color: item.enable == 1 ? Colors.black : Colors.grey),),
                 subtitle: new Text(item.unm),
-                trailing: new Text(_getUpdateTime(item.ut), style: new TextStyle(color: item.enable == 1 ? Colors.black : Colors.grey),),
+                trailing: new Text('最后操作时间:'+_getUpdateTime(item.ut), style: new TextStyle(color: Color(0xFF8C8C8C), fontSize: 10.0),),
                 onTap: () {
                   if(widget.callback != null){
                     widget.callback(item);

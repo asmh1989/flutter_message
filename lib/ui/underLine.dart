@@ -10,12 +10,13 @@ class UnderLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final Decoration decoration = new BoxDecoration(
       border: new Border(
-        bottom: Divider.createBorderSide(context),
+        bottom: Divider.createBorderSide(context, width: 1.0),
       ),
     );
 
-    return new Container(
+    return Container(
         color: Colors.white,
+        padding: new EdgeInsets.only(top: 4.0),
         child: new DecoratedBox(
         position: DecorationPosition.foreground,
         decoration: decoration,

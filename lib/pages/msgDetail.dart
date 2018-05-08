@@ -151,11 +151,13 @@ class MsgDetailState extends State<MsgDetailPage> {
 
   _getRow(MsgInfo info){
 
+    bool isMe = Cache.instance.username == info.unm;
+
     List<Widget> children = <Widget>[
       new Container(
         constraints: new BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.6),
         decoration: new BoxDecoration(
-          color: info.tp == 0 ? Colors.grey : Style.COLOR_THEME,
+          color: info.tp == 0 ? Colors.grey : (isMe ? Style.COLOR_THEME : Color(0xFFDFD9A7)),
           borderRadius: new BorderRadius.all(Radius.circular(6.0)),
 
 //            image: new DecorationImage(
@@ -165,7 +167,7 @@ class MsgDetailState extends State<MsgDetailPage> {
 //            )
         ),
         padding: new EdgeInsets.only(left: 8.0, right: 12.0, top: 8.0, bottom: 6.0),
-        child: new Text(info.t, style: new TextStyle(fontSize: 14.0),),
+        child: new Text(info.t, style: new TextStyle(fontSize: 14.0, color: Colors.white),),
       )
     ];
 
@@ -214,14 +216,14 @@ class MsgDetailState extends State<MsgDetailPage> {
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
-              new Text(info.unm, style: const TextStyle(color: Style.COLOR_THEME, fontSize: 12.0), textAlign: TextAlign.right,),
+              new Text(info.unm, style: new TextStyle(color: isMe ? Style.COLOR_THEME : Colors.grey, fontSize: 12.0), textAlign: TextAlign.right,),
               new Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: children
               )
             ],
           ),
-          new Padding(padding: EdgeInsets.all(4.0), child: Func.getCircleAvatar(40.0, Style.COLOR_THEME, ImageAssets.icon_me)),
+          new Padding(padding: EdgeInsets.all(4.0), child: Func.getCircleAvatar(40.0, isMe ? Style.COLOR_THEME : Color(0xFFDFD9A7), ImageAssets.icon_me)),
         ],
       );
     }
@@ -258,47 +260,13 @@ class MsgDetailState extends State<MsgDetailPage> {
                 builder: (BuildContext context) {
                   TextEditingController controller = new TextEditingController(text: _card.nnm);
                   return new AlertDialog(
-                      title: new Text('设置备注'),
-                      actions: <Widget>[
-
-                        new Center(child: new RaisedButton(
-                            color:  Color(0xFF029de0),
-                            highlightColor:  Color(0xFF029de0),
-                            child:  Text('提交', style:  TextStyle(color: Colors.white, fontSize: 16.0)),
-                            padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                            onPressed: () async {
-                              Navigator.pop(context);
-                              String url = Cache.instance.cdurl+'/api/setnos.json';
-
-                              http.Response response = await NetWork.post(url, {
-                                'Unm': Cache.instance.username,
-                                'Cdtoken': Cache.instance.cdtoekn,
-                                'Token': Cache.instance.token,
-                                'Nos': [_card].toString(),
-                              });
-
-                              if(response.statusCode != 200){
-                                Func.showMessage(response.body);
-                              } else {
-                                Map data = NetWork.decodeJson(response.body);
-                                if(data['Code'] != 0){
-                                  Func.showMessage(data['Message']);
-                                } else {
-                                  Func.showMessage('设置备注成功！');
-                                  setState(() {
-                                    _card.nnm = controller.text;
-                                  });
-                                }
-                              }
-
-                            }))
-                      ],
                       content: Func.getWhiteTheme(
                         Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
+                            new Center(child: Text('设置备注', style: TextStyle(fontSize: 20.0),),),
                             new Divider(),
                             new Padding(padding: new EdgeInsets.symmetric(vertical: 10.0),child:new Row(
                               children: <Widget>[
@@ -307,16 +275,52 @@ class MsgDetailState extends State<MsgDetailPage> {
                               ],
                             )),
                             new Divider(),
-
-                            new TextField(
-                              controller: controller,
-                              decoration: new InputDecoration(
-                                prefixText: '备注: ',
-                                hintText: '请输入备注',
-                                hintStyle: const TextStyle(color: Colors.grey),
-                              ),
+                            new Row(
+                              children: <Widget>[
+                                new Text('备注: ', style: new TextStyle(color: Colors.grey),),
+                                new Expanded(child: new TextField(
+                                  controller: controller,
+                                  decoration: new InputDecoration(
+                                    hintText: '请输入备注',
+                                    hintStyle: const TextStyle(color: Colors.grey),
+                                  ),
+                                )),
+                              ],
                             ),
+
                             new Divider(),
+                            new SizedBox(height: 10.0,),
+                            new Center(child: new RaisedButton(
+                                color:  Color(0xFF029de0),
+                                highlightColor:  Color(0xFF029de0),
+                                child:  Text('提交', style:  TextStyle(color: Colors.white, fontSize: 16.0)),
+                                padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                                onPressed: () async {
+                                  Navigator.pop(context);
+                                  String url = Cache.instance.cdurl+'/api/setnos.json';
+
+                                  http.Response response = await NetWork.post(url, {
+                                    'Unm': Cache.instance.username,
+                                    'Cdtoken': Cache.instance.cdtoekn,
+                                    'Token': Cache.instance.token,
+                                    'Nos': [_card].toString(),
+                                  });
+
+                                  if(response.statusCode != 200){
+                                    Func.showMessage(response.body);
+                                  } else {
+                                    Map data = NetWork.decodeJson(response.body);
+                                    if(data['Code'] != 0){
+                                      Func.showMessage(data['Message']);
+                                    } else {
+                                      Func.showMessage('设置备注成功！');
+                                      setState(() {
+                                        _card.nnm = controller.text;
+                                      });
+                                    }
+                                  }
+
+                                }))
                           ],
 
                         ),
@@ -381,9 +385,9 @@ class MsgDetailState extends State<MsgDetailPage> {
             if(snapshot.connectionState == ConnectionState.done){
               return _getMsgList2();
             } else if(snapshot.connectionState == ConnectionState.waiting){
-              return new Container(child: new Center(child: new CircularProgressIndicator(),));
+              return new Expanded(child: new Container(child: new Center(child: new CircularProgressIndicator(),)));
             } else {
-              return new Container(child: new Center(child: new Text(snapshot.error.toString())));
+              return new Expanded(child: new Container(child: new Center(child: new Text(snapshot.error.toString()))));
             }
           });
     } else {

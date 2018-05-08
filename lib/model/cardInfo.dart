@@ -56,7 +56,7 @@ class CardInfo{
       'Insdt': this.insdt,
       'Re': this.re,
       'Type': this.type,
-      'Coord': json.encode(this.coord),
+      'Coord': this.coord,
     };
 
     return json.encode(data);

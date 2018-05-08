@@ -248,7 +248,7 @@ class CardEditState extends State<CardEdit> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       new Text('安装时间：'),
-                      new Text('${Func.getYearMonthDay(_card.insdt * 1000)}'),
+                      Expanded(child: new Text('${Func.getYearMonthDay(_card.insdt * 1000)}')),
                       new Icon(Icons.navigate_next,
                           color:
                               Theme.of(context).brightness == Brightness.light
