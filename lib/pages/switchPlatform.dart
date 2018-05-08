@@ -48,7 +48,7 @@ class SwitchPlatformPageState extends State<SwitchPlatformPage> {
       KeyValue value = new KeyValue(
           key: Cache.instance.username, value: info.cdno);
 
-      await DB.instance.insertOrUpdate<KeyValue>(
+      await DB.instance.insertOrUpdate(
           value, where: '${KeyValueTable.key} = ?', whereArgs: [value.key]);
 
       Cache.instance.setStringValue(KEY_CDNO, info.cdno);

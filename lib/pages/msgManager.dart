@@ -42,7 +42,7 @@ class _MsgListState extends State<MsgList> {
   }
 
   Future<http.Response> _getMsg() async {
-    List<CardValue> cards = await DB.instance.query<CardValue>(where: '${CardValueTable.cdno} = ?', whereArgs: [Cache.instance.cdno]);
+    List<dynamic> cards = await DB.instance.query( CardValueTable.name, where: '${CardValueTable.cdno} = ?', whereArgs: [Cache.instance.cdno]);
     if(cards.length > 0){
       String url = Cache.instance.cdurl +'/api/getmsgs.json';
       String s = '';
@@ -144,7 +144,7 @@ class _MsgListState extends State<MsgList> {
                                   new FlatButton(onPressed: () async {
                                     Navigator.pop(context);
 
-                                    await DB.instance.delete<CardValue>(where: '${CardValueTable.no} = ?', whereArgs: [item.nomsg.no]);
+                                    await DB.instance.delete(CardValueTable.name, where: '${CardValueTable.no} = ?', whereArgs: [item.nomsg.no]);
                                     _pageHelper.datas.removeAt(index);
                                     setState(() {
 

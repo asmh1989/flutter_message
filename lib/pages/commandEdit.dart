@@ -16,13 +16,11 @@ enum Command {
 class CommandEditPage extends StatefulWidget{
 
   final Command title;
-  final String titleValue;
-  final String contentValue;
+  final CommandValue value;
 
   const CommandEditPage({
     @required this.title,
-    this.titleValue,
-    this.contentValue
+    this.value,
   }): assert(title != null);
 
   @override
@@ -49,16 +47,25 @@ class CommandEditState extends State<CommandEditPage> {
                 Func.showMessage('标题或内容不能为空');
                 return;
               } else {
-                CommandValue value = new CommandValue(title: _titleKey.currentState.text, content: _contentKey.currentState.text);
                 try {
 
+                  final query = await DB.instance.queryOne(CommandValueTable.name, where: '${CommandValueTable.title} = ?', whereArgs: [_titleKey.currentState.text]);
+                  if(query != null){
+                    Func.showMessage('保存失败, 标题重复');
+                    return;
+                  }
 
-                  await DB.instance.insertOrUpdate<CommandValue>(value, where: '${CommandValueTable.title} = ?', whereArgs: [value.title]);
+
+                  if(widget.value != null){
+                    CommandValue value = new CommandValue(id:widget.value.id, title: _titleKey.currentState.text, content: _contentKey.currentState.text);
+
+                    await DB.instance.insertOrUpdate(value, where: '${CommandValueTable.id} = ?', whereArgs: [value.id]);
+                  } else {
+                    CommandValue value = new CommandValue( title: _titleKey.currentState.text, content: _contentKey.currentState.text);
+                    await DB.instance.insertOrUpdate(value, where: '${CommandValueTable.title} = ?', whereArgs: [value.title]);
+                  }
                   Func.showMessage('保存成功');
 
-                  if(widget.titleValue != null){
-                    await DB.instance.delete<CommandValue>(where: '${CommandValueTable.title} = ?', whereArgs: [widget.titleValue]);
-                  }
 
                   Future.delayed(new Duration(milliseconds: 400), (){
                     Navigator.pop(context, 'finish');
@@ -86,7 +93,7 @@ class CommandEditState extends State<CommandEditPage> {
             new ClearTextFieldForm(
               border: new OutlineInputBorder(),
               key: _titleKey,
-              initialValue: widget.titleValue,
+              initialValue: widget.value?.title,
               contentPadding: EdgeInsets.all(8.0),
             ),
             new Padding(
@@ -97,7 +104,7 @@ class CommandEditState extends State<CommandEditPage> {
               border: new OutlineInputBorder(),
               key: _contentKey,
               maxLine: 10,
-              initialValue: widget.contentValue,
+              initialValue: widget.value?.content,
               contentPadding: EdgeInsets.all(8.0),
             )
           ],

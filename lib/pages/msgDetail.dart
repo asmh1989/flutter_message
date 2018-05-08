@@ -477,7 +477,7 @@ class MsgDetailState extends State<MsgDetailPage> {
                   _inputKey.currentState.clear();
 
                   CardValue value = new CardValue(cdno: Cache.instance.cdno, no: _card.no);
-                  await DB.instance.insertOrUpdate<CardValue>(value, where: '${CardValueTable.no} = ?', whereArgs: [value.no]);
+                  await DB.instance.insertOrUpdate(value, where: '${CardValueTable.no} = ?', whereArgs: [value.no]);
 
                   if(_msg.length > 0){
                     await _getData('', _msg[_msg.length - 1].rst);

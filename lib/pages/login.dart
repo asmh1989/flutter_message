@@ -48,8 +48,8 @@ class LoginPageState extends State<LoginPage> {
     FocusScope.of(context).requestFocus(new FocusNode());
 
     /// 验证用户名
-    if(!Func.validatePhone(_userKey.currentState.text)) {
-      Func.showMessage('手机号格式不正确');
+    if(_userKey.currentState.text.length == 0) {
+      Func.showMessage('用户名不能为空');
       _userKey.currentState.clear();
       return;
     }
@@ -91,7 +91,7 @@ class LoginPageState extends State<LoginPage> {
             await _cache.setStringValue(KEY_TOKEN, res['Token']);
             await _cache.setIntValue(KEY_ADMIN, res['Admin']);
 
-            KeyValue value = await DB.instance.queryOne<KeyValue>(where: '${KeyValueTable.key} = ?', whereArgs: [_userKey.currentState.text]);
+            dynamic value = await DB.instance.queryOne(KeyValueTable.name, where: '${KeyValueTable.key} = ?', whereArgs: [_userKey.currentState.text]);
 
             print('found cdadd = ${value?.value}');
             if(value == null){
@@ -142,7 +142,7 @@ class LoginPageState extends State<LoginPage> {
                       height: 25.0,
                       width: 22.0,
                     ),
-                    keyboardType: TextInputType.phone,
+                    keyboardType: TextInputType.text,
                     hintText: '请输入您的账号',
                     hintStyle: Style.inputTextStyle,
                     initialValue: _remember ? _username: '',

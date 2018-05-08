@@ -30,8 +30,9 @@ class CommandListPageState extends State<CommandListPage>{
 
 
   Future<Null> _getData() async{
+    List<dynamic> l = await DB.instance.query(CommandValueTable.name);
     _values.clear();
-    _values.addAll(await DB.instance.query<CommandValue>());
+    _values.addAll(l.cast<CommandValue>());
   }
 
   @override
@@ -55,26 +56,31 @@ class CommandListPageState extends State<CommandListPage>{
                 new FXRightSideButton(name: '编辑',
                     backgroundColor: Colors.grey,
                     fontColor: Colors.white,
-                    onPress: (){
-                      Navigator.push(context, new MaterialPageRoute(
+                    onPress: () async {
+                      final result = await Navigator.push(context, new MaterialPageRoute(
                           builder: (BuildContext context) => new CommandEditPage(
                             title: Command.EDIT,
-                            titleValue: value.title,
-                            contentValue: value.content,
+                            value: value,
                           )));
+
+                      if(result != null){
+                        await _getData();
+                        setState(() {
+                        });
+                      }
                     }),
                 new FXRightSideButton(name: '删除',
                     backgroundColor: Colors.red,
                     fontColor: Colors.white,
                     onPress: () async {
-                      await DB.instance.delete<CommandValue>(
+                      await DB.instance.delete(CommandValueTable.name,
                           where: '${CommandValueTable.title} = ?',
                           whereArgs: [value.title]
                       );
 
-                      setState(() {
+                      _values.removeAt(index);
 
-                      });
+                      setState((){});
                     })
               ];
 

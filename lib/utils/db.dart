@@ -89,6 +89,11 @@ class CommandValue extends Value {
     content = map[CommandValueTable.content];
   }
 
+  @override
+  String toString() {
+    return CommandValueTable.name;
+  }
+
 }
 
 class CardValueTable {
@@ -117,6 +122,11 @@ class CardValue extends Value {
   CardValue.fromMap(Map map):super.fromMap(map) {
     no = map[CardValueTable.no];
     cdno = map[CardValueTable.cdno];
+  }
+
+  @override
+  String toString() {
+    return CardValueTable.name;
   }
 }
 
@@ -185,72 +195,73 @@ create table ${CardValueTable.name} (
   }
 
 
-  Future<T> insert<T extends Value>(T data) async {
-    data.id = await _db.insert(T.toString(), data.toMap());
+  Future<dynamic> insert(dynamic data) async {
+    data.id = await _db.insert(data.toString(), data.toMap());
     return data;
   }
 
-  Future<Null> insertOrUpdate<T extends Value>(T data, {String where, List whereArgs}) async {
-    T d = await queryOne<T>(where: where, whereArgs: whereArgs);
+  Future<Null> insertOrUpdate(dynamic data, {String where, List whereArgs}) async {
+    Value d = await queryOne(data.toString(), where: where, whereArgs: whereArgs) as Value;
     if(d == null){
-      await insert<T>(data);
+      await insert(data);
     } else {
-      data.id= d.id;
-      await update<T>(data);
+//      data.id= d.id;
+
+      print('${d.id}, ${data.id}');
+      await update(data);
     }
 
   }
 
-  static Value _getTypeInstance<T extends Value>(Map<String, dynamic> map){
-    if(T.toString() == KeyValueTable.name){
+  static Value _getTypeInstance(String name, Map<String, dynamic> map){
+    if(name == KeyValueTable.name){
       return new KeyValue.fromMap(map);
-    } else if(T.toString() == CommandValueTable.name){
+    } else if(name == CommandValueTable.name){
       return new CommandValue.fromMap(map);
-    } else if(T.toString() == CardValueTable.name){
+    } else if(name == CardValueTable.name){
       return new CardValue.fromMap(map);
     }
     return new Value.fromMap(map);
   }
 
-  Future<T> queryOne<T extends Value>({List<String> columns, String where, List whereArgs}) async {
-    List<Map<String,dynamic>> maps = await _db.query(T.toString(),
+  Future<dynamic> queryOne(String name, {List<String> columns, String where, List whereArgs}) async {
+    List<Map<String,dynamic>> maps = await _db.query(name,
         columns: columns,
         where: where,
         whereArgs: whereArgs);
     if (maps.length > 0) {
-      return  maps.map( (Map<String, dynamic> f)=> _getTypeInstance<T>(f)).toList()[0];
+      return  maps.map( (Map<String, dynamic> f)=> _getTypeInstance(name, f)).toList()[0];
     }
     return null;
   }
 
-
-  Future<List<T>> query<T extends Value>({String where, List whereArgs, List<String> columns}) async {
-    List<Map<String,dynamic>> maps = await _db.query(T.toString(),
+  Future<List<dynamic>> query(String name, {String where, List whereArgs, List<String> columns}) async {
+    List<Map<String,dynamic>> maps = await _db.query(name,
         columns: columns,
         where: where,
         whereArgs: whereArgs
     );
 
-    print('query ${T.toString()}, data=$maps');
+    print('query $name, data=$maps');
 
     if(maps == null){
-      return <T>[];
+      return <dynamic>[];
     }
 
     return maps.map( (Map<String, dynamic> f){
-      T value = _getTypeInstance<T>(f);
+      Value value = _getTypeInstance(name, f);
       return value;
     }).toList();
   }
 
 
-  Future<int> delete<T extends Value>({String where, List whereArgs}) async {
-    return await _db.delete(T.toString(), where: where, whereArgs: whereArgs);
+  Future<int> delete(String name, {String where, List whereArgs}) async {
+    return await _db.delete(name, where: where, whereArgs: whereArgs);
   }
 
 
-  Future<int> update<T extends Value>(T data, {String where, List whereArg}) async {
-    return await _db.update(T.toString(), data.toMap(),
+  Future<int> update(dynamic data, {String where, List whereArg}) async {
+    return await _db.update(data.toString(), data.toMap(),
         where: where?? "ID = ?", whereArgs: whereArg?? [data.id]);
   }
 
