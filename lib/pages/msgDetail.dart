@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 import 'commandList.dart';
@@ -9,8 +10,8 @@ import '../model/msgInfo.dart';
 
 import '../ui/clearTextFieldForm.dart';
 import '../ui/disableButton.dart';
-
 import '../utils/index.dart';
+
 
 class MsgDetailPage extends StatefulWidget {
 
@@ -155,19 +156,26 @@ class MsgDetailState extends State<MsgDetailPage> {
 
     List<Widget> children = <Widget>[
       new Container(
-        constraints: new BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.6),
-        decoration: new BoxDecoration(
-          color: info.tp == 0 ? const Color(0xFFE9E9E9) : (isMe ? Style.COLOR_THEME : Color(0xFFDFD9A7)),
-          borderRadius: new BorderRadius.all(Radius.circular(6.0)),
+          constraints: new BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.6),
+          decoration: new BoxDecoration(
+            color: info.tp == 0 ? const Color(0xFFE9E9E9) : (isMe ? Style.COLOR_THEME : Color(0xFFDFD9A7)),
+            borderRadius: new BorderRadius.all(Radius.circular(6.0)),
 
 //            image: new DecorationImage(
 //                image: new AssetImage(info.tp == 0 ?ImageAssets.bubble_gray : ImageAssets.bubble_blue),
 //                fit: BoxFit.fill,
 //                centerSlice: new Rect.fromLTRB(12.0, 12.0, 38.0, 12.0)
 //            )
-        ),
-        padding: new EdgeInsets.only(left: 8.0, right: 12.0, top: 8.0, bottom: 6.0),
-        child: new Text(info.t, style: new TextStyle(fontSize: 14.0, color: info.tp == 0 ? Colors.black : Colors.white),),
+          ),
+          padding: new EdgeInsets.only(left: 8.0, right: 12.0, top: 8.0, bottom: 6.0),
+          child: new GestureDetector(
+              onLongPress: (){
+                Feedback.forLongPress(context);
+                Clipboard.setData(new ClipboardData(text: info.t));
+                Func.showMessage('已复制');
+              },
+              child: new Text(info.t, style: new TextStyle(fontSize: 14.0, color: info.tp == 0 ? Colors.black : Colors.white),)
+          )
       )
     ];
 
@@ -415,7 +423,7 @@ class MsgDetailState extends State<MsgDetailPage> {
       });
     });
 
-    
+
   }
 
   @override
@@ -532,8 +540,6 @@ class MsgDetailState extends State<MsgDetailPage> {
   @override
   void dispose() {
     super.dispose();
-    if(_timer != null){
-      _timer.cancel();
-    }
+    _timer?.cancel();
   }
 }
