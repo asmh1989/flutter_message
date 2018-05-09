@@ -41,7 +41,7 @@ class MsgDetailState extends State<MsgDetailPage> {
   ScrollController _controller;
 
   /// 根据时间间隔load信息流
-  Future<Null> _getData([String stime = '', String etime = '']) async {
+  Future<Null> _getData([String stime = '', String etime = '', bool background = false]) async {
 
     String url = Cache.instance.cdurl+'/api/getmsgs.json';
     Map<String, dynamic> data = {
@@ -77,7 +77,7 @@ class MsgDetailState extends State<MsgDetailPage> {
         if(stime.length > 0){
           _page++;
           if(list.length == 0){
-            Func.showMessage('没有更多历史消息！');
+            if(!background)Func.showMessage('没有更多历史消息！');
           } else {
             _msg.insertAll(0, list);
             setState(() {
@@ -97,7 +97,7 @@ class MsgDetailState extends State<MsgDetailPage> {
           }
         } else {
           if(list.length == 0 ){
-            Func.showMessage('没有更多新消息！');
+            if(!background)Func.showMessage('没有更多历史消息！');
           } else {
             _msg.addAll(list);
             if(etime.length > 0){
@@ -399,11 +399,23 @@ class MsgDetailState extends State<MsgDetailPage> {
 
   }
 
+  Timer _timer;
+
   @override
   void initState() {
     super.initState();
 
     _card = widget.card ?? new CardInfo();
+
+    new Future.delayed(new Duration(milliseconds: 2000), (){
+      _timer = Timer.periodic(new Duration(milliseconds: 5000), (Timer timer){
+        if (_msg.length > 0) {
+          _getData("", _msg[_msg.length - 1].rst, true);
+        }
+      });
+    });
+
+    
   }
 
   @override
@@ -520,5 +532,8 @@ class MsgDetailState extends State<MsgDetailPage> {
   @override
   void dispose() {
     super.dispose();
+    if(_timer != null){
+      _timer.cancel();
+    }
   }
 }

@@ -64,7 +64,7 @@ class CardDetailState extends State<CardDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('card信息: ${widget.card}');
+//    print('card信息: ${widget.card}');
     return new Scaffold(
       body: new Column(
         mainAxisAlignment: MainAxisAlignment.start,
