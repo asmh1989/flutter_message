@@ -67,6 +67,8 @@ class _MsgListState extends State<MsgList> {
       };
       if(s.length > 1){
         data['Nolst'] = s.substring(0, s.length -1);
+      } else {
+        data['No'] = _pageHelper.snm;
       }
 
       return NetWork.post(url, data);
