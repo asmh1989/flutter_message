@@ -140,13 +140,13 @@ class CardDetailState extends State<CardDetailPage> {
                                                       FontWeight.w700))),
                                       new Divider(height: 0.5),
                                       new ListTile(
-                                        title: new Text(_card.nnm),
-                                        subtitle: new Text('设备卡名'),
+                                        title: new Text(_card.no),
+                                        subtitle: new Text('设备卡号'),
                                       ),
                                       new Divider(height: 0.5),
                                       new ListTile(
-                                        title: new Text(_card.no),
-                                        subtitle: new Text('设备卡号'),
+                                        title: new Text(_card.nnm),
+                                        subtitle: new Text('设备卡名'),
                                       ),
                                       new Divider(height: 0.5),
                                       new ListTile(

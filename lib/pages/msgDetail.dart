@@ -299,6 +299,8 @@ class MsgDetailState extends State<MsgDetailPage> {
                                   Navigator.pop(context);
                                   String url = Cache.instance.cdurl+'/api/setnos.json';
 
+                                  _card.nnm = controller.text;
+
                                   http.Response response = await NetWork.post(url, {
                                     'Unm': Cache.instance.username,
                                     'Cdtoken': Cache.instance.cdtoekn,
@@ -315,7 +317,6 @@ class MsgDetailState extends State<MsgDetailPage> {
                                     } else {
                                       Func.showMessage('设置备注成功！');
                                       setState(() {
-                                        _card.nnm = controller.text;
                                       });
                                     }
                                   }

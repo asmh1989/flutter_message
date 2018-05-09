@@ -49,11 +49,11 @@ class CommandEditState extends State<CommandEditPage> {
               } else {
                 try {
 
-                  final query = await DB.instance.queryOne(CommandValueTable.name, where: '${CommandValueTable.title} = ?', whereArgs: [_titleKey.currentState.text]);
-                  if(query != null){
-                    Func.showMessage('保存失败, 标题重复');
-                    return;
-                  }
+//                  final query = await DB.instance.queryOne(CommandValueTable.name, where: '${CommandValueTable.title} = ?', whereArgs: [_titleKey.currentState.text]);
+//                  if(query != null){
+//                    Func.showMessage('保存失败, 标题重复');
+//                    return;
+//                  }
 
 
                   if(widget.value != null){

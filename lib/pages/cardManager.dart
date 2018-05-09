@@ -61,27 +61,32 @@ class _FutureCardListState extends State<_FutureCardList>{
 
 
   Future<Null> _handleRefresh() async{
-    http.Response response = await _getCardData();
+    try {
+      http.Response response = await _getCardData();
 
+      if (response != null && response.statusCode == 200) {
+        print(response.body);
+        Map data = NetWork.decodeJson(response.body);
+        if (data['Code'] == 0) {
+          List<dynamic> list = data['Response'];
+          List<CardInfo> cards = CardInfo.parseCards(list);
+          if (cards.length > 0) {
+            _pageHelper.addData(cards, clear: true);
+          }
+          while (!mounted) {
+            await new Future.delayed(new Duration(milliseconds: 50));
+          }
+          setState(() {
 
-    if(response != null && response.statusCode == 200){
-      print(response.body);
-      Map data = NetWork.decodeJson(response.body);
-      if(data['Code'] == 0){
-        List<dynamic> list = data['Response'];
-        List<CardInfo> cards = CardInfo.parseCards(list);
-        if(cards.length > 0){
-          _pageHelper.addData(cards, clear: true);
+          });
+        } else {
+          Func.showMessage(data['Message']);
         }
-        while(!mounted){
-          await new Future.delayed(new Duration(milliseconds: 50));
-        }
-        setState(() {
-
-        });
       } else {
-        Func.showMessage(data['Message']);
+        Func.showMessage('应用平台连接失败，请尝试切换一下！');
       }
+    } catch (e){
+      Func.showMessage('应用平台连接失败，请尝试切换一下！');
     }
   }
 
