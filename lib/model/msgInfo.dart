@@ -50,7 +50,7 @@ class MsgInfo {
       unm: json['Unm'] as String,
       cdno: json['Cdno'] as String,
       no: json['No'] as String,
-      tp: json['tp'] as int,
+      tp: json['Tp'] as int,
       t: json['T'] as String,
       rst: json['Rst'] as String,
       sd: json['Sd'] as int,

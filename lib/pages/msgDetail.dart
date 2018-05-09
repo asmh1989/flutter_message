@@ -157,7 +157,7 @@ class MsgDetailState extends State<MsgDetailPage> {
       new Container(
         constraints: new BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.6),
         decoration: new BoxDecoration(
-          color: info.tp == 0 ? Colors.grey : (isMe ? Style.COLOR_THEME : Color(0xFFDFD9A7)),
+          color: info.tp == 0 ? const Color(0xFFE9E9E9) : (isMe ? Style.COLOR_THEME : Color(0xFFDFD9A7)),
           borderRadius: new BorderRadius.all(Radius.circular(6.0)),
 
 //            image: new DecorationImage(
@@ -167,7 +167,7 @@ class MsgDetailState extends State<MsgDetailPage> {
 //            )
         ),
         padding: new EdgeInsets.only(left: 8.0, right: 12.0, top: 8.0, bottom: 6.0),
-        child: new Text(info.t, style: new TextStyle(fontSize: 14.0, color: Colors.white),),
+        child: new Text(info.t, style: new TextStyle(fontSize: 14.0, color: info.tp == 0 ? Colors.black : Colors.white),),
       )
     ];
 
@@ -198,7 +198,7 @@ class MsgDetailState extends State<MsgDetailPage> {
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              new Text(info.unm, style: const TextStyle(color: Colors.grey, fontSize: 12.0) , textAlign: TextAlign.left),
+//              new Text(info.unm, style: const TextStyle(color: const Color(0xFFE9E9E9), fontSize: 12.0) , textAlign: TextAlign.left),
               new Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: children
@@ -300,6 +300,8 @@ class MsgDetailState extends State<MsgDetailPage> {
                                   String url = Cache.instance.cdurl+'/api/setnos.json';
 
                                   _card.nnm = controller.text;
+                                  CardValue value = new CardValue(cdno: Cache.instance.cdno, no: _card.no);
+                                  await DB.instance.insertOrUpdate(value, where: '${CardValueTable.no} = ?', whereArgs: [value.no]);
 
                                   http.Response response = await NetWork.post(url, {
                                     'Unm': Cache.instance.username,
@@ -482,7 +484,9 @@ class MsgDetailState extends State<MsgDetailPage> {
                   _inputKey.currentState.clear();
 
                   CardValue value = new CardValue(cdno: Cache.instance.cdno, no: _card.no);
-                  await DB.instance.insertOrUpdate(value, where: '${CardValueTable.no} = ?', whereArgs: [value.no]);
+                  if(_card.nnm.length > 0){
+                    await DB.instance.insertOrUpdate(value, where: '${CardValueTable.no} = ?', whereArgs: [value.no]);
+                  }
 
                   if(_msg.length > 0){
                     await _getData('', _msg[_msg.length - 1].rst);
