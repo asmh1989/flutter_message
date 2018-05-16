@@ -14,7 +14,7 @@ import 'utils/func.dart';
 import 'utils/network.dart';
 
 void main() {
-    NetWork.isDebug = false;
+    NetWork.isDebug = true;
 
   runApp(new MyApp());
 }

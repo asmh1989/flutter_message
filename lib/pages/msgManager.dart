@@ -78,28 +78,31 @@ class _MsgListState extends State<MsgList> {
   }
 
   Future<Null> _handleRefresh() async{
-    http.Response response = await _getMsg();
 
-    if(response != null && response.statusCode == 200){
-      Map data = NetWork.decodeJson(response.body);
-      if(data['Code'] == 0){
-        List<dynamic> list = data['Response'];
-        List<MsgInfo> msg = MsgInfo.parseMessages(list);
-        if(msg.length > 0){
-          _pageHelper.addData(msg, clear: true);
+    _getMsg().then((http.Response response){
+      if(response != null && response.statusCode == 200){
+        Map data = NetWork.decodeJson(response.body);
+        if(data['Code'] == 0){
+          List<dynamic> list = data['Response'];
+          List<MsgInfo> msg = MsgInfo.parseMessages(list);
+          if(msg.length > 0){
+            _pageHelper.addData(msg, clear: true);
+          }
+
+          if(mounted){
+            try {
+              setState(() {
+
+              });
+            } catch(e){}
+          }
+
+        } else {
+          Func.showMessage(data['Message']);
         }
-
-        while(!mounted){
-          await new Future.delayed(new Duration(milliseconds: 50));
-        }
-
-        setState(() {
-
-        });
-      } else {
-        Func.showMessage(data['Message']);
       }
-    }
+    });
+
   }
 
   @override

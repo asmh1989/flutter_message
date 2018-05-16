@@ -62,29 +62,37 @@ class _FutureCardListState extends State<_FutureCardList>{
 
   Future<Null> _handleRefresh() async{
     try {
-      http.Response response = await _getCardData();
+//      http.Response response = await _getCardData();
+//      await new Future.delayed(new Duration(milliseconds: 1000));
 
-      if (response != null && response.statusCode == 200) {
-        print(response.body);
-        Map data = NetWork.decodeJson(response.body);
-        if (data['Code'] == 0) {
-          List<dynamic> list = data['Response'];
-          List<CardInfo> cards = CardInfo.parseCards(list);
-          if (cards.length > 0) {
-            _pageHelper.addData(cards, clear: true);
-          }
-          while (!mounted) {
-            await new Future.delayed(new Duration(milliseconds: 50));
-          }
-          setState(() {
+      _getCardData().then((http.Response response)  async  {
 
-          });
+        if (response != null && response.statusCode == 200) {
+          print(response.body);
+          Map data = NetWork.decodeJson(response.body);
+          if (data['Code'] == 0) {
+            List<dynamic> list = data['Response'];
+            List<CardInfo> cards = CardInfo.parseCards(list);
+            if (cards.length > 0) {
+              _pageHelper.addData(cards, clear: true);
+            }
+
+            if (mounted) {
+              try {
+                setState(() {
+
+                });
+              } catch(e){}
+            }
+
+          } else {
+            Func.showMessage(data['Message']);
+          }
         } else {
-          Func.showMessage(data['Message']);
+          Func.showMessage('应用平台连接失败，请尝试切换一下！');
         }
-      } else {
-        Func.showMessage('应用平台连接失败，请尝试切换一下！');
-      }
+      });
+
     } catch (e){
       Func.showMessage('应用平台连接失败，请尝试切换一下！');
     }

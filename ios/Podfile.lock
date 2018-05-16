@@ -29,7 +29,7 @@ DEPENDENCIES:
   - sqflite (from `Pods/.symlinks/plugins/sqflite/ios`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  https://github.com/cocoapods/specs.git:
     - Bugly
     - FMDB
 
@@ -62,4 +62,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: a79375079d5966a296eb97416d38d9a963f981be
 
-COCOAPODS: 1.5.0
+COCOAPODS: 1.5.2

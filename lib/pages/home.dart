@@ -75,7 +75,9 @@ class HomeState extends State<HomePage> {
   }
 
   Widget _getMenu(String image, String title, GestureTapCallback onTap) {
-    return new ListTile(
+    return new Container(
+        color: Colors.white,
+        child:new ListTile(
       leading: new Padding(
           padding: EdgeInsets.all(8.0),
           child: new Image.asset(image,
@@ -84,7 +86,7 @@ class HomeState extends State<HomePage> {
       trailing: new Icon(Icons.navigate_next),
 
       onTap: onTap,
-    );
+    ));
   }
 
   @override
@@ -188,46 +190,47 @@ class HomeState extends State<HomePage> {
       ),
     ]);
 
-    return new Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: <Widget>[
-        new Container(
-            height: 180.0 +  MediaQuery.of(context).padding.top,
-            decoration: new BoxDecoration(
-                image: new DecorationImage(image: new AssetImage(ImageAssets.ic_bg_person), fit: BoxFit.cover)
-            ),
-            child: new Column (
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                new Image.asset(ImageAssets.icon_mine_photo,
-                  height: 72.0,
-                  width: 72.0,
+    return new Container(
+        color: Style.COLOR_BACKGROUND,
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: SingleChildScrollView(
+        child:  new Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            new Container(
+                height: 180.0 +  MediaQuery.of(context).padding.top,
+                decoration: new BoxDecoration(
+                    image: new DecorationImage(image: new AssetImage(ImageAssets.ic_bg_person), fit: BoxFit.cover)
                 ),
-                new SizedBox(height: 8.0),
-                new Text(Cache.instance.username, style: new TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.0
-                )),
-                new Text(Cache.instance.cdadd, style: new TextStyle(
-                    color: Colors.white, fontSize: 16.0
-                )),
-                new SizedBox(height: 20.0),
-              ],
-            )
-        ),
-        SingleChildScrollView(
-            child: new Column(
+                child: new Column (
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    new Image.asset(ImageAssets.icon_mine_photo,
+                      height: 72.0,
+                      width: 72.0,
+                    ),
+                    new SizedBox(height: 8.0),
+                    new Text(Cache.instance.username, style: new TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0
+                    )),
+                    new Text(Cache.instance.cdadd, style: new TextStyle(
+                        color: Colors.white, fontSize: 16.0
+                    )),
+                    new SizedBox(height: 20.0),
+                  ],
+                )
+            ),
+            new Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: children
-            )),
-        new Expanded(child: new Container(
-          color: Style.COLOR_BACKGROUND,
-        ))
-      ],
-    );
+            ),
+          ],
+        )));
   }
 
   Widget _getBody() {
