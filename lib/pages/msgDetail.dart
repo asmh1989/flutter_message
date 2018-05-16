@@ -11,7 +11,7 @@ import '../model/msgInfo.dart';
 import '../ui/clearTextFieldForm.dart';
 import '../ui/disableButton.dart';
 import '../utils/index.dart';
-
+import '../utils/global_data.dart';
 
 class MsgDetailPage extends StatefulWidget {
 
@@ -25,7 +25,7 @@ class MsgDetailPage extends StatefulWidget {
   }
 }
 
-class MsgDetailState extends State<MsgDetailPage> {
+class MsgDetailState extends State<MsgDetailPage>  with Global{
   CardInfo _card;
 
   final GlobalKey<ClearTextFieldFormState> _noKey = new GlobalKey<ClearTextFieldFormState>();
@@ -311,6 +311,16 @@ class MsgDetailState extends State<MsgDetailPage> {
                                   CardValue value = new CardValue(cdno: Cache.instance.cdno, no: _card.no);
                                   await DB.instance.insertOrUpdate(value, where: '${CardValueTable.no} = ?', whereArgs: [value.no]);
 
+                                  if(_card.nnm.length > 0){
+                                    await NetWork.post(Cache.instance.cdurl +'/api/setnos.json', {
+                                      'Unm': Cache.instance.username,
+                                      'Cdtoken': Cache.instance.cdtoekn,
+                                      'Token': Cache.instance.token,
+                                      'Nos': [_card].toString(),
+                                    });
+                                    runCardRefresh();
+                                  }
+
                                   http.Response response = await NetWork.post(url, {
                                     'Unm': Cache.instance.username,
                                     'Cdtoken': Cache.instance.cdtoekn,
@@ -504,9 +514,12 @@ class MsgDetailState extends State<MsgDetailPage> {
                   _inputKey.currentState.clear();
 
                   CardValue value = new CardValue(cdno: Cache.instance.cdno, no: _card.no);
+                  await DB.instance.insertOrUpdate(value, where: '${CardValueTable.no} = ?', whereArgs: [value.no]);
+
                   if(_card.nnm.length > 0){
-                    await DB.instance.insertOrUpdate(value, where: '${CardValueTable.no} = ?', whereArgs: [value.no]);
+//                    await DB.instance.insertOrUpdate(value, where: '${CardValueTable.no} = ?', whereArgs: [value.no]);
                   }
+
 
                   if(_msg.length > 0){
                     await _getData('', _msg[_msg.length - 1].rst);

@@ -12,6 +12,7 @@ import 'msgDetail.dart';
 import '../utils/index.dart';
 import '../ui/underLine.dart';
 import '../ui/swide_widget.dart';
+import '../utils/global_data.dart';
 
 PageHelper<MsgInfo> _pageHelper = new PageHelper<MsgInfo>();
 
@@ -226,7 +227,7 @@ class MsgManagerPage extends StatefulWidget {
 }
 
 
-class _MsgManagerPageState extends State<MsgManagerPage> {
+class _MsgManagerPageState extends State<MsgManagerPage> with Global {
 
   TextEditingController _controller;
   final GlobalKey<_MsgListState> _userKey = new GlobalKey<_MsgListState>();
@@ -240,6 +241,8 @@ class _MsgManagerPageState extends State<MsgManagerPage> {
     _controller.addListener((){
       _userKey.currentState.notify(_controller.text??'');
     });
+
+    setMsgRefresh(()=> _pageHelper.clear());
   }
 
 

@@ -10,6 +10,7 @@ import 'cardDetail.dart';
 import '../helper/pageHelper.dart';
 
 import '../utils/index.dart';
+import '../utils/global_data.dart';
 
 import '../model/cardInfo.dart';
 
@@ -290,7 +291,7 @@ class _FutureCardListState extends State<_FutureCardList>{
 }
 
 
-class CardManagerPage extends StatefulWidget{
+class CardManagerPage extends StatefulWidget {
 
   const CardManagerPage();
 
@@ -304,7 +305,7 @@ class CardManagerPage extends StatefulWidget{
   }
 }
 
-class CardManagerState extends State<CardManagerPage>{
+class CardManagerState extends State<CardManagerPage> with Global{
 
   final GlobalKey<_FutureCardListState> _userKey = new GlobalKey<_FutureCardListState>();
   TextEditingController _controller;
@@ -317,6 +318,8 @@ class CardManagerState extends State<CardManagerPage>{
     _controller.addListener((){
       _userKey.currentState.notify(_controller.text);
     });
+
+    setCardRefresh(()=> _pageHelper.clear());
   }
 
   @override
