@@ -520,6 +520,8 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
 //                    await DB.instance.insertOrUpdate(value, where: '${CardValueTable.no} = ?', whereArgs: [value.no]);
                   }
 
+                  runMsgRefresh();
+
 
                   if(_msg.length > 0){
                     await _getData('', _msg[_msg.length - 1].rst);

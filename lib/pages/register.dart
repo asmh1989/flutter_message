@@ -214,7 +214,7 @@ class RegisterPageState extends State<RegisterPage> {
               new SizedBox(height: SPACE),
               new ClearTextFieldForm(
                 icon: new Image.asset(
-                  ImageAssets.icon_reg_account,
+                  ImageAssets.icon_reg_jobno,
                   height: 25.0,
                 ),
                 hintText: '请输入工号',
