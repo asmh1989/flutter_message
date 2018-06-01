@@ -69,8 +69,8 @@ class RegisterPageState extends State<RegisterPage> {
     http.Response response = await NetWork.post(NetWork.apiRegister, {
       'Unm': person.username,
       'Ver': person.phoneCode,
-      'Npd': person.password_1,
-      'Upd': person.name,
+      'Upd': person.password_1,
+      'Upid': person.name,
       'Udep': person.department,
       'Ujob': person.jobNumber
     });
