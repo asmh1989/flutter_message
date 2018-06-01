@@ -95,7 +95,7 @@ class SwitchPlatformPageState extends State<SwitchPlatformPage> {
                     padding: EdgeInsets.all(8.0),
                     child: new Image.asset(item.eb == 2
                         ? ImageAssets.ic_off
-                        : ImageAssets.ic_on),
+                        : ImageAssets.ic_on,  height: 36.0,),
                   ),
                   title: new Text(item.name, style: new TextStyle(color:  item.eb == 2 ? Colors.grey :Colors.black),),
                   trailing: new Icon(Icons.navigate_next),

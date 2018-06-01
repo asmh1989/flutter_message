@@ -81,6 +81,7 @@ class HomeState extends State<HomePage> {
       leading: new Padding(
           padding: EdgeInsets.all(8.0),
           child: new Image.asset(image,
+            height: 26.0,
           )),
       title: new Text(title, style: new TextStyle(fontSize: 14.0),),
       trailing: new Icon(Icons.navigate_next),

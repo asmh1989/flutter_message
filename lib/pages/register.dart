@@ -70,7 +70,7 @@ class RegisterPageState extends State<RegisterPage> {
       'Unm': person.username,
       'Ver': person.phoneCode,
       'Npd': person.password_1,
-      'Upid': person.name,
+      'Upd': person.name,
       'Udep': person.department,
       'Ujob': person.jobNumber
     });

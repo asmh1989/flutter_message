@@ -51,7 +51,7 @@ class _FutureUserListState extends State<_FutureUserList>{
               child: new ListTile(
                 leading: new Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: new Image.asset(_getImageName(item.enable)),
+                  child: new Image.asset(_getImageName(item.enable), height: 36.0,),
                 ),
                 title: new Text(item.upid, style: new TextStyle(color: item.enable == 1 ? Colors.black : Colors.grey),),
                 subtitle: new Text(item.unm),
