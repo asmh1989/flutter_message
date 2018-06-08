@@ -194,7 +194,9 @@ class PasswordState extends State<PasswordPage>{
           fit: BoxFit.fill,
         ),
         hintText: '请输入手机号',
+
         initialValue: _username,
+        enable: !widget.isModify,
         keyboardType: TextInputType.phone,
         onSaved: (String value) { person.username = value;},
         validator: _validateName,

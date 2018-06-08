@@ -21,6 +21,7 @@ class ClearTextFieldForm extends StatefulWidget {
   final bool filled;
   final Color filledColor;
   final Color clearColor;
+  final bool enable;
 
   const ClearTextFieldForm({
     Key key,
@@ -40,7 +41,8 @@ class ClearTextFieldForm extends StatefulWidget {
     this.listener,
     this.filled = false,
     this.filledColor,
-    this.clearColor
+    this.clearColor,
+    this.enable = true,
   }) : super (key: key);
 
   @override
@@ -63,7 +65,7 @@ class ClearTextFieldFormState extends State<ClearTextFieldForm> {
 
     _controller = new TextEditingController(text: widget.initialValue??'');
 
-    if(_controller.text.length > 0){
+    if(_controller.text.length > 0 && widget.enable){
       _showClearIcon = true;
     }
 
@@ -113,6 +115,7 @@ class ClearTextFieldFormState extends State<ClearTextFieldForm> {
       onSaved: widget.onSaved,
       validator: widget.validator,
       maxLines: widget.maxLine,
+      enabled: widget.enable,
       decoration: new InputDecoration(
           prefixIcon: widget.icon != null ? new Padding(
             padding: EdgeInsets.all(12.0),
