@@ -33,10 +33,13 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final GlobalKey<DisableButtonState> _sendKey = new GlobalKey<DisableButtonState>();
 
+  final GlobalKey _visibleKey = new GlobalKey();
+
   List<MsgInfo> _msg = new List<MsgInfo>();
+  List<MsgInfo> _msg2 = new List<MsgInfo>();
+
   int _page = 1;
 
-  double _offset = 0.0;
   bool _first = true;
 
   ScrollController _controller;
@@ -84,46 +87,40 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
           if(list.length == 0){
             if(!background)Func.showMessage('没有更多历史消息！');
           } else {
-            _msg.insertAll(0, list);
+            if(_msg2.length > 0){
+              _msg.insertAll(0, _msg2);
+            }
+            _msg2.clear();
+            _msg2.addAll(list);
+
             setState(() {
 
             });
-            var scrollPosition = _controller.position;
-
-            if(scrollPosition.viewportDimension > scrollPosition.minScrollExtent){
-//              _controller.animateTo(
-//                scrollPosition.minScrollExtent,
-//                duration: new Duration(milliseconds: 100),
-//                curve: Curves.easeOut,
-//              );
-
-              _offset = 0.0;
-            }
           }
         } else {
           if(list.length == 0 ){
             if(!background)Func.showMessage('没有更多历史消息！');
           } else {
+            if(_msg2.length > 0){
+              _msg.insertAll(0, _msg2);
+            }
+            _msg2.clear();
+
             _msg.addAll(list);
             if(etime.length > 0){
               setState(() {
               });
             }
 
-            new Future.delayed(new Duration(milliseconds: 50), () async {
+
+            new Future.delayed(new Duration(milliseconds: 100), () async {
               var scrollPosition = _controller.position;
 
               if (_controller.offset < scrollPosition.maxScrollExtent) {
-                _controller.animateTo(
+                _controller.jumpTo(
                   scrollPosition.maxScrollExtent,
-                  duration: new Duration(milliseconds: 200),
-                  curve: Curves.fastOutSlowIn,
                 );
               }
-//              _controller.jumpTo(scrollPosition.maxScrollExtent);
-              _offset = scrollPosition.maxScrollExtent;
-
-              //            }
             });
 
 
@@ -368,35 +365,80 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
 
   Widget _getMsgList2(){
 
-    _controller = new ScrollController(initialScrollOffset: _offset);
-    _controller.addListener((){
-      _offset = _controller.offset;
+    _controller = new ScrollController();
+    List<Widget> children = new List();
+
+    if(_msg2.length == 0){
+      return new Expanded(child: new RefreshIndicator(
+          onRefresh: _handleRefresh,
+          child: new ListView.builder(
+              controller: _controller,
+              physics: new AlwaysScrollableScrollPhysics(),
+              itemCount: _msg.length,
+              itemBuilder: (BuildContext context, int index){
+                MsgInfo msg = _msg[index];
+
+                return new Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    new Padding(padding: EdgeInsets.all(12.0),
+                        child: new Center(
+                            child: new Text(Func.getFullTimeString(int.parse(msg.rst) * 1000),
+                              style: new TextStyle(color: Colors.grey),)
+                        )
+                    ),
+                    _getRow(msg)
+                  ],
+                );
+              }
+          )
+      ));
+    }
+
+    for (int i = 0, len = _msg2.length ; i < len ; i++){
+      final msg = _msg2[i];
+      children.add(    new Padding(
+          padding: EdgeInsets.all(12.0),
+          child: new Center(
+              child: new Text(Func.getFullTimeString(int.parse(msg.rst) * 1000),
+                style: new TextStyle(color: Colors.grey),)
+          )
+      ),);
+      children.add(_getRow(msg));
+    }
+
+    for (int i = 0, len = _msg.length ; i < len ; i++){
+      final msg = _msg[i];
+      children.add(    new Padding(
+          key: i == 0 ? _visibleKey : null,
+
+          padding: EdgeInsets.all(12.0),
+          child: new Center(
+              child: new Text(Func.getFullTimeString(int.parse(msg.rst) * 1000),
+                style: new TextStyle(color: Colors.grey),)
+          )
+      ),);
+      children.add(_getRow(msg));
+    }
+
+    new Future.delayed(new Duration(milliseconds: 100), () async {
+      await Scrollable.ensureVisible(_visibleKey.currentContext);
+        _controller.jumpTo(_controller.offset - 20.0);
     });
 
 
     return new Expanded(child: new RefreshIndicator(
         onRefresh: _handleRefresh,
-        child: new ListView.builder(
+        child: SingleChildScrollView(
             controller: _controller,
             physics: new AlwaysScrollableScrollPhysics(),
-            itemCount: _msg.length,
-            itemBuilder: (BuildContext context, int index){
-              MsgInfo msg = _msg[index];
-
-              return new Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  new Padding(padding: EdgeInsets.all(12.0),
-                      child: new Center(
-                          child: new Text(Func.getFullTimeString(int.parse(msg.rst) * 1000),
-                            style: new TextStyle(color: Colors.grey),)
-                      )
-                  ),
-                  _getRow(msg)
-                ],
-              );
-            }
+            child:new Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: children,
+            )
         )
     ));
   }
@@ -528,7 +570,6 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
                   }
 
                   runMsgRefresh();
-
 
                   if(_msg.length > 0){
                     await _getData('', _msg[_msg.length - 1].rst);
