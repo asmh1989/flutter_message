@@ -64,6 +64,7 @@ class PlatformEditState extends State<PlatformEdit>{
           children: <Widget>[
             Text(preText),
             Expanded(child: new TextFormField(
+              initialValue: initString,
               keyboardType: type ?? TextInputType.text,
               onSaved: onSave,
               validator: validator ?? (String value) => null,
