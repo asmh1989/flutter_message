@@ -42,7 +42,9 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
 
   bool _first = true;
 
-  ScrollController _controller;
+  ScrollController _controller = new ScrollController();
+
+  bool needToVisible = false;
 
   /// 根据时间间隔load信息流
   Future<Null> _getData([String stime = '', String etime = '', bool background = false]) async {
@@ -85,19 +87,12 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
       if(data['Code'] != 0){
         Func.showMessage(data['Message']);
       } else {
+
         List<MsgInfo> list =  MsgInfo.parseMessages(data['Response'])??new List<MsgInfo>();
         if(stime.length > 0){
           _page++;
           if(list.length == 0){
             if(!background)Func.showMessage('没有更多历史消息！');
-            if(_msg2.length > 0){
-              _msg.insertAll(0, _msg2);
-              _msg2.clear();
-
-              setState(() {
-
-              });
-            }
           } else {
             if(_msg2.length > 0){
               _msg.insertAll(0, _msg2);
@@ -105,20 +100,14 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
             }
             _msg2.addAll(list);
 
+            needToVisible = true;
             setState(() {
 
             });
           }
         } else {
           if(list.length == 0 ){
-            if(_msg2.length > 0){
-              _msg.insertAll(0, _msg2);
-              _msg2.clear();
 
-              setState(() {
-
-              });
-            }
             if(!background)Func.showMessage('没有更多历史消息！');
           } else {
             if(_msg2.length > 0){
@@ -385,7 +374,6 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
 
   Widget _getMsgList2(){
 
-    _controller = new ScrollController();
     List<Widget> children = new List();
 
     if(_msg2.length == 0){
@@ -442,11 +430,18 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
       children.add(_getRow(msg));
     }
 
-    new Future.delayed(new Duration(milliseconds: 32), () async {
-      await Scrollable.ensureVisible(_visibleKey.currentContext);
-      _controller.jumpTo(_controller.offset - 16.0);
-    });
+    if(needToVisible){
+      WidgetsBinding.instance.addPostFrameCallback((_){
 
+        Scrollable.ensureVisible(_visibleKey.currentContext);
+        _controller.jumpTo(_controller.offset - 16.0);
+      });
+//      new Future.delayed(new Duration(milliseconds: 100), () async {
+//
+//      });
+
+      needToVisible = false;
+    }
 
     return new Expanded(child: new RefreshIndicator(
         onRefresh: _handleRefresh,
