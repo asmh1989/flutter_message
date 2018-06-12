@@ -16,7 +16,7 @@ class UnderLine extends StatelessWidget {
 
     return Container(
         color: Colors.white,
-        padding: new EdgeInsets.only(top: 4.0),
+//        padding: new EdgeInsets.only(top: 4.0),
         child: new DecoratedBox(
         position: DecorationPosition.foreground,
         decoration: decoration,

@@ -76,6 +76,8 @@ class _FutureCardListState extends State<_FutureCardList>{
             List<CardInfo> cards = CardInfo.parseCards(list);
             if (cards.length > 0) {
               _pageHelper.addData(cards, clear: true);
+            } else {
+              _pageHelper.datas.clear();
             }
 
             if (mounted) {
@@ -208,19 +210,43 @@ class _FutureCardListState extends State<_FutureCardList>{
                       },
                       buttons: buttons,
                       child: new UnderLine(
-                          child: new ListTile(
-                            leading: new Padding(
-                              padding: EdgeInsets.all(2.0),
-                              child: new CircleAvatar(child: Image.asset(ImageAssets.icon_card), backgroundColor: Style.COLOR_THEME),
-                            ),
-                            title: new Text(item.no.length == 0 ?item.no : '${item.nnm}(${item.no})', maxLines: 1,),
-                            subtitle: new Text(item.addr, maxLines: 2,),
-                            trailing: new Text(Func.getFullTimeString(item.insdt* 1000), style: TextStyle(color: Colors.grey),),
-                            onTap: () async {
-                              await Navigator.push(context, new MaterialPageRoute(builder: (context)=> new CardDetailPage(card: item)));
-                              _handleRefresh();
-                            },
+                          child: new Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.max,
+                              children: <Widget>[
+                                new Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: new CircleAvatar(
+                                      child: Image.asset(ImageAssets.icon_card, width: 30.0,),
+                                      backgroundColor: Style.COLOR_THEME),
+                                ),
+                                Expanded(child: InkWell(
+                                  child: new Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      new Text(item.nnm, maxLines: 1,),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text('卡号:${item.no}'),
+                                          Text(Func.getFullTimeString(item.insdt* 1000), style: TextStyle(color: Colors.grey),),
+
+                                        ],),
+                                      Text(item.addr??''),
+                                      SizedBox(height: 4.0,)
+                                    ],
+                                  ) ,
+                                  onTap: () async {
+                                    await Navigator.push(context, new MaterialPageRoute(builder: (context)=> new CardDetailPage(card: item)));
+                                    _handleRefresh();
+                                  },
+                                )
+                                )
+                              ]
                           )
+
+
                       )
                   );
                 },

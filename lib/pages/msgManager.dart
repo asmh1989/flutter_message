@@ -48,15 +48,15 @@ class _MsgListState extends State<MsgList> {
       String s = '';
 
       for(int i=0, len = cards.length; i < len; i++){
-        if (_pageHelper.snm.length > 0) {
-          if (cards[i].no.contains(_pageHelper.snm)) {
-            s += cards[i].no + ",";
-          } else {
-            s += "";
-          }
-        } else {
+//        if (_pageHelper.snm.length > 0) {
+//          if (cards[i].no.contains(_pageHelper.snm)) {
+//            s += cards[i].no + ",";
+//          } else {
+//            s += "";
+//          }
+//        } else {
           s += cards[i].no + ",";
-        }
+//        }
       }
 
       Map<String, dynamic> data = {
@@ -103,7 +103,10 @@ class _MsgListState extends State<MsgList> {
         }
       }
     });
+  }
 
+  List<MsgInfo> filter(List<MsgInfo> data){
+    return data.where((f) => f.no.contains(_pageHelper.snm??'')).toList();
   }
 
   @override
@@ -127,6 +130,10 @@ class _MsgListState extends State<MsgList> {
           ));
     }
 
+
+    List<MsgInfo> data = _pageHelper.datas;
+    data =  filter(data);
+
     return new Expanded(
         child:new RefreshIndicator(
           onRefresh: _handleRefresh,
@@ -135,9 +142,9 @@ class _MsgListState extends State<MsgList> {
               child:  new ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
                 controller: _pageHelper.createController(),
-                itemCount: _pageHelper.itemCount(),
+                itemCount: data.length,
                 itemBuilder: (BuildContext context, int index) {
-                  MsgInfo item =_pageHelper.datas[index];
+                  MsgInfo item =data[index];
 
                   final List<FXRightSideButton> buttons= [
 
@@ -181,28 +188,52 @@ class _MsgListState extends State<MsgList> {
                       },
                       buttons: buttons,
                       child: new UnderLine(
-                          child: new ListTile(
-                            leading: new Padding(
-                              padding: EdgeInsets.all(2.0),
-                              child: new CircleAvatar(child: Image.asset(ImageAssets.icon_card), backgroundColor: Style.COLOR_THEME),
-                            ),
-                            title: new Text(item.nomsg.nnm.length == 0 ?item.no : '${item.nomsg.nnm}(${item.no})', maxLines: 1,),
-                            subtitle: new Text(item.t, maxLines: 2,),
-                            trailing: new Text(Func.getFullTimeString(int.parse(item.rst)* 1000), style: TextStyle(color: Colors.grey),),
-                            onTap: () async {
-                              await Navigator.push(context, new MaterialPageRoute(builder: (context)=> new MsgDetailPage(card: new CardInfo(
-                                no: item.no,
-                                re: item.re,
-                                nnm: item.nomsg.nnm,
-                                opnm: item.nomsg.opnm,
-                                insdt: item.nomsg.insdt,
-                                addr: item.nomsg.addr,
-                                coord: item.nomsg.coord
-                              ))));
+                          child: new Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.max,
+                              children: <Widget>[
+                                new Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: new CircleAvatar(
+                                      child: Image.asset(ImageAssets.icon_card, width: 30.0,),
+                                      backgroundColor: Style.COLOR_THEME),
+                                ),
+                                Expanded(child: InkWell(
+                                  child: new Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      new Text(item.nomsg.nnm, maxLines: 1,),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text('卡号:${item.no}'),
+                                          Text(Func.getFullTimeString(int.parse(item.rst)* 1000), style: TextStyle(color: Colors.grey),),
 
-                              _handleRefresh();
-                            },
+                                        ],),
+                                      Text(item.t??'', maxLines: 2,),
+                                      SizedBox(height: 4.0,)
+                                    ],
+                                  ) ,
+                                  onTap: () async {
+                                    await Navigator.push(context, new MaterialPageRoute(builder: (context)=> new MsgDetailPage(card: new CardInfo(
+                                        no: item.no,
+                                        re: item.re,
+                                        nnm: item.nomsg.nnm,
+                                        opnm: item.nomsg.opnm,
+                                        insdt: item.nomsg.insdt,
+                                        addr: item.nomsg.addr,
+                                        coord: item.nomsg.coord
+                                    ))));
+
+                                    _handleRefresh();
+                                  },
+                                )
+                                )
+                              ]
                           )
+
+
                       )
                   );
                 },

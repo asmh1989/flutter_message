@@ -52,21 +52,24 @@ class UserEditState extends State<UserEditPage>{
     FormFieldSetter<String> onSave,
     FormFieldValidator<String> validator,
   }){
-    return new TextFormField(
-      initialValue: initString,
-      keyboardType: type ?? TextInputType.text,
-      onSaved: onSave,
-      validator: validator,
-      obscureText: obscureText??false,
-      style:  enable == false ? new TextStyle(color: Colors.grey) : null,
-      enabled: enable??true,
-      decoration: new InputDecoration(
-        prefixIcon: new Text(preText),
-        hintText: hintText,
-        border: new UnderlineInputBorder(borderSide: BorderSide.none),
-      ),
-
-    );
+    return new Container(
+        padding: EdgeInsets.symmetric(vertical: 8.0),
+        child:new Row(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Text(preText),
+            Expanded(child: new TextFormField(
+              keyboardType: type ?? TextInputType.text,
+              onSaved: onSave,
+              validator: validator ?? (String value) => null,
+              obscureText: obscureText ?? false,
+              style: enable == false ? new TextStyle(color: Colors.grey) : null,
+              enabled: enable,
+              decoration: new InputDecoration.collapsed(
+                  hintText: hintText),
+            ),),
+          ],
+        ));
   }
 
   List<PlatformInfo> parsePlatforms(List<dynamic> data) {
@@ -265,22 +268,32 @@ class UserEditState extends State<UserEditPage>{
                       validator: Func.validateNull('请输入手机号'),
                       enable: widget.user == null ? true :  false
                   ),
+                  new Divider(height: 1.0,),
+
                   _getMenus(preText: '用户姓名：', hintText: '请输入姓名', initString: widget.user == null ? '': _user.upid,
                     onSave: (String value) => _user.upid = value,
                     validator: Func.validateNull('请输入姓名'),
                   ),
+                  new Divider(height: 1.0,),
+
                   _getMenus(preText: '部门名称：', hintText: '请输入部门/单位/组织等', initString: widget.user == null ? '': _user.udep,
                       onSave: (String value) => _user.udep = value,
                       validator: Func.validateNull('请输入部门/单位/组织等')
                   ),
+                  new Divider(height: 1.0,),
+
                   _getMenus(preText: '单位工号：', hintText: '请输入工号', initString: widget.user == null ? '': _user.ujob,
                       onSave: (String value) => _user.ujob = value,
                       validator: Func.validateNull('请输入工号')
                   ),
+                  new Divider(height: 1.0,),
+
                   _getMenus(preText: '用户密码：', hintText: '请输入密码', initString: widget.user == null ? '': _user.upd,
                       onSave: (String value) => _user.upd = value,
                       validator: (String value) => null,
                   ),
+                  new Divider(height: 1.0,),
+
                   _getRowSwitch('是否有效：', new CupertinoSwitch(
                       value: _user.enable == 1,
                       onChanged: (bool value) {

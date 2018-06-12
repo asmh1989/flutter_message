@@ -57,19 +57,23 @@ class PlatformEditState extends State<PlatformEdit>{
     FormFieldSetter<String> onSave,
     FormFieldValidator<String> validator,
   }){
-    return new TextFormField(
-      initialValue: initString,
-      keyboardType: type ?? TextInputType.text,
-      onSaved: onSave,
-      validator: validator,
-      enabled: enable??true,
-      decoration: new InputDecoration(
-        prefixIcon: new Text(preText),
-        hintText: hintText,
-        border: new UnderlineInputBorder(borderSide: BorderSide.none),
-      ),
-
-    );
+    return new Container(
+        padding: EdgeInsets.symmetric(vertical: 8.0),
+        child:new Row(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Text(preText),
+            Expanded(child: new TextFormField(
+              keyboardType: type ?? TextInputType.text,
+              onSaved: onSave,
+              validator: validator ?? (String value) => null,
+              style: enable == false ? new TextStyle(color: Colors.grey) : null,
+              enabled: enable,
+              decoration: new InputDecoration.collapsed(
+                  hintText: hintText),
+            ),),
+          ],
+        ));
   }
 
   Future<Null>  _handleSubmitted() async {
@@ -131,23 +135,33 @@ class PlatformEditState extends State<PlatformEdit>{
                       validator: Func.validateNull(hint_1),
                       type: TextInputType.number
                   ),
+                  new Divider(height: 1.0,),
+
                   _getMenus(preText: '接 入 号：', hintText: hint_2, initString: widget.info == null ? '': _info.cdno,
                       onSave: (String value) => _info.cdno = value,
                       validator: Func.validateNull(hint_2),
                       enable: widget.info == null ? true :  false
                   ),
+                  new Divider(height: 1.0,),
+
                   _getMenus(preText: '接入全号：', hintText: hint_3, initString: widget.info == null ? '': _info.cdnm,
                       onSave: (String value) => _info.cdnm = value,
                       validator: Func.validateNull(hint_3)
                   ),
+                  new Divider(height: 1.0,),
+
                   _getMenus(preText: '平台名称：', hintText: hint_4, initString: widget.info == null ? '': _info.name,
                       onSave: (String value) => _info.name = value,
                       validator: Func.validateNull(hint_4)
                   ),
+                  new Divider(height: 1.0,),
+
                   _getMenus(preText: '平台连接：', hintText: hint_5, initString: widget.info == null ? '': _info.cdurl,
                       onSave: (String value) => _info.cdurl = value,
                       validator: Func.validateNull(hint_5)
                   ),
+                  new Divider(height: 1.0,),
+
                   new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,

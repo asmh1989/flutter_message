@@ -44,6 +44,10 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
   /// 根据时间间隔load信息流
   Future<Null> _getData([String stime = '', String etime = '', bool background = false]) async {
 
+    if(!mounted){
+      _timer?.cancel();
+      return;
+    }
     String url = Cache.instance.cdurl+'/api/getmsgs.json';
     Map<String, dynamic> data = {
       'Unm': Cache.instance.username,
@@ -87,11 +91,11 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
             var scrollPosition = _controller.position;
 
             if(scrollPosition.viewportDimension > scrollPosition.minScrollExtent){
-              _controller.animateTo(
-                scrollPosition.minScrollExtent,
-                duration: new Duration(milliseconds: 100),
-                curve: Curves.easeOut,
-              );
+//              _controller.animateTo(
+//                scrollPosition.minScrollExtent,
+//                duration: new Duration(milliseconds: 100),
+//                curve: Curves.easeOut,
+//              );
 
               _offset = 0.0;
             }
@@ -426,11 +430,14 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
     _card = widget.card ?? new CardInfo();
 
     new Future.delayed(new Duration(milliseconds: 2000), (){
-      _timer = Timer.periodic(new Duration(milliseconds: 5000), (Timer timer){
-        if (_msg.length > 0) {
-          _getData("", _msg[_msg.length - 1].rst, true);
-        }
-      });
+      if(mounted){
+        _timer = Timer.periodic(new Duration(milliseconds: 6000), (Timer timer){
+          if (_msg.length > 0) {
+            _getData("", _msg[_msg.length - 1].rst, true);
+          }
+        });
+      }
+
     });
 
 

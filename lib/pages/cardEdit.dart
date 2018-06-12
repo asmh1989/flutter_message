@@ -136,12 +136,16 @@ class CardEditState extends State<CardEdit> {
     FocusScope.of(context).requestFocus(new FocusNode());
 
     final FormState form = _formKey.currentState;
-    if (!form.validate()) {
-      _autoValidate = true; // Start validating on every change.
-      Func.showMessage('请先修复错误,再确认');
+    if (_controller.text.length == 0) {
+      Func.showMessage('请输入设备卡号！');
       return;
     } else {
       form.save();
+    }
+
+    if(_enable == false){
+      Func.showMessage('请先获取信息! ');
+      return;
     }
 
     setState(() {
@@ -206,7 +210,6 @@ class CardEditState extends State<CardEdit> {
                       hintText: '请输入设备卡号',
                       initString: _card.no,
                       onSave: (String value) => _card.no = value,
-                      validator: Func.validateNull('请输入设备卡号'),
                       enable: widget.card == null ? true : false,
                       controller: _controller,
                       btn: widget.card != null
