@@ -51,7 +51,7 @@ class RegisterPageState extends State<RegisterPage> {
     final FormState form = _formKey.currentState;
     if (!form.validate()) {
       _autoValidate = true; // Start validating on every change.
-      Func.showMessage('请先修复错误,再确认');
+//      Func.showMessage('请先修复错误,再确认');
       return;
     } else {
       form.save();

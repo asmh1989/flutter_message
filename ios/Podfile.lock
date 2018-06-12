@@ -21,7 +21,7 @@ PODS:
 DEPENDENCIES:
   - Bugly
   - device_info (from `Pods/.symlinks/plugins/device_info/ios`)
-  - Flutter (from `Pods/.symlinks/flutter/ios`)
+  - Flutter (from `Pods/.symlinks/flutter/ios-release`)
   - fluttermap (from `Pods/.symlinks/plugins/fluttermap/ios`)
   - fluttertoast (from `Pods/.symlinks/plugins/fluttertoast/ios`)
   - path_provider (from `Pods/.symlinks/plugins/path_provider/ios`)
@@ -37,7 +37,7 @@ EXTERNAL SOURCES:
   device_info:
     :path: Pods/.symlinks/plugins/device_info/ios
   Flutter:
-    :path: Pods/.symlinks/flutter/ios
+    :path: Pods/.symlinks/flutter/ios-release
   fluttermap:
     :path: Pods/.symlinks/plugins/fluttermap/ios
   fluttertoast:
