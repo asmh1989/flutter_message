@@ -73,6 +73,10 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
 
     http.Response response =  await NetWork.post(url, data);
 
+    if(!mounted) {
+      return;
+    }
+
     if(response.statusCode != 200){
       Func.showMessage(response.body);
     } else {
@@ -86,11 +90,19 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
           _page++;
           if(list.length == 0){
             if(!background)Func.showMessage('没有更多历史消息！');
+            if(_msg2.length > 0){
+              _msg.insertAll(0, _msg2);
+              _msg2.clear();
+
+              setState(() {
+
+              });
+            }
           } else {
             if(_msg2.length > 0){
               _msg.insertAll(0, _msg2);
+              _msg2.clear();
             }
-            _msg2.clear();
             _msg2.addAll(list);
 
             setState(() {
@@ -99,12 +111,20 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
           }
         } else {
           if(list.length == 0 ){
+            if(_msg2.length > 0){
+              _msg.insertAll(0, _msg2);
+              _msg2.clear();
+
+              setState(() {
+
+              });
+            }
             if(!background)Func.showMessage('没有更多历史消息！');
           } else {
             if(_msg2.length > 0){
               _msg.insertAll(0, _msg2);
+              _msg2.clear();
             }
-            _msg2.clear();
 
             _msg.addAll(list);
             if(etime.length > 0){
@@ -422,9 +442,9 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
       children.add(_getRow(msg));
     }
 
-    new Future.delayed(new Duration(milliseconds: 100), () async {
+    new Future.delayed(new Duration(milliseconds: 32), () async {
       await Scrollable.ensureVisible(_visibleKey.currentContext);
-        _controller.jumpTo(_controller.offset - 20.0);
+      _controller.jumpTo(_controller.offset - 16.0);
     });
 
 
