@@ -91,9 +91,9 @@ class Func {
     return formatter.format(time);
   }
 
-  static String getFullTimeString(int mill){
+  static String getFullTimeString(int mill, [bool seconds = true]){
     DateTime time = new DateTime.fromMillisecondsSinceEpoch(mill);
-    var formatter = new DateFormat('yyyy-MM-dd HH:mm:ss');
+    var formatter = new DateFormat(seconds ? 'yyyy-MM-dd HH:mm:ss': 'yyyy-MM-dd HH:mm');
     return formatter.format(time);
   }
 

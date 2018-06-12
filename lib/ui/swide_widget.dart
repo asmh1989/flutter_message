@@ -7,6 +7,8 @@ typedef void AutoClose();
 typedef void OnOpen(Key key, AutoClose autoClose);
 typedef void StartTouch();
 
+const _MAXHeight = 70.0;
+
 class FXRightSideButton extends Object{
   FXRightSideButton({@required this.name,@required this.onPress, this.backgroundColor:Colors.grey, this.fontColor:Colors.white}){
     assert(name != null);
@@ -97,11 +99,11 @@ class _LeftSlideState extends State<FXLeftSlide> {
         needSendTouchEvent = true;
       }
 
-      if (notification.metrics.pixels >= (widget.buttons.length * 60.0)/2 && notification.metrics.pixels < widget.buttons.length * 60.0){
+      if (notification.metrics.pixels >= (widget.buttons.length * _MAXHeight)/2 && notification.metrics.pixels < widget.buttons.length * _MAXHeight){
         scheduleMicrotask((){
-          controller.animateTo(widget.buttons.length * 60.0, duration: new Duration(milliseconds: 500), curve: Curves.decelerate);
+          controller.animateTo(widget.buttons.length * _MAXHeight, duration: new Duration(milliseconds: 500), curve: Curves.decelerate);
         });
-      }else if (notification.metrics.pixels > 0.0 && notification.metrics.pixels < (widget.buttons.length * 60.0)/2){
+      }else if (notification.metrics.pixels > 0.0 && notification.metrics.pixels < (widget.buttons.length * _MAXHeight)/2){
         scheduleMicrotask((){
           controller.animateTo(0.0, duration: new Duration(milliseconds: 500), curve: Curves.decelerate);
         });
@@ -148,7 +150,7 @@ class _LeftSlideState extends State<FXLeftSlide> {
           new Container(
             alignment: Alignment.center,
             color: button.backgroundColor,
-            width: 60.0,
+            width: _MAXHeight,
             height: childSize.height,
             child: new Text(button.name, style:new TextStyle(color: button.fontColor, fontSize: 18.0)),
           )
@@ -158,7 +160,7 @@ class _LeftSlideState extends State<FXLeftSlide> {
           new InkWell(
               child: new Container(
                 alignment: Alignment.center,
-                width: 60.0,
+                width: _MAXHeight,
                 height: childSize.height,
               ),
               onTap: () {

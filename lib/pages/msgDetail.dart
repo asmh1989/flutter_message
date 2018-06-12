@@ -432,13 +432,9 @@ class MsgDetailState extends State<MsgDetailPage>  with Global{
 
     if(needToVisible){
       WidgetsBinding.instance.addPostFrameCallback((_){
-
         Scrollable.ensureVisible(_visibleKey.currentContext);
         _controller.jumpTo(_controller.offset - 16.0);
       });
-//      new Future.delayed(new Duration(milliseconds: 100), () async {
-//
-//      });
 
       needToVisible = false;
     }

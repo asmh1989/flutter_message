@@ -210,7 +210,8 @@ class _FutureCardListState extends State<_FutureCardList>{
                       },
                       buttons: buttons,
                       child: new UnderLine(
-                          child: new Row(
+                          child: Padding(padding: EdgeInsets.all(12.0),
+                              child: new Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               mainAxisSize: MainAxisSize.max,
                               children: <Widget>[
@@ -225,16 +226,15 @@ class _FutureCardListState extends State<_FutureCardList>{
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
-                                      new Text(item.nnm, maxLines: 1,),
+                                      new Text(item.nnm.isEmpty ? item.no: item.nnm , maxLines: 1, style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w500),),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: <Widget>[
-                                          Text('卡号:${item.no}'),
-                                          Text(Func.getFullTimeString(item.insdt* 1000), style: TextStyle(color: Colors.grey),),
+                                          Text('卡号:${item.no}', style: TextStyle(color: Colors.grey)),
+                                          Text(Func.getFullTimeString(item.insdt* 1000, false), style: TextStyle(color: Colors.grey),),
 
                                         ],),
-                                      Text(item.addr??''),
-                                      SizedBox(height: 4.0,)
+                                      Text(item.addr??'', style: TextStyle(color: Colors.grey)),
                                     ],
                                   ) ,
                                   onTap: () async {
@@ -244,7 +244,7 @@ class _FutureCardListState extends State<_FutureCardList>{
                                 )
                                 )
                               ]
-                          )
+                          ))
 
 
                       )

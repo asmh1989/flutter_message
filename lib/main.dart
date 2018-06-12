@@ -11,10 +11,10 @@ import 'utils/cache.dart';
 import 'utils/style.dart';
 import 'utils/db.dart';
 import 'utils/func.dart';
-import 'utils/network.dart';
+//import 'utils/network.dart';
 
 void main() {
-    NetWork.isDebug = false;
+//    NetWork.isDebug = false;
 
   runApp(new MyApp());
 }
