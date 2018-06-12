@@ -78,8 +78,16 @@ class Func {
   /// 标准的unix时间戳 需要扩大1000倍
   static String getYearMonthDay(int mill){
 //    print('getYearMonthDay=$mill');
+    if(mill == 0) mill = new DateTime.now().millisecondsSinceEpoch;
     DateTime time = new DateTime.fromMillisecondsSinceEpoch(mill);
     var formatter = new DateFormat('yyyy-MM-dd');
+    return formatter.format(time);
+  }
+
+  static String getHourMin(int mill){
+    if(mill == 0) mill = new DateTime.now().millisecondsSinceEpoch;
+    DateTime time = new DateTime.fromMillisecondsSinceEpoch(mill);
+    var formatter = new DateFormat('HH:mm');
     return formatter.format(time);
   }
 
@@ -97,10 +105,19 @@ class Func {
     final DateTime picked = await showDatePicker(
         context: context,
         initialDate: selectedDate,
-        firstDate: new DateTime(2015, 8),
+        firstDate: new DateTime(1990, 8),
         lastDate: new DateTime(2201)
     );
     if (picked != null && picked != selectedDate)
+      selectDate(picked);
+  }
+
+  static Future<Null> selectTime(BuildContext context, TimeOfDay time, ValueChanged<TimeOfDay> selectDate) async {
+    final TimeOfDay picked = await showTimePicker(
+        context: context,
+        initialTime:  time
+    );
+    if (picked != null && picked != time)
       selectDate(picked);
   }
 

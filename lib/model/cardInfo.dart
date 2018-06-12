@@ -33,13 +33,17 @@ class CardInfo{
   }
 
   factory CardInfo.fromJson(Map<String, dynamic> json) {
+    int time = json['Insdt'] as int;
+    if(time == 0){
+      time = (new DateTime.now().millisecondsSinceEpoch ~/ 1000).toInt();
+    }
     return new CardInfo(
       no: json['No'] as String,
       sid: json['Sid'] as int,
       nnm: json['Nnm'] as String,
       addr: json['Addr'] as String,
       opnm: json['Opnm'] as String,
-      insdt: json['Insdt'] as int,
+      insdt: time,
       unm: json['Unm'] as String,
       re: json['Re'] as String,
       coord: json['Coord'] as Map<String, dynamic>
